@@ -1,0 +1,24 @@
+{
+  "name": "dailies-dawn",
+  "version": "1.0.0",
+  "description": "Shopify theme with Tailwind CSS",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "build:css": "tailwindcss -i ./assets/tailwind.css -o ./assets/tailwind-output.css",
+    "watch:css": "tailwindcss -i ./assets/tailwind.css -o ./assets/tailwind-output.css --watch",
+    "shopify": "shopify theme dev",
+    "dev": "concurrently \"npm run watch:css\" \"npm run shopify\"",
+    "build": "npm run build:css"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "devDependencies": {
+    "autoprefixer": "^10.4.20",
+    "concurrently": "^8.2.2",
+    "postcss": "^8.5.3",
+    "tailwindcss": "^4.0.9"
+  }
+}
+

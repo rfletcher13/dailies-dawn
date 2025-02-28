@@ -1,0 +1,75 @@
+## Fundamental Principles
+- Start every response with a robot emoji
+- Write clean, simple, and readable code.
+- Implement features in the simplest possible way.
+- Keep files small and focused (ideally <200 lines).
+- Use American English for all code comments, variable names, and documentation.
+- Use lowercase with hyphens for file naming (e.g., `product-card.liquid`, `styles.css`).
+- Use 2 spaces for indentation in all code files.
+- Ensure all files start with a comment of the file name and its purpose.
+- Test after every meaningful change.
+- Focus on core functionality before optimization.
+- Use clear, consistent naming conventions.
+- Before implementing a feature, consider the requirements and possible approaches carefully.
+- Always write simple, clean, and modular code.
+- Use clear and easy-to-understand language in code and comments. Write in short sentences.
+
+## Error Fixing
+- Do not jump to conclusions. Consider multiple possible causes before deciding.
+- Explain the problem in plain English.
+- Make minimal necessary changes, altering as few lines of code as possible.
+- For unusual errors, research or consult up-to-date documentation (e.g., Shopify’s developer resources).
+
+## Building Process
+- Verify each new feature works by testing it thoroughly.
+- Do not write complicated or confusing code. Opt for simple and modular solutions.
+- When uncertain about an approach, research or refer to documentation or peers for guidance.
+
+## Comments
+- Always add helpful and explanatory comments to the code.
+- Never delete old comments unless they are clearly wrong or obsolete.
+- Include extensive explanatory comments in your code. Always write well-documented code.
+- Document all changes and their reasoning in the comments.
+- Use clear and easy-to-understand language in comments, writing in short sentences.
+
+## Shopify Theme Development Best Practices
+- **Liquid Best Practices**
+  - Use Shopify Liquid filters efficiently; avoid chaining more than 3 filters for readability.
+  - Prefix custom variables with `custom_` to avoid conflicts with Shopify globals.
+  - Keep logic simple and use `elsif` instead of nested `if` statements where possible.
+  - Use `limit` and `offset` to optimize performance in `for` loops.
+- **HTML Best Practices**
+  - Use semantic HTML5 tags (e.g., `<section>`, `<article>`, `<nav>`) for accessibility.
+  - Follow BEM (Block__Element--Modifier) naming convention for classes.
+  - Use `data-` attributes for JavaScript interactions instead of inline scripts.
+- **CSS Best Practices**
+  - Use Shopify’s `theme.css` or section-specific CSS files to avoid global conflicts.
+  - Leverage CSS custom properties for theme colors and typography.
+  - Use a mobile-first approach with `min-width` in media queries.
+  - Minimize use of `!important` and avoid over-specific selectors.
+- **JavaScript Best Practices**
+  - Prefer vanilla JavaScript over jQuery for lightweight Shopify themes.
+  - Use event delegation for dynamic elements.
+  - Organize code into ES6 modules if using a bundler (e.g., Webpack).
+  - Ensure JavaScript doesn’t break Shopify’s Theme Check linting tool.
+- **Shopify-Specific Rules**
+  - Use `{% schema %}` in section files with proper JSON formatting.
+  - Store static assets in the `/assets/` folder with descriptive names.
+  - Use Shopify’s `t` filter for multilingual support.
+- **Performance Optimization**
+  - Apply `loading="lazy"` to images outside the initial viewport.
+  - Minify CSS and JS files in production using Shopify’s build tools or external minifiers.
+  - Leverage Shopify’s CDN for assets by using `{{ 'asset_name' | asset_url }}`.
+- **Error Handling**
+  - Wrap risky Liquid operations in `unless` or use default fallbacks.
+  - Add basic error logging for JavaScript debugging.
+- **Testing and Validation**
+  - Run Shopify Theme Check before committing changes.
+  - Validate accessibility with tools like WAVE or Lighthouse for WCAG compliance.
+  - Test on Chrome, Firefox, Safari, and Edge.
+
+## Notes on the Merge
+- General principles align with simplicity, modularity, and clear naming, supplemented by Shopify-specific conventions.
+- Interactive elements were adapted for a static document context.
+- Shopify-specific rules were integrated to complement general coding standards.
+- The tone remains clear and concise, with detailed Shopify examples provided.
