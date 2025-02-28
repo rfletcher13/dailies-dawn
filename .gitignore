@@ -10,12 +10,14 @@ Thumbs.db
 # Shopify specific
 config/settings_data.json
 config.yml
+.shopify
 
 # Node/npm/yarn
 node_modules/
 npm-debug.log
 yarn-debug.log
 yarn-error.log
+package-lock.json
 
 # IDE specific
 .idea/
@@ -30,6 +32,7 @@ yarn-error.log
 .sass-cache/
 dist/
 build/
+assets/tailwind-output.css
 
 # Logs
 *.log
