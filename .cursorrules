@@ -14,6 +14,22 @@
 - Always write simple, clean, and modular code.
 - Use clear and easy-to-understand language in code and comments. Write in short sentences.
 
+## Directory Structure
+- assets/ - contains all the assets for the theme
+- config/ - contains all the config files for the theme
+- layout/ - contains all the layout files for the theme
+- sections/ - contains all the sections for the theme
+- snippets/ - contains all the snippets for the theme
+- templates/ - contains all the templates for the theme
+
+## Tech Stack
+- Shopify
+- Tailwind CSS
+- Liquid
+- JavaScript
+- HTML
+- Skio Subscriptions (https://code.skio.com/)
+
 ## Error Fixing
 - Do not jump to conclusions. Consider multiple possible causes before deciding.
 - Explain the problem in plain English.
@@ -42,11 +58,6 @@
   - Use semantic HTML5 tags (e.g., `<section>`, `<article>`, `<nav>`) for accessibility.
   - Follow BEM (Block__Element--Modifier) naming convention for classes.
   - Use `data-` attributes for JavaScript interactions instead of inline scripts.
-- **CSS Best Practices**
-  - Use Shopify’s `theme.css` or section-specific CSS files to avoid global conflicts.
-  - Leverage CSS custom properties for theme colors and typography.
-  - Use a mobile-first approach with `min-width` in media queries.
-  - Minimize use of `!important` and avoid over-specific selectors.
 - **JavaScript Best Practices**
   - Prefer vanilla JavaScript over jQuery for lightweight Shopify themes.
   - Use event delegation for dynamic elements.
@@ -67,6 +78,17 @@
   - Run Shopify Theme Check before committing changes.
   - Validate accessibility with tools like WAVE or Lighthouse for WCAG compliance.
   - Test on Chrome, Firefox, Safari, and Edge.
+- **Tailwind CSS Best Practices**
+  - Use utility classes for one-off styles; define component classes with @apply for reusability.
+  - Safelist classes used in dynamic Liquid templates to prevent purging.
+  - Map theme settings to predefined Tailwind classes for consistent styling.
+  - Extend Tailwind config for theme-specific customizations (e.g., colors, fonts).
+  - Apply responsive variants (e.g., sm:, md:) for adaptive layouts.
+  - Test styles with various section settings and combinations.
+  - Enable dark mode support with dark: variants if needed.
+  - Document Tailwind class usage in code or theme guides.
+  - Create Liquid snippets for reusable components with Tailwind classes.
+  - Use build tools to compile Tailwind CSS, purge unused styles, and minify the output.
 
 ## Notes on the Merge
 - General principles align with simplicity, modularity, and clear naming, supplemented by Shopify-specific conventions.
