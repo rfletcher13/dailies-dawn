@@ -30,6 +30,10 @@
 - HTML
 - Skio Subscriptions (https://code.skio.com/)
 
+## Relevant Files
+- instructions/roadmap.md
+- instructions/skio_documentation.md
+
 ## Error Fixing
 - Do not jump to conclusions. Consider multiple possible causes before deciding.
 - Explain the problem in plain English.
