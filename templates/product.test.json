@@ -9,6 +9,15 @@
  */
 {
   "sections": {
+    "custom_liquid_r4cnd8": {
+      "type": "custom-liquid",
+      "settings": {
+        "custom_liquid": "{% if product.type == 'Classic Box' or product.type == 'Dynamic Box' %} \n  <script> \n    (() => { \nconsole.error(\"Dynamic box found!)\n      document.addEventListener('DOMContentLoaded', () => { \n        const form = document.querySelector('form[action=\"/cart/add\"]'); \n        if(!form) { console.error('Skio: No form found'); return; } \n        const addToCart = form.querySelector('button[type=\"submit\"]'); \n        if(!addToCart) { console.error('Skio: No add to cart button found'); return; } \n        const customize = addToCart.cloneNode(true); \n        customize.removeAttribute('name'); \n        customize.type = 'button'; \n        customize.querySelector('span').innerHTML = 'Customize my Box'; \n        customize.addEventListener('click', (event) => { \n          const formData = new FormData(form); \n          const variant = formData.get('id'); \n          const sellingPlan = formData.get('selling_plan');\n          let redirect;\n          {% if product.type == 'Classic Box' %} \n            if (sellingPlan) { redirect = `/a/account/custom-tools/build-a-box?variant=${variant}&selling_plan=${sellingPlan}`; } \n            else { redirect = `/a/account/custom-tools/build-a-box?variant=${variant}`; }\n          {% else %} \n            redirect = `/a/account/custom-tools/dynamic-box?product={{product.id}}`; \n          {% endif %} \n          window.location = redirect; \n        }); \n        const buttonParent = addToCart.parentElement; \n        buttonParent.insertBefore(customize, addToCart); \n        addToCart.remove(); \n        let remove_button = form.querySelector('[data-shopify=\"payment-button\"]'); \n        if (remove_button) remove_button.remove(); \n      }); \n    })(); \n  </script> \n{% endif %}",
+        "color_scheme": "",
+        "padding_top": 40,
+        "padding_bottom": 52
+      }
+    },
     "main": {
       "type": "main-product",
       "blocks": {
@@ -128,15 +137,6 @@
         "columns_mobile": "2",
         "padding_top": 36,
         "padding_bottom": 28
-      }
-    },
-    "custom_liquid_r4cnd8": {
-      "type": "custom-liquid",
-      "settings": {
-        "custom_liquid": "{% if product.type == 'Classic Box' or product.type == 'Dynamic Box' %} \n  <script> \n    (() => { \n      document.addEventListener('DOMContentLoaded', () => { \n        const form = document.querySelector('form[action=\"/cart/add\"]'); \n        if(!form) { console.error('Skio: No form found'); return; } \n        const addToCart = form.querySelector('button[type=\"submit\"]'); \n        if(!addToCart) { console.error('Skio: No add to cart button found'); return; } \n        const customize = addToCart.cloneNode(true); \n        customize.removeAttribute('name'); \n        customize.type = 'button'; \n        customize.querySelector('span').innerHTML = 'Customize my Box'; \n        customize.addEventListener('click', (event) => { \n          const formData = new FormData(form); \n          const variant = formData.get('id'); \n          const sellingPlan = formData.get('selling_plan');\n          let redirect;\n          {% if product.type == 'Classic Box' %} \n            if (sellingPlan) { redirect = `/a/account/custom-tools/build-a-box?variant=${variant}&selling_plan=${sellingPlan}`; } \n            else { redirect = `/a/account/custom-tools/build-a-box?variant=${variant}`; }\n          {% else %} \n            redirect = `/a/account/custom-tools/dynamic-box?product={{product.id}}`; \n          {% endif %} \n          window.location = redirect; \n        }); \n        const buttonParent = addToCart.parentElement; \n        buttonParent.insertBefore(customize, addToCart); \n        addToCart.remove(); \n        let remove_button = form.querySelector('[data-shopify=\"payment-button\"]'); \n        if (remove_button) remove_button.remove(); \n      }); \n    })(); \n  </script> \n{% endif %}",
-        "color_scheme": "",
-        "padding_top": 40,
-        "padding_bottom": 52
       }
     }
   },
