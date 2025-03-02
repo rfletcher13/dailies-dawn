@@ -4,7 +4,7 @@
   "description": "Shopify theme with Tailwind CSS",
   "main": "index.js",
   "scripts": {
-    "shopify": "shopify theme dev",
+    "shopify": "shopify theme dev --theme-editor-sync",
     "vite": "vite build --watch",
     "build": "vite build",
     "dev": "npm-run-all --parallel shopify vite"
