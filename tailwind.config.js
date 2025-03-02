@@ -2,14 +2,12 @@
 module.exports = {
   content: [
     './layout/*.liquid',
-    './templates/*.liquid',
     './sections/*.liquid',
     './snippets/*.liquid',
+    './templates/*.liquid'
   ],
   theme: {
-    extend: {
-      // Add your custom theme extensions here
-    },
+    extend: {}
   },
-  plugins: [],
-} 
+  plugins: []
+};

@@ -4,21 +4,21 @@
   "description": "Shopify theme with Tailwind CSS",
   "main": "index.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1",
-    "build:css": "tailwindcss -i ./assets/tailwind.css -o ./assets/tailwind-output.css",
-    "watch:css": "tailwindcss -i ./assets/tailwind.css -o ./assets/tailwind-output.css --watch",
     "shopify": "shopify theme dev",
-    "dev": "concurrently \"npm run watch:css\" \"npm run shopify\"",
-    "build": "npm run build:css"
+    "vite": "vite build --watch",
+    "build": "vite build",
+    "dev": "npm-run-all --parallel shopify vite"
   },
   "keywords": [],
   "author": "",
   "license": "ISC",
   "devDependencies": {
-    "autoprefixer": "^10.4.20",
-    "concurrently": "^8.2.2",
-    "postcss": "^8.5.3",
-    "tailwindcss": "^4.0.9"
+    "@shopify/cli": "^3.76.0",
+    "@shopify/theme": "^3.58.2",
+    "autoprefixer": "^10.4.14",
+    "npm-run-all": "^4.1.5",
+    "postcss": "^8.4.27",
+    "tailwindcss": "^3.3.3",
+    "vite": "^6.2.0"
   }
 }
-
