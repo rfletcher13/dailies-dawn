@@ -27,7 +27,7 @@
     "custom_liquid_BPG86p": {
       "type": "custom-liquid",
       "settings": {
-        "custom_liquid": "<script>\ndocument.addEventListener(\"DOMContentLoaded\", function() {\n    fetch(\"https://api.skio.com/storefront-http/get-dynamic-box\", {\n        method: \"POST\",\n        headers: { \"Content-Type\": \"application/json\" },\n        body: JSON.stringify({ \"productPlatformId\": \"7194276266047\" })\n    })\n    .then(response => response.json())\n    .then(data => {\n        console.log(\"Skio Box Data:\", data);\n        // Example: Insert data into an element\n        document.getElementById(\"skio-box-info\").textContent = JSON.stringify(data, null, 2);\n    })\n    .catch(error => console.error(\"Error fetching Skio data:\", error));\n});\n</script>\n\n<pre id=\"skio-box-info\">Loading...</pre>",
+        "custom_liquid": "<script>\ndocument.addEventListener(\"DOMContentLoaded\", function() {\n    fetch(\"https://api.skio.com/storefront-http/get-dynamic-box\", {\n        method: \"POST\",\n        headers: { \"Content-Type\": \"application/json\" },\n        body: JSON.stringify({ \"productPlatformId\": \"9761425097008\" })\n    })\n    .then(response => response.json())\n    .then(data => {\n        console.log(\"Skio Box Data:\", data);\n        // Example: Insert data into an element\n        document.getElementById(\"skio-box-info\").textContent = JSON.stringify(data, null, 2);\n    })\n    .catch(error => console.error(\"Error fetching Skio data:\", error));\n});\n</script>\n\n<pre id=\"skio-box-info\">Loading...</pre>",
         "color_scheme": "",
         "padding_top": 40,
         "padding_bottom": 52
