@@ -1,0 +1,34 @@
+{% if product.type == 'Classic Box' or product.type == 'Dynamic Box' %} 
+  <script> 
+    (() => { 
+      document.addEventListener('DOMContentLoaded', () => { 
+        const form = document.querySelector('form[action="/cart/add"]'); 
+        if(!form) { console.error('Skio: No form found'); return; } 
+        const addToCart = form.querySelector('button[type="submit"]'); 
+        if(!addToCart) { console.error('Skio: No add to cart button found'); return; } 
+        const customize = addToCart.cloneNode(true); 
+        customize.removeAttribute('name'); 
+        customize.type = 'button'; 
+        customize.querySelector('span').innerHTML = 'Customize my Box'; 
+        customize.addEventListener('click', (event) => { 
+          const formData = new FormData(form); 
+          const variant = formData.get('id'); 
+          const sellingPlan = formData.get('selling_plan');
+          let redirect;
+          {% if product.type == 'Classic Box' %} 
+            if (sellingPlan) { redirect = `/a/account/custom-tools/build-a-box?variant=${variant}&selling_plan=${sellingPlan}`; } 
+            else { redirect = `/a/account/custom-tools/build-a-box?variant=${variant}`; }
+          {% else %} 
+            redirect = `/a/account/custom-tools/dynamic-box?product={{product.id}}`; 
+          {% endif %} 
+          window.location = redirect; 
+        }); 
+        const buttonParent = addToCart.parentElement; 
+        buttonParent.insertBefore(customize, addToCart); 
+        addToCart.remove(); 
+        let remove_button = form.querySelector('[data-shopify="payment-button"]'); 
+        if (remove_button) remove_button.remove(); 
+      }); 
+    })(); 
+  </script> 
+{% endif %}
