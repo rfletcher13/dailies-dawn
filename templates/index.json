@@ -9,43 +9,33 @@
  */
 {
   "sections": {
-    "image_banner": {
-      "type": "image-banner",
-      "settings": {
-        "image_overlay_opacity": 40,
-        "image_height": "large",
-        "desktop_content_position": "bottom-center",
-        "show_text_box": false,
-        "desktop_content_alignment": "center",
-        "color_scheme": "scheme-3",
-        "image_behavior": "none",
-        "mobile_content_alignment": "center",
-        "stack_images_on_mobile": false,
-        "show_text_below": false
-      }
-    },
-    "custom_liquid_BPG86p": {
+    // "image_banner": {
+    //   "type": "image-banner",
+    //   "settings": {
+    //     "image_overlay_opacity": 40,
+    //     "image_height": "large",
+    //     "desktop_content_position": "bottom-center",
+    //     "show_text_box": false,
+    //     "desktop_content_alignment": "center",
+    //     "color_scheme": "scheme-3",
+    //     "image_behavior": "none",
+    //     "mobile_content_alignment": "center",
+    //     "stack_images_on_mobile": false,
+    //     "show_text_below": false
+    //   }
+    // },
+    "custom_html_section": {
       "type": "custom-liquid",
       "settings": {
-        "custom_liquid": "<script>\ndocument.addEventListener(\"DOMContentLoaded\", function() {\n    fetch(\"https://api.skio.com/storefront-http/get-dynamic-box\", {\n        method: \"POST\",\n        headers: { \"Content-Type\": \"application/json\" },\n        body: JSON.stringify({ \"productPlatformId\": \"9761425097008\" })\n    })\n    .then(response => response.json())\n    .then(data => {\n        console.log(\"Skio Box Data:\", data);\n        // Example: Insert data into an element\n        document.getElementById(\"skio-box-info\").textContent = JSON.stringify(data, null, 2);\n    })\n    .catch(error => console.error(\"Error fetching Skio data:\", error));\n});\n</script>\n\n<pre id=\"skio-box-info\">Loading...</pre>",
+        "custom_liquid": "{% assign product = products['protein-coffee'] %}{% render 'custom-welcome' with product %}",
         "color_scheme": "",
         "padding_top": 40,
-        "padding_bottom": 52
-      }
-    },
-    "custom_liquid_iQ6JaK": {
-      "type": "custom-liquid",
-      "settings": {
-        "custom_liquid": "<div id=\"skio-dynamic-box\">\n  <h2>Your Dynamic Box</h2>\n  <div id=\"skio-box-items\">\n    <p>Loading subscription box data...</p>\n  </div>\n</div>\n\n<script>\ndocument.addEventListener(\"DOMContentLoaded\", function() {\n  fetch(\"https://api.skio.com/storefront-http/get-dynamic-box\", {\n    method: \"POST\",\n    headers: { \"Content-Type\": \"application/json\" },\n    // Use the provided box ID as productPlatformId\n    body: JSON.stringify({ productPlatformId: 9761425097008 })\n  })\n  .then(function(response) {\n    return response.json();\n  })\n  .then(function(data) {\n    console.log(\"Skio Dynamic Box Data:\", data);\n    var container = document.getElementById(\"skio-box-items\");\n    container.innerHTML = \"\"; // Clear the loading message\n\n    if (data.products && data.products.length > 0) {\n      data.products.forEach(function(product) {\n        container.innerHTML += `\n          <div class=\"skio-box-item\">\n            <img src=\"${product.image}\" alt=\"${product.title}\" width=\"100\">\n            <h3>${product.title}</h3>\n            <p>Price: ${(product.price / 100).toFixed(2)} USD</p>\n            <button onclick=\"addToSubscription('${product.id}')\">Add</button>\n          </div>\n        `;\n      });\n    } else {\n      container.innerHTML = \"<p>No products available in this dynamic box.</p>\";\n    }\n  })\n  .catch(function(error) {\n    console.error(\"Error loading Skio Dynamic Box:\", error);\n    document.getElementById(\"skio-box-items\").innerHTML = \"<p>Error loading subscription box data.</p>\";\n  });\n});\n\n// Example function to handle adding a product to your subscription box\nfunction addToSubscription(productId) {\n  alert(\"Added product \" + productId + \" to your subscription box.\");\n}\n</script>",
-        "color_scheme": "",
-        "padding_top": 40,
-        "padding_bottom": 52
+        "padding_bottom": 40
       }
     }
   },
   "order": [
-    "image_banner",
-    "custom_liquid_BPG86p",
-    "custom_liquid_iQ6JaK"
+    // "image_banner",
+    "custom_html_section"
   ]
 }
