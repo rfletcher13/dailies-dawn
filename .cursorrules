@@ -1,19 +1,24 @@
-## Fundamental Principles
-- Start every response with a robot emoji
-- Write clean, simple, and readable code.
-- Implement features in the simplest possible way.
-- Keep files small and focused (ideally <200 lines).
-- Use American English for all code comments, variable names, and documentation.
-- Use lowercase with hyphens for file naming (e.g., `product-card.liquid`, `styles.css`).
-- Use 2 spaces for indentation in all code files.
-- Ensure all files start with a comment of the file name and its purpose.
-- Test after every meaningful change.
-- Focus on core functionality before optimization.
-- Use clear, consistent naming conventions.
-- Before implementing a feature, consider the requirements and possible approaches carefully.
-- Always write simple, clean, and modular code.
-- Use clear and easy-to-understand language in code and comments. Write in short sentences.
+## Cursor Rules for Shopify Theme with Tailwind CSS
 
+**Fundamental Principles**
+- Start every response with a robot emoji to maintain a consistent and friendly tone.
+- Write clean, simple, and readable code. Prioritize clarity over complexity.
+- Implement features in the simplest possible way. Avoid unnecessary abstractions.
+- Keep files small and focused (ideally <200 lines) for better maintainability.
+- Use American English for all code comments, variable names, and documentation.
+- Use lowercase with hyphens for file naming (e.g., product-card.liquid, styles.css).
+- Use 2 spaces for indentation in all code files.
+- Ensure all files start with a comment stating the file name and its purpose (e.g., /* styles.css - Global styles with Tailwind */).
+- Test after every meaningful change to catch issues early.
+- Focus on core functionality before optimization. Build it first, then refine.
+- Use clear, consistent naming conventions. Names should reflect purpose (e.g., btn-primary, product-grid).
+- Consider requirements and approaches carefully before coding to ensure thoughtful implementation.
+- Write simple, clean, and modular code. Break complex tasks into smaller, reusable parts.
+- Use clear, concise language in code and comments. Write short, easy-to-read sentences.
+- Tailwind CSS Usage: Rely on Tailwind’s utility classes for styling to ensure consistency and minimize custom CSS.
+- Class Naming: When custom classes are needed, use descriptive names tied to the component’s purpose.
+
+<<<<<<< HEAD
 ## Directory Structure
 - assets/ - contains all the assets for the theme
 - config/ - contains all the config files for the theme
@@ -39,20 +44,34 @@
 - Explain the problem in plain English.
 - Make minimal necessary changes, altering as few lines of code as possible.
 - For unusual errors, research or consult up-to-date documentation (e.g., Shopify’s developer resources).
+=======
+**Error Fixing**
+- Avoid assumptions. Explore multiple potential causes before settling on a fix.
+- Explain issues plainly. Describe the problem in simple English for clarity.
+- Make minimal changes. Fix errors by altering as few lines as possible.
+- Research unusual errors. Use Shopify’s developer docs or Tailwind’s documentation for guidance.
+- Debugging Tailwind Classes: Check that Tailwind classes are applied correctly and don’t clash with Shopify’s default styles.
+- PurgeCSS Setup: Confirm PurgeCSS is configured to retain necessary Tailwind classes in production.
+>>>>>>> main
 
-## Building Process
-- Verify each new feature works by testing it thoroughly.
-- Do not write complicated or confusing code. Opt for simple and modular solutions.
-- When uncertain about an approach, research or refer to documentation or peers for guidance.
+**Building Process**
+- Test each feature thoroughly. Verify functionality before proceeding.
+- Keep code simple and modular. Avoid convoluted logic or over-engineering.
+- Research when unsure. Consult Shopify docs, Tailwind resources, or peers for clarity.
+- Tailwind Configuration: Use a tailwind.config.js file to customize Tailwind’s theme (e.g., colors, spacing).
+- CSS Compilation: Process Tailwind with PostCSS or a similar tool to include only used classes in production.
 
-## Comments
-- Always add helpful and explanatory comments to the code.
-- Never delete old comments unless they are clearly wrong or obsolete.
-- Include extensive explanatory comments in your code. Always write well-documented code.
-- Document all changes and their reasoning in the comments.
-- Use clear and easy-to-understand language in comments, writing in short sentences.
+**Comments**
+- Add helpful comments. Explain the intent and logic behind code blocks.
+- Preserve old comments. Only remove them if they’re outdated or incorrect.
+- Document extensively. Include detailed comments for maintainability.
+- Explain changes. Note the reasoning behind modifications in comments.
+- Use simple language in comments. Keep sentences short and clear.
+- Comment Tailwind Usage: Clarify grouped Tailwind classes (e.g., <!-- Flexbox layout for product grid -->).
+- Document Tailwind Customizations: Add notes in tailwind.config.js for custom settings.
 
 ## Shopify Theme Development Best Practices
+<<<<<<< HEAD
 - **Liquid Best Practices**
   - Use Shopify Liquid filters efficiently; avoid chaining more than 3 filters for readability.
   - Prefix custom variables with `custom_` to avoid conflicts with Shopify globals.
@@ -93,9 +112,81 @@
   - Document Tailwind class usage in code or theme guides.
   - Create Liquid snippets for reusable components with Tailwind classes.
   - Use build tools to compile Tailwind CSS, purge unused styles, and minify the output.
+=======
+>>>>>>> main
 
-## Notes on the Merge
-- General principles align with simplicity, modularity, and clear naming, supplemented by Shopify-specific conventions.
-- Interactive elements were adapted for a static document context.
-- Shopify-specific rules were integrated to complement general coding standards.
-- The tone remains clear and concise, with detailed Shopify examples provided.
+**Liquid Best Practices**
+- Use Liquid filters efficiently; limit chaining to 3 for readability (e.g., {{ product.title | truncate: 50 | escape }}).
+- Prefix custom variables with custom_ to avoid conflicts (e.g., custom_product_id).
+- Simplify logic with elsif instead of nested if statements.
+- Optimize for loops with limit and offset for performance.
+
+**HTML Best Practices**
+- Use semantic HTML5 tags (e.g., <section>, <nav>) for accessibility and structure.
+- Apply BEM naming for custom classes when not using Tailwind (e.g., card__title--featured).
+- Use data- attributes for JavaScript hooks (e.g., <button data-action="toggle">).
+
+**CSS Best Practices**
+- Leverage Tailwind’s utility classes to reduce custom CSS. Reserve custom styles for unique cases.
+- Define theme-specific styles with CSS custom properties (e.g., --primary-color: #1a73e8;).
+- Adopt a mobile-first approach using Tailwind’s responsive prefixes (e.g., md:flex).
+- Avoid !important and overly specific selectors.
+
+**JavaScript Best Practices**
+- Use vanilla JavaScript for lightweight themes; avoid jQuery unless required.
+- Implement event delegation for dynamic elements (e.g., document.addEventListener).
+- Organize code into ES6 modules if using a bundler like Webpack.
+- Ensure compatibility with Shopify’s Theme Check tool.
+- Sync JavaScript with Tailwind by toggling utility classes (e.g., classList.toggle('hidden')).
+
+**Shopify-Specific Rules**
+- Include {% schema %} in section files with valid JSON formatting.
+- Store assets in /assets/ with clear names (e.g., logo.png, main.js).
+- Support multilingual themes with Shopify’s t filter (e.g., {{ 'general.search' | t }}).
+
+**Performance Optimization**
+- Add loading="lazy" to off-screen images.
+- Minify CSS and JS in production using Shopify tools or external minifiers.
+- Use Shopify’s CDN with {{ 'filename' | asset_url }} for assets.
+- Purge unused Tailwind classes to shrink stylesheet size.
+
+**Error Handling**
+- Guard Liquid code with unless or fallbacks (e.g., {{ product.title | default: 'Unnamed' }}).
+- Log JavaScript errors for debugging (e.g., console.error('Error:', err)).
+
+**Testing and Validation**
+- Run Shopify Theme Check before committing.
+- Check accessibility with WAVE or Lighthouse for WCAG compliance.
+- Test across Chrome, Firefox, Safari, and Edge.
+
+## Tailwind CSS Best Practices
+- Utility-First Approach: Build components with Tailwind’s utility classes (e.g., <div class="flex justify-center">).
+- Responsive Design: Use Tailwind’s prefixes for responsive layouts (e.g., sm:text-lg md:grid-cols-2).
+- Component Extraction: Group reusable utility sets into components or use @apply in custom CSS (e.g., .btn { @apply px-4 py-2 bg-blue-500; }).
+- Customization: Extend Tailwind in tailwind.config.js to match your theme (e.g., custom colors like primary: '#1a73e8').
+- Accessibility: Ensure utilities maintain contrast and usability (e.g., text-gray-900 on light backgrounds).
+- Flat Structure: Avoid deep nesting in HTML for simplicity and performance.
+- Interactive Features: Use Tailwind’s states like hover:bg-blue-600 or focus:outline-none for interactivity.
+
+## Example Implementation
+
+**product-card.liquid**
+<!-- product-card.liquid - Displays a single product card -->
+<div class="product-card flex flex-col items-center p-4 bg-white shadow-md hover:shadow-lg">
+  <img src="{{ product.featured_image | img_url: '300x300' }}" alt="{{ product.title | escape }}" loading="lazy" class="w-full h-48 object-cover">
+  <h3 class="mt-2 text-lg font-semibold text-gray-900">{{ product.title }}</h3>
+  <p class="mt-1 text-gray-600">{{ product.price | money }}</p>
+  <button class="mt-2 px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600" data-action="add-to-cart">Add to Cart</button>
+</div>
+
+**main.js**
+// main.js - Handles add-to-cart button clicks
+document.addEventListener('click', (e) => {
+  if (e.target.matches('[data-action="add-to-cart"]')) {
+    console.log('Adding to cart...');
+    // Add cart logic here
+  }
+});
+
+
+
