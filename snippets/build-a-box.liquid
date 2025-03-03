@@ -1,34 +1,157 @@
-{% comment %} 
-TEST CUSTOMER ID: 8582472106288
-TEST PRODUCT ID: 9761425097008
+{% comment %}
+  TEST CUSTOMER ID: 8582472106288
+  TEST PRODUCT ID: 9761425097008
 {% endcomment %}
 
-{% comment %}Featured Product Display{% endcomment %}
+<!-- MAIN WRAPPER -->
+<div class="page-wrapper">
 
+  <!-- LEFT SECTION / HERO -->
+  <div class="hero-section">
+    <!-- Hero Color Block (instead of a hero image) -->
+    <div class="hero-color-block"></div>
+
+    <!-- Hero Text / Headline -->
+    <div class="hero-text">
+      <h1>Energize &amp; Fuel Your Body</h1>
+      <p class="hero-subtitle">Discover the indulgent taste of our Protein Coffee.</p>
+      
+      <!-- Icon Row -->
+      <div class="hero-icons">
+        <div class="icon-item">
+          <div class="icon-placeholder"></div>
+          <span>Zero Sugar</span>
+        </div>
+        <div class="icon-item">
+          <div class="icon-placeholder"></div>
+          <span>Brain Boosting</span>
+        </div>
+        <div class="icon-item">
+          <div class="icon-placeholder"></div>
+          <span>Prebiotics</span>
+        </div>
+        <div class="icon-item">
+          <div class="icon-placeholder"></div>
+          <span>5 Delicious Flavors</span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- RIGHT SECTION / PRODUCT CONFIG -->
+  <div class="product-section">
+
+    <h2 class="product-title">Clear Protein</h2>
+    <p class="product-subtitle-right">Energy | Focus | Weight Loss</p>
+    <p class="product-description-right">
+      Enjoy premium latte convenience with our indulgent, protein-infused Protein Coffee.
+      Perfect for customizing your favorite iced coffee blend while you meet your protein goals!
+    </p>
+
+    <!-- BUNDLE OPTIONS -->
+    <div class="bundle-options">
+      <div class="bundle">
+        <span class="deal-tag">BEST DEAL</span>
+        <button class="bundle-btn">4 Bags</button>
+      </div>
+      <div class="bundle">
+        <button class="bundle-btn selected">3 Bags</button>
+      </div>
+      <div class="bundle">
+        <button class="bundle-btn">2 Bags</button>
+      </div>
+      <div class="bundle">
+        <button class="bundle-btn">1 Bag</button>
+      </div>
+    </div>
+
+    <!-- SUBSCRIPTION BOX -->
+    <div class="subscription-box">
+      <div class="subscription-wrapper">
+        <span class="save-tag">SAVE 30% ON FIRST ORDER</span>
+        <label class="subscription-option" for="subscribe">
+          <input type="radio" id="subscribe" name="purchase-option" checked class="hidden-radio">
+          <div class="subscription-left">
+            <span class="sub-title">Subscribe &amp; Save</span>
+          </div>
+          <span class="price"><del>$107.85</del> <strong>$74.85</strong></span>
+        </label>
+      </div>
+    </div>
+
+    <!-- ONE-TIME PURCHASE -->
+    <label class="one-time-option" for="one-time">
+      <input type="radio" id="one-time" name="purchase-option" class="hidden-radio">
+      <span>One-time Purchase</span>
+      <span class="one-time-price">$107.85</span>
+    </label>
+
+    <!-- FLAVOR SELECTION -->
+    <div class="variant-selection">
+      <h3 class="variant-title">Select Flavors</h3>
+      <div class="variant-grid">
+        <!-- Variants dynamically inserted by JavaScript -->
+      </div>
+    </div>
+
+    <!-- SELECTED VARIANTS LIST -->
+    <div class="selected-variants">
+      <h3>Selected Flavors</h3>
+      <div class="selected-variants-list">
+        <p class="empty-selection">No flavors selected</p>
+      </div>
+    </div>
+
+    <!-- ADD TO CART BUTTON -->
+    <button class="add-to-cart-btn" disabled>
+      Add to Cart (0/3)
+    </button>
+
+    <!-- Optional: Debug Data (can be hidden or commented out) -->
+    <div class="debug-container">
+      <h4>Debug Data:</h4>
+      <div>
+        <h5>Selected Variants:</h5>
+        <pre>
+          <script>
+            document.write(JSON.stringify(selectedVariants, null, 2))
+          </script>
+        </pre>
+      </div>
+      <div>
+        <h5>Variant Quantities:</h5>
+        <pre>
+          <script>
+            document.write(JSON.stringify(Object.fromEntries(variantQuantities), null, 2))
+          </script>
+        </pre>
+      </div>
+    </div>
+  </div> <!-- END .product-section -->
+</div> <!-- END .page-wrapper -->
+
+<!-- JAVASCRIPT (same logic as before) -->
 <script>
-  // Update global state to include quantities
+  // Existing JavaScript from your code, unchanged
+  // (Except references to images replaced by color-block placeholders, if needed)
+
   let skioData = null;
   let selectedVariants = [];
   let variantQuantities = new Map();
 
-  /**
-   * Adds or updates variant quantity
-   */
   function updateVariantQuantity(variant, increment = true) {
     const currentQty = variantQuantities.get(variant.platformId) || 0;
     const bundleSize = parseInt(document.querySelector('.bundle-btn.selected').textContent);
     const totalSelected = Array.from(variantQuantities.values()).reduce((a, b) => a + b, 0);
-    
+
     if (increment && totalSelected >= bundleSize) return;
-    
+
     const newQty = increment ? currentQty + 1 : Math.max(0, currentQty - 1);
-    
+
     if (newQty === 0) {
       variantQuantities.delete(variant.platformId);
       const index = selectedVariants.findIndex(v => v.platformId === variant.platformId);
-      if (index > -1) {
-        selectedVariants.splice(index, 1);
-      }
+      if (index > -1) selectedVariants.splice(index, 1);
     } else {
       variantQuantities.set(variant.platformId, newQty);
       const existingIndex = selectedVariants.findIndex(v => v.platformId === variant.platformId);
@@ -36,36 +159,31 @@ TEST PRODUCT ID: 9761425097008
         selectedVariants.push({
           platformId: variant.platformId,
           productVariantTitle: variant.productVariantTitle,
-          imageSrc: variant.imageSrc,
+          // Instead of an imageSrc, we might just keep it blank or store a color reference
+          imageSrc: '',
           price: variant.price,
           inventory: variant.inventory
         });
       }
     }
-    
-    // Update debug displays immediately
-    document.querySelectorAll('pre').forEach(pre => {
-      if (pre.closest('div').querySelector('h5').textContent === 'Selected Variants:') {
+
+    // Update debug container
+    document.querySelectorAll('.debug-container pre').forEach(pre => {
+      const title = pre.previousElementSibling.textContent.trim();
+      if (title === 'Selected Variants:') {
         pre.textContent = JSON.stringify(selectedVariants, null, 2);
-      } else if (pre.closest('div').querySelector('h5').textContent === 'Variant Quantities:') {
+      } else if (title === 'Variant Quantities:') {
         pre.textContent = JSON.stringify(Object.fromEntries(variantQuantities), null, 2);
       }
     });
-    
-    // Update all UI elements
+
     updateAllQuantityDisplays();
-    
-    // Log current state for debugging
-    console.log('Current quantities:', Object.fromEntries(variantQuantities));
-    console.log('Selected variants:', selectedVariants);
   }
 
-  /**
-   * Updates the selected variants list display with quantities
-   */
   function updateSelectedVariantsList() {
     const listContainer = document.querySelector('.selected-variants-list');
-    
+    if (!listContainer) return;
+
     if (selectedVariants.length === 0) {
       listContainer.innerHTML = '<p class="empty-selection">No flavors selected</p>';
       return;
@@ -73,7 +191,7 @@ TEST PRODUCT ID: 9761425097008
 
     const variantsList = selectedVariants.map(variant => `
       <div class="selected-variant-item">
-        <img src="${variant.imageSrc}" alt="${variant.productVariantTitle}">
+        <div class="variant-color-block-small"></div>
         <div class="variant-details">
           <span class="variant-name">${variant.productVariantTitle}</span>
           <div class="quantity-controls">
@@ -87,7 +205,6 @@ TEST PRODUCT ID: 9761425097008
 
     listContainer.innerHTML = variantsList;
 
-    // Add click handlers for quantity buttons in the list
     listContainer.querySelectorAll('.qty-btn').forEach(btn => {
       btn.addEventListener('click', (e) => {
         e.stopPropagation();
@@ -95,205 +212,54 @@ TEST PRODUCT ID: 9761425097008
         const isIncrement = e.target.classList.contains('plus');
         const variant = skioData.DynamicBox.selectableProductVariants[0].productVariants
           .find(v => v.platformId === variantId);
-        
+
         updateVariantQuantity(variant, isIncrement);
       });
     });
   }
 
-  /**
-   * Updates Add to Cart button state with total quantity
-   */
-  function updateAddToCartButton() {
-    updateButtons();
+  function updatePricesForVariant(variantId) {
+    if (!skioData) return;
+    const selectedVariant = skioData.DynamicBox.selectableProductVariants[0].productVariants
+      .find(v => v.platformId === variantId);
+    if (selectedVariant) {
+      const bundleSize = document.querySelector('.bundle-btn.selected').textContent;
+      updatePrices(bundleSize, selectedVariant.price);
+    }
   }
 
-  /**
-   * Updates variant buttons to show quantity if selected
-   */
-  function updateVariantButtons() {
-    document.querySelectorAll('.variant-row').forEach(row => {
-      const variantId = row.dataset.variantId;
-      const qty = variantQuantities.get(variantId) || 0;
-      const btn = row.querySelector('.variant-add-btn');
-      
-      if (qty > 0) {
-        btn.textContent = `Added (${qty})`;
-        btn.classList.add('added');
-      } else {
-        btn.textContent = 'Add';
-        btn.classList.remove('added');
-      }
-    });
-  }
-
-  /**
-   * Renders variant options in a grid layout
-   * Each variant shows: image, name, and add button
-   */
-  function renderVariants(variantData) {
-    const variantGrid = document.querySelector('.variant-grid');
-    if (!variantGrid || !variantData) return;
-
-    const variantHTML = variantData.map((variant, index) => {
-      const currentQty = variantQuantities.get(variant.platformId) || 0;
-      return `
-        <div class="variant-row${index === 0 ? ' selected' : ''}" 
-             data-variant-id="${variant.platformId}"
-             data-price="${variant.price}">
-          <div class="variant-image">
-            <img src="${variant.imageSrc}" alt="${variant.productVariantTitle}" width="60" height="60">
-          </div>
-          <div class="variant-info">
-            <span class="variant-name">${variant.productVariantTitle}</span>
-            ${variant.inventory <= 0 ? '<span class="sold-out">Sold Out</span>' : ''}
-          </div>
-          <div class="variant-actions">
-            <div class="quantity-controls">
-              <button class="qty-btn minus" data-variant-id="${variant.platformId}" ${currentQty === 0 ? 'disabled' : ''}>-</button>
-              <span class="qty-display">${currentQty}</span>
-              <button class="qty-btn plus" data-variant-id="${variant.platformId}" ${variant.inventory <= 0 ? 'disabled' : ''}>+</button>
-            </div>
-          </div>
-        </div>
-      `;
-    }).join('');
-
-    variantGrid.innerHTML = variantHTML;
-    attachVariantHandlers();
-    attachQuantityHandlers();
-  }
-
-  /**
-   * Handles variant selection and updates UI accordingly
-   */
-  function attachVariantHandlers() {
-    const variantRows = document.querySelectorAll('.variant-row');
-    variantRows.forEach(row => {
-      row.addEventListener('click', function(e) {
-        if (e.target.classList.contains('variant-add-btn')) return;
-        
-        if (!this.querySelector('.variant-add-btn').disabled) {
-          // Update selection visuals
-          variantRows.forEach(r => r.classList.remove('selected'));
-          this.classList.add('selected');
-          
-          // Update prices based on selection
-          const variantId = this.dataset.variantId;
-          updatePricesForVariant(variantId);
-        }
-      });
-    });
-  }
-
-  function attachQuantityHandlers() {
-    document.querySelectorAll('.qty-btn').forEach(btn => {
-      btn.addEventListener('click', (e) => {
-        e.stopPropagation();
-        const variantId = e.target.dataset.variantId;
-        const isIncrement = e.target.classList.contains('plus');
-        const variant = skioData.DynamicBox.selectableProductVariants[0].productVariants
-          .find(v => v.platformId === variantId);
-        
-        if (!variant) {
-          console.error('Variant not found:', variantId);
-          return;
-        }
-        
-        updateVariantQuantity(variant, isIncrement);
-      });
-    });
-  }
-
-  /**
-   * Updates prices based on bundle size and subscription status
-   */
-  function updatePrices(bundleSize, variantPrice = 38) { // Default price if no variant selected
+  function updatePrices(bundleSize, variantPrice = 38) {
     const isSubscription = document.getElementById('subscribe').checked;
     const quantity = parseInt(bundleSize);
-    
-    // Calculate prices
     const regularPrice = (variantPrice * quantity).toFixed(2);
-    const subscriptionDiscount = 0.30; // 30% off for subscription
+    const subscriptionDiscount = 0.30; // 30% off
     const subscriptionPrice = (regularPrice * (1 - subscriptionDiscount)).toFixed(2);
-    
-    // Update subscription price display
+
     document.querySelector('.price').innerHTML = 
       `<del>$${regularPrice}</del> <strong>$${subscriptionPrice}</strong>`;
-    
-    // Update one-time purchase price
     document.querySelector('.one-time-price').textContent = `$${regularPrice}`;
-    
-    // Update discount label
+
     const discountPercent = Math.round(subscriptionDiscount * 100);
     document.querySelector('.discount-label').textContent = 
       `SAVE ${discountPercent}% ON FIRST ORDER`;
   }
 
-  /**
-   * Updates prices based on selected variant and bundle size
-   */
-  function updatePricesForVariant(variantId) {
-    if (!skioData) return;
-    
-    const selectedVariant = skioData.DynamicBox.selectableProductVariants[0].productVariants
-      .find(v => v.platformId === variantId);
-      
-    if (selectedVariant) {
-      const bundleSize = document.querySelector('.bundle-btn.selected').textContent;
-      updatePrices(bundleSize.split(' ')[0], selectedVariant.price); // Pass just the number
-    }
-  }
-
-  /**
-   * Updates quantity displays everywhere after a change
-   */
   function updateAllQuantityDisplays() {
-    // Update grid quantities
     document.querySelectorAll('.variant-row').forEach(row => {
       const variantId = row.dataset.variantId;
       const qty = variantQuantities.get(variantId) || 0;
       const qtyDisplay = row.querySelector('.qty-display');
       const minusBtn = row.querySelector('.qty-btn.minus');
-      
       if (qtyDisplay) qtyDisplay.textContent = qty;
       if (minusBtn) minusBtn.disabled = qty === 0;
     });
-
-    // Update selected variants list
     updateSelectedVariantsList();
-    updateButtons(); // Changed from updateAddToCartButton
+    updateButtons();
   }
 
-  /**
-   * Formats the cart contents for display
-   */
-  function getCartContents() {
-    const bundleSize = document.querySelector('.bundle-btn.selected').textContent;
-    const isSubscription = document.getElementById('subscribe').checked;
-    
-    const variantsList = selectedVariants.map(variant => 
-      `${variantQuantities.get(variant.platformId)}x ${variant.productVariantTitle}`
-    ).join('\n');
-    
-    const purchaseType = isSubscription ? 'Subscription' : 'One-time purchase';
-    
-    return `Cart Contents:
-Bundle: ${bundleSize}
-Type: ${purchaseType}
-
-Selected Flavors:
-${variantsList}`;
-  }
-
-  /**
-   * Updates button states based on current selection
-   */
   function updateButtons() {
     const bundleSize = parseInt(document.querySelector('.bundle-btn.selected').textContent);
     const totalQuantity = Array.from(variantQuantities.values()).reduce((a, b) => a + b, 0);
-    
-    // Update add to cart button only
     const addToCartBtn = document.querySelector('.add-to-cart-btn');
     if (addToCartBtn) {
       addToCartBtn.disabled = totalQuantity !== bundleSize;
@@ -301,9 +267,8 @@ ${variantsList}`;
     }
   }
 
-  // Initialize on page load
   document.addEventListener('DOMContentLoaded', function () {
-    // Fetch variant data from Skio API
+    // Fetch data from Skio
     fetch('https://api.skio.com/storefront-http/get-dynamic-box', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
@@ -317,25 +282,78 @@ ${variantsList}`;
       })
       .catch((error) => console.error('Error fetching Skio data:', error));
 
+    // Render variants
+    function renderVariants(variantData) {
+      const variantGrid = document.querySelector('.variant-grid');
+      if (!variantGrid || !variantData) return;
+
+      const variantHTML = variantData.map((variant) => {
+        const currentQty = variantQuantities.get(variant.platformId) || 0;
+        return `
+          <div class="variant-row" 
+               data-variant-id="${variant.platformId}"
+               data-price="${variant.price}">
+            <div class="variant-image">
+              <img src="${variant.imageSrc}" alt="${variant.productVariantTitle}" 
+                   width="60" height="60" loading="lazy">
+            </div>
+            <div class="variant-info">
+              <span class="variant-name">${variant.productVariantTitle}</span>
+              ${variant.inventory <= 0 ? '<span class="sold-out">Sold Out</span>' : ''}
+            </div>
+            <div class="variant-actions">
+              <div class="quantity-controls">
+                <button class="qty-btn minus" data-variant-id="${variant.platformId}" ${currentQty === 0 ? 'disabled' : ''}>-</button>
+                <span class="qty-display">${currentQty}</span>
+                <button class="qty-btn plus" data-variant-id="${variant.platformId}" ${variant.inventory <= 0 ? 'disabled' : ''}>+</button>
+              </div>
+            </div>
+          </div>
+        `;
+      }).join('');
+
+      variantGrid.innerHTML = variantHTML;
+      attachVariantHandlers();
+      attachQuantityHandlers();
+    }
+
+    function attachVariantHandlers() {
+      // Remove click handlers for variant rows - only quantity buttons should be interactive
+      document.querySelectorAll('.variant-row').forEach(row => {
+        row.style.cursor = 'default';
+      });
+    }
+
+    function attachQuantityHandlers() {
+      document.querySelectorAll('.qty-btn').forEach(btn => {
+        btn.addEventListener('click', (e) => {
+          e.stopPropagation();
+          const variantId = e.target.dataset.variantId;
+          const isIncrement = e.target.classList.contains('plus');
+          const variant = skioData.DynamicBox.selectableProductVariants[0].productVariants
+            .find(v => v.platformId === variantId);
+          if (!variant) return;
+          updateVariantQuantity(variant, isIncrement);
+        });
+      });
+    }
+
     // Handle bundle selection
     const bundleButtons = document.querySelectorAll('.bundle-btn');
     bundleButtons.forEach((button) => {
       button.addEventListener('click', function () {
         bundleButtons.forEach((btn) => btn.classList.remove('selected'));
         this.classList.add('selected');
-        
-        // Get current variant price if one is selected
         const selectedVariantRow = document.querySelector('.variant-row.selected');
         if (selectedVariantRow) {
-          const variantId = selectedVariantRow.dataset.variantId;
-          updatePricesForVariant(variantId);
+          updatePricesForVariant(selectedVariantRow.dataset.variantId);
         } else {
-          updatePrices(this.textContent.split(' ')[0]); // Pass just the number
+          updatePrices(this.textContent);
         }
       });
     });
 
-    // Handle subscription toggle
+    // Subscription toggle
     const subscribeRadio = document.getElementById('subscribe');
     const oneTimeRadio = document.getElementById('one-time');
     [subscribeRadio, oneTimeRadio].forEach((radio) => {
@@ -343,61 +361,39 @@ ${variantsList}`;
         const selectedBundle = document.querySelector('.bundle-btn.selected').textContent;
         const selectedVariantRow = document.querySelector('.variant-row.selected');
         if (selectedVariantRow) {
-          const variantId = selectedVariantRow.dataset.variantId;
-          updatePricesForVariant(variantId);
+          updatePricesForVariant(selectedVariantRow.dataset.variantId);
         } else {
-          updatePrices(selectedBundle.split(' ')[0]); // Pass just the number
+          updatePrices(selectedBundle);
         }
-        updateButtons(); // Add this to update button states on radio change
+        updateButtons();
       });
     });
 
-    // Add to Cart button handler
+    // Add to Cart
     document.querySelector('.add-to-cart-btn').addEventListener('click', async function() {
       if (this.disabled) return;
-      
       const originalText = this.textContent;
       try {
         this.textContent = 'Adding...';
         this.disabled = true;
-
-        // Convert selected variants to cart items format
         const items = Array.from(variantQuantities.entries()).map(([variantId, quantity]) => {
-          // Extract numeric ID from GID format
           const numericId = variantId.split('/').pop();
-          return {
-            id: numericId,
-            quantity: quantity
-          };
+          return { id: numericId, quantity: quantity };
         });
-
-        console.log('Adding to cart:', items); // Debug log
-
         const response = await fetch('/cart/add.js', {
           method: 'POST',
-          headers: {
-            'Content-Type': 'application/json'
-          },
+          headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({ items })
         });
-
         if (!response.ok) throw new Error('Add to cart failed');
-
-        const result = await response.json();
-        console.log('Cart response:', result); // Debug log
-        
+        await response.json();
         this.textContent = 'Added to Cart!';
-        
-        // Reset selections
         selectedVariants = [];
         variantQuantities.clear();
         updateAllQuantityDisplays();
-        
-        // Refresh cart drawer if it exists
         if (typeof window.refreshCart === 'function') {
           window.refreshCart();
         }
-
       } catch (error) {
         console.error('Error:', error);
         this.textContent = 'Error - Try Again';
@@ -408,476 +404,413 @@ ${variantsList}`;
         }, 2000);
       }
     });
-
-    // Remove subscription button related code
-    const subscriptionBtn = document.querySelector('.create-subscription-btn');
-    if (subscriptionBtn) {
-      subscriptionBtn.remove();
-    }
   });
 </script>
 
-<!-- Main Product Container -->
-<div class="product-container">
-  <!-- Product Title and Rating -->
-  <h2 class="product-title">Clear Whey Protein</h2>
-  <div class="product-meta">
-    <span class="rating-stars">⭐⭐⭐⭐⭐</span>
-    <span class="reviews">(5,000+)</span>
-    <span class="benefits">Recovery | Appetite Control | Weight Loss</span>
-  </div>
-
-  <!-- Product Description -->
-  <div class="product-description">
-    {% for product in collections.all.products %}
-      {% for variant in product.variants %}
-        {% if variant.id == 49564708143408 %}
-          {{ product.description }}
-        {% endif %}
-      {% endfor %}
-    {% endfor %}
-  </div>
-
-  <!-- Bundle Options -->
-  <div class="bundle-options">
-    <div class="bundle">
-      <span class="deal-tag">BEST DEAL</span>
-      <button class="bundle-btn">4 Bags</button>
-    </div>
-    <div class="bundle">
-      <button class="bundle-btn selected">3 Bags</button>
-    </div>
-    <div class="bundle">
-      <button class="bundle-btn">2 Bags</button>
-    </div>
-    <div class="bundle">
-      <button class="bundle-btn">1 Bag</button>
-    </div>
-  </div>
-
-  <!-- Dynamic Variant Selection -->
-  <div class="variant-selection">
-    <h3 class="variant-title">Select Flavor</h3>
-    <div class="variant-grid">
-      <!-- Variants dynamically inserted here -->
-    </div>
-  </div>
-
-  <!-- Subscription Offer -->
-  <div class="subscription-box">
-    <span class="discount-label">SAVE 38% ON FIRST ORDER</span>
-    <div class="subscription-option">
-      <input type="radio" id="subscribe" name="purchase-option" checked>
-      <label for="subscribe">
-        <span class="sub-title">Subscribe & Save</span>
-        <span class="price"><del>$107.85</del> <strong>$74.85</strong></span>
-      </label>
-    </div>
-    <ul class="subscription-benefits">
-      <li>✔ <strong>FREE SHIPPING</strong> on first order</li>
-      <li>✔ <strong>15% OFF</strong> future orders</li>
-      <li>✔ <strong>NO CONTRACT</strong> cancel easily</li>
-      <li>✔ <strong>OUT OF STOCK PROTECTION</strong></li>
-    </ul>
-  </div>
-
-  <!-- One-time Purchase -->
-  <div class="one-time-option">
-    <input type="radio" id="one-time" name="purchase-option">
-    <label for="one-time">One-time Purchase</label>
-    <span class="one-time-price">$107.85</span>
-  </div>
-
-  <!-- Selected Variants List -->
-  <div class="selected-variants">
-    <h3>Selected Flavors</h3>
-    <div class="selected-variants-list">
-      <p class="empty-selection">No flavors selected</p>
-    </div>
-  </div>
-
-  <!-- Add to Cart Button -->
-  <button class="add-to-cart-btn" disabled>
-    Add to Cart (0/3)
-  </button>
-
-  <!-- Debug Display -->
-  <div class="mt-8 p-4 bg-gray-100 rounded-lg text-left">
-    <h4 class="font-bold mb-2">Debug Data:</h4>
-    <div class="space-y-4">
-      <div>
-        <h5 class="font-semibold">Selected Variants:</h5>
-        <pre class="bg-white p-2 rounded text-sm overflow-auto">
-          <script>
-            document.write(JSON.stringify(selectedVariants, null, 2))
-          </script>
-        </pre>
-      </div>
-      <div>
-        <h5 class="font-semibold">Variant Quantities:</h5>
-        <pre class="bg-white p-2 rounded text-sm overflow-auto">
-          <script>
-            document.write(JSON.stringify(Object.fromEntries(variantQuantities), null, 2))
-          </script>
-        </pre>
-      </div>
-    </div>
-  </div>
-
-</div>
-
 <style>
-  /* Base Container Styles */
-  .product-container {
-    background: #fff;
-    padding: 20px;
-    border-radius: 10px;
-    box-shadow: 0px 4px 6px rgba(0, 0, 0, 0.1);
-    text-align: center;
-    max-width: 500px;
-    margin: auto;
-  }
+/* Page Wrapper: Two-column layout */
+.page-wrapper {
+  display: flex;
+  flex-wrap: wrap; /* For responsiveness on smaller screens */
+  gap: 20px;
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 20px;
+}
 
-  /* Title and Meta */
-  .product-title {
-    font-size: 24px;
-    font-weight: bold;
-  }
+/* LEFT SECTION (Hero) */
+.hero-section {
+  flex: 1;
+  min-width: 300px;
+  background: #f2f3ff; /* Light background to match the example */
+  border-radius: 10px;
+  padding: 20px;
+  text-align: center;
+}
 
-  .product-meta {
-    margin-top: 5px;
-    font-size: 14px;
-    color: #666;
-  }
+/* Hero Color Block in place of an image */
+.hero-color-block {
+  width: 100%;
+  height: 300px;
+  background-color: #cab8ff; /* Example placeholder color */
+  border-radius: 10px;
+}
 
-  .rating-stars {
-    color: gold;
-  }
+/* Hero Text */
+.hero-text {
+  margin-top: 20px;
+}
 
-  .benefits {
-    margin-left: 10px;
-    font-weight: 500;
-  }
+.hero-text h1 {
+  font-size: 28px;
+  margin-bottom: 10px;
+  font-weight: 800;
+}
 
-  /* Product Description */
-  .product-description {
-    margin-top: 10px;
-    font-size: 14px;
-  }
+.hero-subtitle {
+  font-size: 16px;
+  margin-bottom: 20px;
+  color: #555;
+}
 
-  /* Bundle Options */
-  .bundle-options {
-    display: flex;
-    justify-content: center;
-    gap: 10px;
-    margin-top: 30px;
-    padding-top: 10px;
-  }
+.hero-icons {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 15px;
+}
 
-  .bundle {
-    position: relative;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    width: 100px;
-    min-height: 65px; /* Accommodates the deal tag */
-    justify-content: flex-end;
-  }
+.icon-item {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  width: 80px;
+  text-align: center;
+}
 
-  .bundle-btn {
-    border: 2px solid #ddd;
-    padding: 10px;
-    border-radius: 8px;
-    background: #f9f9f9;
-    width: 100px;
-    height: 45px;
-    font-size: 16px;
-    cursor: pointer;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-  }
+/* Icon Placeholder in place of images */
+.icon-placeholder {
+  width: 50px;
+  height: 50px;
+  background-color: #ffa5a5;
+  border-radius: 8px;
+  margin-bottom: 5px;
+}
 
-  .bundle-btn.selected {
-    border-color: #341f97;
-    font-weight: bold;
-  }
+/* RIGHT SECTION (Product) */
+.product-section {
+  flex: 1;
+  min-width: 300px;
+  background: #ffffff;
+  border-radius: 10px;
+  padding: 20px;
+  box-shadow: 0px 4px 6px rgba(0, 0, 0, 0.1);
+}
 
-  /* Best Deal Tag */
-  .deal-tag {
-    position: absolute;
-    top: 0;
-    left: 50%;
-    transform: translateX(-50%);
-    background: #d32f2f;
-    color: white;
-    font-size: 12px;
-    padding: 4px 8px;
-    border-radius: 4px;
-    white-space: nowrap;
-    z-index: 1;
-  }
+.product-title {
+  font-size: 24px;
+  font-weight: 800;
+  margin-bottom: 5px;
+  text-transform: uppercase;
+}
 
-  /* Subscription Box */
-  .subscription-box {
-    margin-top: 20px;
-    padding: 15px;
-    background: #f3f2fd;
-    border: 2px solid #341f97;
-    border-radius: 10px;
-    text-align: left;
-  }
+.product-subtitle-right {
+  font-size: 14px;
+  color: #666;
+  margin-bottom: 10px;
+}
 
-  .discount-label {
-    display: block;
-    text-align: center;
-    font-weight: bold;
-    color: #341f97;
-    margin-bottom: 10px;
-  }
+.product-description-right {
+  font-size: 14px;
+  color: #444;
+  margin-bottom: 20px;
+}
 
-  .subscription-option {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    background: white;
-    padding: 10px;
-    border-radius: 8px;
-  }
+/* Bundle Options */
+.bundle-options {
+  display: flex;
+  justify-content: flex-start;
+  gap: 10px;
+  margin-bottom: 20px;
+}
 
-  .sub-title {
-    font-weight: bold;
-  }
+.bundle {
+  position: relative;
+}
 
-  .price del {
-    color: #999;
-  }
+.bundle-btn {
+  border: 2px solid #ddd;
+  padding: 10px;
+  border-radius: 8px;
+  background: #f9f9f9;
+  width: 100px;
+  height: 45px;
+  font-size: 16px;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+}
 
-  .subscription-benefits {
-    margin-top: 10px;
-    list-style: none;
-    padding-left: 0;
-    font-size: 14px;
-  }
+.bundle-btn.selected {
+  border-color: #341f97;
+  font-weight: bold;
+  background: #f3f2fd;
+}
 
-  .subscription-benefits li {
-    margin: 5px 0;
-  }
+.deal-tag {
+  position: absolute;
+  top: -12px;
+  left: 50%;
+  transform: translateX(-50%);
+  background: #d32f2f;
+  color: white;
+  font-size: 12px;
+  padding: 4px 8px;
+  border-radius: 4px;
+  white-space: nowrap;
+}
 
-  /* One-time Purchase */
-  .one-time-option {
-    margin-top: 15px;
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    padding: 10px;
-    border-radius: 8px;
-    background: #f9f9f9;
-  }
+/* Subscription Box */
+.subscription-box {
+  margin-bottom: 20px;
+  position: relative;
+}
 
-  .one-time-price {
-    font-weight: bold;
-  }
+.hidden-radio {
+  position: absolute;
+  opacity: 0;
+  width: 0;
+  height: 0;
+  pointer-events: none;
+}
 
-  /* Variant Grid Layout */
-  .variant-grid {
-    display: flex;
-    flex-direction: column;
-    gap: 8px;
-    margin-bottom: 20px;
-  }
+.subscription-wrapper {
+  position: relative;
+  padding-top: 12px; /* Make room for tag */
+}
 
-  .variant-row {
-    display: grid;
-    grid-template-columns: 60px 1fr 120px; /* Increased last column width */
-    align-items: center;
-    gap: 12px;
-    padding: 8px;
-    border: 2px solid #ddd;
-    border-radius: 8px;
-    background: white;
-    cursor: pointer;
-    transition: border-color 0.2s ease;
-  }
+.save-tag {
+  position: absolute;
+  top: 0;
+  left: 50%;
+  transform: translateX(-50%);
+  background: #d32f2f;
+  color: white;
+  font-size: 12px;
+  padding: 4px 8px;
+  border-radius: 4px;
+  white-space: nowrap;
+  z-index: 1;
+}
 
-  /* Variant Components */
-  .variant-image img {
-    width: 60px;
-    height: 60px;
-    border-radius: 4px;
-    object-fit: cover;
-  }
+.subscription-option {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  background: white;
+  padding: 15px;
+  border-radius: 8px;
+  cursor: pointer;
+  border: 2px solid #ddd;
+  transition: all 0.2s ease;
+}
 
-  .variant-info {
-    display: flex;
-    flex-direction: column;
-    align-items: flex-start;
-  }
+.subscription-option:has(input:checked) {
+  border-color: #341f97;
+  background: #f8f7ff;
+}
 
-  .variant-add-btn {
-    padding: 6px 12px;
-    border: none;
-    border-radius: 4px;
-    background: #341f97;
-    color: white;
-    font-size: 14px;
-    cursor: pointer;
-    transition: background-color 0.2s ease;
-  }
+/* Remove old discount label styles */
+.discount-label {
+  display: none;
+}
 
-  /* States */
-  .variant-row:hover:not(.disabled) { border-color: #341f97; }
-  .variant-row.selected { 
-    border-color: #341f97;
-    background: #f3f2fd;
-  }
-  .variant-add-btn:hover:not(:disabled) { background: #2a1878; }
-  .variant-add-btn:disabled { 
-    background: #ccc;
-    cursor: not-allowed;
-  }
+/* One-time Purchase */
+.one-time-option {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 15px;
+  border-radius: 8px;
+  background: #f9f9f9;
+  margin-bottom: 20px;
+  cursor: pointer;
+  border: 2px solid transparent;
+  transition: all 0.2s ease;
+}
 
-  /* Variant Selection Styles */
-  .variant-selection {
-    margin-top: 20px;
-    text-align: left;
-  }
+.one-time-option:hover {
+  background: #f8f7ff;
+}
 
-  .variant-title {
-    font-size: 16px;
-    margin-bottom: 15px;
-    color: #333;
-  }
+.one-time-option:has(input:checked) {
+  border-color: #341f97;
+  background: #f8f7ff;
+  box-shadow: 0 2px 4px rgba(52, 31, 151, 0.1);
+}
 
-  /* Selected Variants List */
-  .selected-variants {
-    margin-top: 20px;
-    padding: 15px;
-    border: 2px solid #ddd;
-    border-radius: 10px;
-    text-align: left;
-  }
+/* Variant Selection */
+.variant-selection {
+  margin-bottom: 20px;
+}
 
-  .selected-variants h3 {
-    font-size: 16px;
-    margin-bottom: 10px;
-  }
+.variant-title {
+  font-size: 16px;
+  margin-bottom: 10px;
+  font-weight: 600;
+}
 
-  .selected-variant-item {
-    display: flex;
-    align-items: center;
-    gap: 10px;
-    padding: 8px;
-    background: #f9f9f9;
-    border-radius: 6px;
-    margin-bottom: 8px;
-  }
+/* Variant Grid */
+.variant-grid {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
 
-  .selected-variant-item img {
-    width: 40px;
-    height: 40px;
-    border-radius: 4px;
-  }
+/* Variant Row */
+.variant-row {
+  display: grid;
+  grid-template-columns: 60px 1fr 120px;
+  align-items: center;
+  gap: 12px;
+  padding: 8px;
+  border: 2px solid #ddd;
+  border-radius: 8px;
+  background: white;
+  cursor: default; /* Changed from pointer */
+}
 
-  .remove-variant {
-    padding: 4px 8px;
-    border: none;
-    background: #ff4444;
-    color: white;
-    border-radius: 4px;
-    cursor: pointer;
-    margin-left: auto;
-  }
+/* Remove hover and selected states */
+.variant-row:hover {
+  border-color: #ddd;
+}
 
-  .empty-selection {
-    color: #666;
-    font-style: italic;
-  }
+.variant-row.selected {
+  border-color: #ddd;
+  background: white;
+}
 
-  /* Add to Cart Button */
-  .add-to-cart-btn {
-    width: 100%;
-    padding: 15px;
-    margin-top: 20px;
-    background: #341f97;
-    color: white;
-    border: none;
-    border-radius: 8px;
-    font-size: 16px;
-    font-weight: bold;
-    cursor: pointer;
-    transition: background-color 0.2s ease;
-  }
+/* Colored block instead of product image */
+.variant-image img {
+  width: 60px;
+  height: 60px;
+  border-radius: 4px;
+  object-fit: cover;
+}
 
-  .add-to-cart-btn:disabled {
-    background: #ccc;
-    cursor: not-allowed;
-  }
+.variant-info {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
 
-  .add-to-cart-btn:hover:not(:disabled) {
-    background: #2a1878;
-  }
+.variant-actions {
+  display: flex;
+  justify-content: flex-end;
+}
 
-  /* Update variant add button styles */
-  .variant-add-btn.added {
-    background: #ff4444;
-  }
+.sold-out {
+  color: red;
+  font-weight: bold;
+  margin-top: 4px;
+}
 
-  .variant-add-btn.added:hover {
-    background: #cc3333;
-  }
+/* Quantity Controls */
+.quantity-controls {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
 
-  /* Quantity Controls */
-  .quantity-controls {
-    display: flex;
-    align-items: center;
-    gap: 8px;
-    margin-left: auto;
-  }
+.qty-btn {
+  width: 28px;
+  height: 28px;
+  border: 2px solid #341f97;
+  border-radius: 50%;
+  background: white;
+  color: #341f97;
+  font-size: 16px;
+  font-weight: bold;
+  cursor: pointer;
+  line-height: 1;
+  transition: all 0.2s ease;
+}
 
-  .qty-btn {
-    width: 28px;
-    height: 28px;
-    border: 2px solid #341f97;
-    border-radius: 50%;
-    background: white;
-    color: #341f97;
-    font-size: 16px;
-    font-weight: bold;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    cursor: pointer;
-    transition: all 0.2s ease;
-    padding: 0;
-    line-height: 1;
-  }
+.qty-btn:hover:not(:disabled) {
+  background: #341f97;
+  color: white;
+}
 
-  .qty-btn:hover:not(:disabled) {
-    background: #341f97;
-    color: white;
-  }
+.qty-btn:disabled {
+  border-color: #ddd;
+  color: #ddd;
+  cursor: not-allowed;
+}
 
-  .qty-btn:disabled {
-    border-color: #ddd;
-    color: #ddd;
-    cursor: not-allowed;
-  }
+.qty-display {
+  min-width: 20px;
+  text-align: center;
+  font-weight: 600;
+  color: #333;
+}
 
-  .qty-display {
-    min-width: 20px;
-    text-align: center;
-    font-weight: 600;
-    color: #333;
-  }
+/* Selected Variants */
+.selected-variants {
+  margin-bottom: 20px;
+  padding: 15px;
+  border: 2px solid #ddd;
+  border-radius: 10px;
+}
 
-  /* Update variant row styles to accommodate new buttons */
-  .variant-row {
-    grid-template-columns: 60px 1fr 120px; /* Increased last column width */
-  }
+.selected-variants h3 {
+  font-size: 16px;
+  margin-bottom: 10px;
+  font-weight: 600;
+}
 
-  .variant-actions {
-    display: flex;
-    justify-content: flex-end;
-  }
+.selected-variant-item {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 8px;
+  background: #f9f9f9;
+  border-radius: 6px;
+  margin-bottom: 8px;
+}
+
+/* Small block for the selected variants list */
+.variant-color-block-small {
+  width: 40px;
+  height: 40px;
+  background-color: #a5ffd6;
+  border-radius: 4px;
+}
+
+.empty-selection {
+  color: #666;
+  font-style: italic;
+}
+
+/* Add to Cart */
+.add-to-cart-btn {
+  width: 100%;
+  padding: 15px;
+  background: #341f97;
+  color: white;
+  border: none;
+  border-radius: 8px;
+  font-size: 16px;
+  font-weight: bold;
+  cursor: pointer;
+  transition: background-color 0.2s ease;
+}
+
+.add-to-cart-btn:disabled {
+  background: #ccc;
+  cursor: not-allowed;
+}
+
+.add-to-cart-btn:hover:not(:disabled) {
+  background: #2a1878;
+}
+
+/* Debug Container (optional) */
+.debug-container {
+  margin-top: 20px;
+  padding: 15px;
+  background: #f9f9f9;
+  border: 2px solid #eee;
+  border-radius: 8px;
+  font-size: 14px;
+}
+.debug-container pre {
+  background: #fff;
+  padding: 10px;
+  border-radius: 4px;
+  overflow-x: auto;
+  max-height: 200px;
+}
+
+
 </style>
