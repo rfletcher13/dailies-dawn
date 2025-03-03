@@ -36,7 +36,7 @@
     "custom_html_section": {
       "type": "custom-liquid",
       "settings": {
-        "custom_liquid": "{% assign product = products['protein-coffee'] %}{% render 'custom-welcome' with product %}",
+        "custom_liquid": "{% render 'build-a-box'%}",
         "color_scheme": "",
         "padding_top": 40,
         "padding_bottom": 40

@@ -1,3 +1,10 @@
+{% comment %} 
+TEST CUSTOMER ID: 8582472106288
+TEST PRODUCT ID: 9761425097008
+{% endcomment %}
+
+{% comment %}Featured Product Display{% endcomment %}
+
 <script>
   // Update global state to include quantities
   let skioData = null;
@@ -285,17 +292,13 @@ ${variantsList}`;
   function updateButtons() {
     const bundleSize = parseInt(document.querySelector('.bundle-btn.selected').textContent);
     const totalQuantity = Array.from(variantQuantities.values()).reduce((a, b) => a + b, 0);
-    const isSubscription = document.getElementById('subscribe').checked;
     
-    // Update add to cart button
+    // Update add to cart button only
     const addToCartBtn = document.querySelector('.add-to-cart-btn');
-    const subscriptionBtn = document.querySelector('.create-subscription-btn');
-    
-    addToCartBtn.disabled = totalQuantity !== bundleSize;
-    subscriptionBtn.disabled = totalQuantity !== bundleSize || !isSubscription;
-    
-    // Update button text
-    addToCartBtn.innerHTML = `Add to Cart (${totalQuantity}/${bundleSize})`;
+    if (addToCartBtn) {
+      addToCartBtn.disabled = totalQuantity !== bundleSize;
+      addToCartBtn.innerHTML = `Add to Cart (${totalQuantity}/${bundleSize})`;
+    }
   }
 
   // Initialize on page load
@@ -350,190 +353,68 @@ ${variantsList}`;
     });
 
     // Add to Cart button handler
-    document.querySelector('.add-to-cart-btn').addEventListener('click', function() {
-      if (!this.disabled) {
-        alert(getCartContents());
+    document.querySelector('.add-to-cart-btn').addEventListener('click', async function() {
+      if (this.disabled) return;
+      
+      const originalText = this.textContent;
+      try {
+        this.textContent = 'Adding...';
+        this.disabled = true;
+
+        // Convert selected variants to cart items format
+        const items = Array.from(variantQuantities.entries()).map(([variantId, quantity]) => {
+          // Extract numeric ID from GID format
+          const numericId = variantId.split('/').pop();
+          return {
+            id: numericId,
+            quantity: quantity
+          };
+        });
+
+        console.log('Adding to cart:', items); // Debug log
+
+        const response = await fetch('/cart/add.js', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json'
+          },
+          body: JSON.stringify({ items })
+        });
+
+        if (!response.ok) throw new Error('Add to cart failed');
+
+        const result = await response.json();
+        console.log('Cart response:', result); // Debug log
+        
+        this.textContent = 'Added to Cart!';
+        
+        // Reset selections
+        selectedVariants = [];
+        variantQuantities.clear();
+        updateAllQuantityDisplays();
+        
+        // Refresh cart drawer if it exists
+        if (typeof window.refreshCart === 'function') {
+          window.refreshCart();
+        }
+
+      } catch (error) {
+        console.error('Error:', error);
+        this.textContent = 'Error - Try Again';
+      } finally {
+        setTimeout(() => {
+          this.textContent = originalText;
+          this.disabled = false;
+        }, 2000);
       }
     });
 
-    // Add subscription button handler
+    // Remove subscription button related code
     const subscriptionBtn = document.querySelector('.create-subscription-btn');
-    
-    // Update both buttons when quantities change
-    function updateButtons() {
-      const bundleSize = parseInt(document.querySelector('.bundle-btn.selected').textContent);
-      const totalQuantity = Array.from(variantQuantities.values()).reduce((a, b) => a + b, 0);
-      const isSubscription = document.getElementById('subscribe').checked;
-      
-      // Update add to cart button
-      const addToCartBtn = document.querySelector('.add-to-cart-btn');
-      addToCartBtn.disabled = totalQuantity !== bundleSize;
-      
-      // Update subscription button
-      subscriptionBtn.disabled = totalQuantity !== bundleSize || !isSubscription;
-    }
-
-    // Add subscription button click handler
-    subscriptionBtn.addEventListener('click', function() {
-      if (!this.disabled) {
-        createSubscription();
-      }
-    });
-
-    // Update buttons when subscription toggle changes
-    document.getElementById('subscribe').addEventListener('change', updateButtons);
-    document.getElementById('one-time').addEventListener('change', updateButtons);
-
-    // Replace existing updateAddToCartButton function with new updateButtons
-    function updateAddToCartButton() {
-      updateButtons();
+    if (subscriptionBtn) {
+      subscriptionBtn.remove();
     }
   });
-
-  // Add subscription creation function
-  async function createSubscription() {
-    const bundleSize = parseInt(document.querySelector('.bundle-btn.selected').textContent);
-    const isSubscription = document.getElementById('subscribe').checked;
-    
-    if (!isSubscription || selectedVariants.length === 0 || !skioData) return;
-
-    // Get the product ID from skioData
-    const productPlatformId = skioData.DynamicBox.platformId;
-    const productId = skioData.DynamicBox.id;
-
-    const subscriptionInput = {
-      input: {
-        productId: productId,
-        productPlatformId: productPlatformId,
-        variantQuantities: selectedVariants.map(variant => {
-          // Find the full variant data from skioData
-          const fullVariant = skioData.DynamicBox.selectableProductVariants[0].productVariants
-            .find(v => v.platformId === variant.platformId);
-          
-          return {
-            variantId: fullVariant.id,
-            variantPlatformId: fullVariant.platformId,
-            quantity: variantQuantities.get(variant.platformId)
-          };
-        }),
-        interval: "MONTH_1",
-        intervalCount: 1
-      }
-    };
-
-    try {
-      console.log('Subscription input:', subscriptionInput); // Debug log
-      
-      const response = await fetch('/api/graphql', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          'X-Shopify-Storefront-Access-Token': 'your_storefront_token'
-        },
-        body: JSON.stringify({
-          query: `
-            mutation createSubscription($input: CreateSubscriptionInput!) {
-              createSubscription(input: $input) {
-                id
-                platformId
-              }
-            }
-          `,
-          variables: subscriptionInput
-        })
-      });
-
-      const data = await response.json();
-      if (data.errors) {
-        throw new Error(data.errors[0].message);
-      }
-
-      alert('Subscription created successfully!');
-      console.log('Subscription created:', data.data.createSubscription);
-      
-    } catch (error) {
-      console.error('Error creating subscription:', error);
-      alert('Failed to create subscription. Please try again.');
-    }
-  }
-
-  // Add new styles
-  document.head.insertAdjacentHTML('beforeend', `
-    <style>
-      .quantity-controls {
-        display: flex;
-        align-items: center;
-        gap: 8px;
-      }
-
-      .qty-btn {
-        padding: 2px 8px;
-        border: none;
-        border-radius: 4px;
-        background: #341f97;
-        color: white;
-        cursor: pointer;
-      }
-
-      .qty-display {
-        min-width: 20px;
-        text-align: center;
-        font-weight: bold;
-      }
-
-      .variant-details {
-        display: flex;
-        flex-direction: column;
-        gap: 4px;
-      }
-
-      .variant-actions {
-        display: flex;
-        align-items: center;
-        justify-content: flex-end;
-      }
-
-      .variant-row .quantity-controls {
-        display: flex;
-        align-items: center;
-        gap: 8px;
-      }
-
-      .qty-btn {
-        width: 24px;
-        height: 24px;
-        padding: 0;
-        border: none;
-        border-radius: 4px;
-        background: #341f97;
-        color: white;
-        font-size: 16px;
-        cursor: pointer;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-      }
-
-      .qty-btn:hover:not(:disabled) {
-        background: #2a1878;
-      }
-
-      .qty-btn:disabled {
-        background: #ccc;
-        cursor: not-allowed;
-      }
-
-      .qty-display {
-        min-width: 24px;
-        text-align: center;
-        font-weight: bold;
-      }
-
-      .variant-row {
-        grid-template-columns: 60px 1fr 100px;
-      }
-    </style>
-  `);
 </script>
 
 <!-- Main Product Container -->
@@ -618,11 +499,6 @@ ${variantsList}`;
   <!-- Add to Cart Button -->
   <button class="add-to-cart-btn" disabled>
     Add to Cart (0/3)
-  </button>
-
-  <!-- Create Subscription Button -->
-  <button class="create-subscription-btn w-full py-4 mt-3 bg-green-600 text-white rounded-lg font-bold disabled:bg-gray-300 disabled:cursor-not-allowed hover:bg-green-700" disabled>
-    Create Subscription
   </button>
 
   <!-- Debug Display -->
@@ -813,7 +689,7 @@ ${variantsList}`;
 
   .variant-row {
     display: grid;
-    grid-template-columns: 60px 1fr 100px; /* Image | Name | Add Button */
+    grid-template-columns: 60px 1fr 120px; /* Increased last column width */
     align-items: center;
     gap: 12px;
     padding: 8px;
@@ -949,5 +825,59 @@ ${variantsList}`;
 
   .variant-add-btn.added:hover {
     background: #cc3333;
+  }
+
+  /* Quantity Controls */
+  .quantity-controls {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin-left: auto;
+  }
+
+  .qty-btn {
+    width: 28px;
+    height: 28px;
+    border: 2px solid #341f97;
+    border-radius: 50%;
+    background: white;
+    color: #341f97;
+    font-size: 16px;
+    font-weight: bold;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    padding: 0;
+    line-height: 1;
+  }
+
+  .qty-btn:hover:not(:disabled) {
+    background: #341f97;
+    color: white;
+  }
+
+  .qty-btn:disabled {
+    border-color: #ddd;
+    color: #ddd;
+    cursor: not-allowed;
+  }
+
+  .qty-display {
+    min-width: 20px;
+    text-align: center;
+    font-weight: 600;
+    color: #333;
+  }
+
+  /* Update variant row styles to accommodate new buttons */
+  .variant-row {
+    grid-template-columns: 60px 1fr 120px; /* Increased last column width */
+  }
+
+  .variant-actions {
+    display: flex;
+    justify-content: flex-end;
   }
 </style>
