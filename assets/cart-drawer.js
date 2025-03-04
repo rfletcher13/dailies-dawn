@@ -7,6 +7,25 @@ class CartDrawer extends HTMLElement {
     this.setHeaderCartIconAccessibility();
   }
 
+  async refresh(dontRefreshCartItems) {
+    try {        
+        const response = this.getSectionsToRender().map((section) => section.id);
+        const cartResponse = await fetch(`?sections=${response.join(',')}`);
+        const sections = await cartResponse.json();
+        let ADDTOCART_OBJECT = { sections: sections }
+        this.renderContents(ADDTOCART_OBJECT);
+        if (this.classList.contains('is-empty')) this.classList.remove('is-empty');
+    } catch (error) {
+        console.log(error); // eslint-disable-line
+        this.dispatchEvent(new CustomEvent('on:cart:error', {
+            bubbles: true,
+            detail: {
+                error: this.errorMsg.textContent
+            }
+        }));
+    }
+}
+
   setHeaderCartIconAccessibility() {
     const cartLink = document.querySelector('#cart-icon-bubble');
     if (!cartLink) return;

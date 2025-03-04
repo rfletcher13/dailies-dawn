@@ -4,6 +4,27 @@ let variantQuantities = new Map();
 let percentDiscountTier = null;
 let subscriptionDiscount = 0;
 
+function refreshCart() {
+  fetch('/cart.js', {
+    method: 'GET',
+    headers: {
+      'Content-Type': 'application/json'
+    }
+  })
+    .then(response => response.json())
+    .then(cart => {
+      // Update your cart UI here. For example, updating a cart drawer:
+      document.getElementById('cart-content').innerHTML = `
+      <p>Total Items: ${cart.item_count}</p>
+      <p>Total Price: ${cart.total_price / 100}</p>
+    `;
+      console.log('Cart refreshed:', cart);
+    })
+    .catch(error => {
+      console.error('Error refreshing cart:', error);
+    });
+}
+
 function updateVariantQuantity(variant, increment = true) {
   const currentQty = variantQuantities.get(variant.platformId) || 0;
   const bundleSize = parseInt(document.querySelector('.bundle-btn.selected').textContent);
@@ -306,7 +327,7 @@ document.addEventListener('DOMContentLoaded', function () {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ items })
-    });
+    })
   }
   
   document.querySelector('.add-to-cart-btn').addEventListener('click', async function() {
@@ -321,7 +342,10 @@ document.addEventListener('DOMContentLoaded', function () {
       const response = await (isSubscription ? handleSubscriptionAddToCart() : handleOneTimeAddToCart());
   
       if (!response.ok) throw new Error('Add to cart failed');
-      
+
+      const this_cartDrawer = document.querySelector('cart-drawer');
+      this_cartDrawer.refresh(true);
+
       await response.json();
       this.textContent = 'Added to Cart!';
       selectedVariants = [];
