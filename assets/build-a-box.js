@@ -1,7 +1,8 @@
-
 let skioData = null;
 let selectedVariants = [];
 let variantQuantities = new Map();
+let percentDiscountTier = null;
+let subscriptionDiscount = 0;
 
 function updateVariantQuantity(variant, increment = true) {
   const currentQty = variantQuantities.get(variant.platformId) || 0;
@@ -77,24 +78,53 @@ function updatePricesForVariant(variantId) {
     .find(v => v.platformId === variantId);
   if (selectedVariant) {
     const bundleSize = document.querySelector('.bundle-btn.selected').textContent;
-    updatePrices(bundleSize, selectedVariant.price);
+    updatePrices(bundleSize, skioData.DynamicBox.selectableProductVariants[0].productVariants[0].price);
   }
 }
 
-function updatePrices(bundleSize, variantPrice = 38) {
-  const isSubscription = document.getElementById('subscribe').checked;
+function getBundleDiscount(quantity) {
+  // Get bundle discount from percentDiscountTier or use defaults
+  if (percentDiscountTier && percentDiscountTier[quantity]) {
+    console.log('Using custom discount for', quantity, 'items');
+    return percentDiscountTier[quantity] / 100;
+  }
+  
+  // Default fallback discounts
+  const defaultDiscounts = {
+    1: 0,      // No bundle discount for 1
+    2: 0.05,   // 5% off for 2
+    3: 0.10,   // 10% off for 3
+    4: 0.15    // 15% off for 4
+  };
+  
+  return defaultDiscounts[quantity] || 0;
+}
+
+function updatePrices(bundleSize, variantPrice) {
   const quantity = parseInt(bundleSize);
   const regularPrice = (variantPrice * quantity).toFixed(2);
-  const subscriptionDiscount = 0.30; // 30% off
-  const subscriptionPrice = (regularPrice * (1 - subscriptionDiscount)).toFixed(2);
+  
+  // Calculate discounts
+  const bundleDiscount = getBundleDiscount(quantity);
+  
+  // Calculate both prices
+  const oneTimePrice = bundleDiscount > 0 
+    ? (regularPrice * (1 - bundleDiscount)).toFixed(2)
+    : regularPrice;
 
+  const subscriptionPrice = (oneTimePrice * (1 - subscriptionDiscount)).toFixed(2);
+
+  // Always update both price displays
   document.querySelector('.price').innerHTML = 
-    `<del>$${regularPrice}</del> <strong>$${subscriptionPrice}</strong>`;
-  document.querySelector('.one-time-price').textContent = `$${regularPrice}`;
+    `<del>$${oneTimePrice}</del> <strong>$${subscriptionPrice}</strong>`;
+  document.querySelector('.one-time-price').textContent = `$${oneTimePrice}`;
 
-  const discountPercent = Math.round(subscriptionDiscount * 100);
-  document.querySelector('.discount-label').textContent = 
-    `SAVE ${discountPercent}% ON FIRST ORDER`;
+  // Update save tag with best possible savings
+  const saveTag = document.querySelector('.save-tag');
+  if (saveTag) {
+    const maxSavingsPercent = Math.round((1 - (subscriptionPrice / regularPrice)) * 100);
+    saveTag.textContent = `SAVE ${maxSavingsPercent}% ON FIRST ORDER`;
+  }
 }
 
 function updateAllQuantityDisplays() {
@@ -129,10 +159,33 @@ document.addEventListener('DOMContentLoaded', function () {
     .then((response) => response.json())
     .then((data) => {
       skioData = data;
+
+      console.debug('Skio data:', data);
+
+      percentDiscountTier = data.DynamicBox.percentDiscountTier;
+      
+      const sellingPlanGroup = data.DynamicBox.sellingPlanGroup;
+      const keys = Object.keys(sellingPlanGroup);
+
+      if (keys.length > 0) {
+        const firstPlan = sellingPlanGroup[keys[0]];
+        subscriptionDiscount = firstPlan.priceAdjustmentAmount / 100;
+        console.log('Subscription discount:', subscriptionDiscount);
+      }
+    
       const variants = data.DynamicBox.selectableProductVariants[0].productVariants;
+  
+      // Render variants first
       renderVariants(variants);
+      
+      // Get initial bundle size and trigger price update
+      const initialBundleSize = document.querySelector('.bundle-btn.selected').textContent;
+      const initialPrice = variants[0].price;
+      updatePrices(initialBundleSize, initialPrice);
     })
-    .catch((error) => console.error('Error fetching Skio data:', error));
+    .catch((error) => {
+      console.error('Error fetching Skio data:', error);
+    });
 
   function renderVariants(variantData) {
     const variantGrid = document.querySelector('.variant-grid');
@@ -189,7 +242,7 @@ document.addEventListener('DOMContentLoaded', function () {
       if (selectedVariantRow) {
         updatePricesForVariant(selectedVariantRow.dataset.variantId);
       } else {
-        updatePrices(this.textContent);
+        updatePrices(this.textContent, skioData.DynamicBox.selectableProductVariants[0].productVariants[0].price);
       }
     });
   });
@@ -203,46 +256,78 @@ document.addEventListener('DOMContentLoaded', function () {
         if (selectedVariantRow) {
           updatePricesForVariant(selectedVariantRow.dataset.variantId);
         } else {
-          updatePrices(selectedBundle);
+          updatePrices(selectedBundle, skioData.DynamicBox.selectableProductVariants[0].productVariants[0].price);
         }
         updateButtons();
       });
     }
   });
 
+  async function handleSubscriptionAddToCart() {
+    const items = Array.from(variantQuantities.entries()).map(([variantId, quantity]) => {
+      const numericId = variantId.split('/').pop();
+      const sellingPlanGroup = skioData.DynamicBox.sellingPlanGroup;
+      const fullSellingPlanId = Object.keys(sellingPlanGroup)[0];
+      const sellingPlanId = fullSellingPlanId.split("/").pop();
+  
+      return { 
+        id: numericId,
+        quantity: quantity,
+        selling_plan: sellingPlanId,
+        properties: {
+          _dynamicBoxIndex: "0",
+          _dynamicBoxId: skioData.DynamicBox.boxId,
+          _skio_subscription: true
+        } 
+      };
+    });
+  
+    return fetch('/cart/add.js', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ items })
+    });
+  }
+  
+  async function handleOneTimeAddToCart() {
+    const items = Array.from(variantQuantities.entries()).map(([variantId, quantity]) => {
+      const numericId = variantId.split('/').pop();
+      return { 
+        id: numericId,
+        quantity: quantity,
+        properties: {
+          _dynamicBoxIndex: "0",
+          _dynamicBoxId: skioData.DynamicBox.boxId,
+        } 
+      };
+    });
+  
+    return fetch('/cart/add.js', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ items })
+    });
+  }
+  
   document.querySelector('.add-to-cart-btn').addEventListener('click', async function() {
     if (this.disabled) return;
     const originalText = this.textContent;
+    
     try {
       this.textContent = 'Adding...';
       this.disabled = true;
-      const items = Array.from(variantQuantities.entries()).map(([variantId, quantity]) => {
-        const numericId = variantId.split('/').pop();
-        const sellingPlanGroup = skioData.DynamicBox.sellingPlanGroup;
-        const fullSellingPlanId = Object.keys(sellingPlanGroup)[0];
-        const SellingPlanId = fullSellingPlanId.split("/").pop();
-
-        return { 
-          id: numericId,
-          quantity: quantity,
-          selling_plan: SellingPlanId,
-          properties:{
-              _dynamicBoxIndex: "0",
-              _dynamicBoxId: skioData.DynamicBox.boxId
-          } 
-        };
-      });
-      const response = await fetch('/cart/add.js', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ items })
-      });
+  
+      const isSubscription = document.getElementById('subscribe').checked;
+      const response = await (isSubscription ? handleSubscriptionAddToCart() : handleOneTimeAddToCart());
+  
       if (!response.ok) throw new Error('Add to cart failed');
+      
       await response.json();
       this.textContent = 'Added to Cart!';
       selectedVariants = [];
       variantQuantities.clear();
       updateAllQuantityDisplays();
+      
       if (typeof window.refreshCart === 'function') {
         window.refreshCart();
       }
