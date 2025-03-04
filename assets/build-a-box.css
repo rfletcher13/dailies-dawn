@@ -1,0 +1,383 @@
+/* Page Wrapper: Two-column layout */
+.page-wrapper {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 20px;
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 20px;
+}
+
+/* LEFT SECTION (Hero) */
+.hero-section {
+  flex: 1;
+  min-width: 300px;
+  background: #f2f3ff;
+  border-radius: 10px;
+  padding: 20px;
+  text-align: center;
+}
+
+.hero-color-block {
+  width: 100%;
+  height: 300px;
+  background-color: #cab8ff;
+  border-radius: 10px;
+}
+
+.hero-text {
+  margin-top: 20px;
+}
+
+.hero-text h1 {
+  font-size: 28px;
+  margin-bottom: 10px;
+  font-weight: 800;
+}
+
+.hero-subtitle {
+  font-size: 16px;
+  margin-bottom: 20px;
+  color: #555;
+}
+
+.hero-icons {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 15px;
+}
+
+.icon-item {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  width: 80px;
+  text-align: center;
+}
+
+.icon-placeholder {
+  width: 50px;
+  height: 50px;
+  background-color: #ffa5a5;
+  border-radius: 8px;
+  margin-bottom: 5px;
+}
+
+/* RIGHT SECTION (Product) */
+.product-section {
+  flex: 1;
+  min-width: 300px;
+  background: #ffffff;
+  border-radius: 10px;
+  padding: 20px;
+  box-shadow: 0px 4px 6px rgba(0, 0, 0, 0.1);
+}
+
+.product-title {
+  font-size: 24px;
+  font-weight: 800;
+  margin-bottom: 5px;
+  text-transform: uppercase;
+}
+
+.product-subtitle-right {
+  font-size: 14px;
+  color: #666;
+  margin-bottom: 10px;
+}
+
+.product-description-right {
+  font-size: 14px;
+  color: #444;
+  margin-bottom: 20px;
+}
+
+/* Bundle Options */
+.bundle-options {
+  display: flex;
+  justify-content: flex-start;
+  gap: 10px;
+  margin-bottom: 20px;
+}
+
+.bundle {
+  position: relative;
+}
+
+.bundle-btn {
+  border: 2px solid #ddd;
+  padding: 10px;
+  border-radius: 8px;
+  background: #f9f9f9;
+  width: 100px;
+  height: 45px;
+  font-size: 16px;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.bundle-btn.selected {
+  border-color: #341f97;
+  font-weight: bold;
+  background: #f3f2fd;
+}
+
+.deal-tag {
+  position: absolute;
+  top: -12px;
+  left: 50%;
+  transform: translateX(-50%);
+  background: #d32f2f;
+  color: white;
+  font-size: 12px;
+  padding: 4px 8px;
+  border-radius: 4px;
+  white-space: nowrap;
+}
+
+/* Subscription Box */
+.subscription-box {
+  margin-bottom: 20px;
+  position: relative;
+}
+
+.hidden-radio {
+  position: absolute;
+  opacity: 0;
+  width: 0;
+  height: 0;
+  pointer-events: none;
+}
+
+.subscription-wrapper {
+  position: relative;
+  padding-top: 12px;
+}
+
+.save-tag {
+  position: absolute;
+  top: 0;
+  left: 50%;
+  transform: translateX(-50%);
+  background: #d32f2f;
+  color: white;
+  font-size: 12px;
+  padding: 4px 8px;
+  border-radius: 4px;
+  white-space: nowrap;
+  z-index: 1;
+}
+
+.subscription-option {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  background: white;
+  padding: 15px;
+  border-radius: 8px;
+  cursor: pointer;
+  border: 2px solid #ddd;
+  transition: all 0.2s ease;
+}
+
+.subscription-option:has(input:checked) {
+  border-color: #341f97;
+  background: #f8f7ff;
+}
+
+/* Remove old discount label styles */
+.discount-label {
+  display: none;
+}
+
+/* One-time Purchase */
+.one-time-option {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 15px;
+  border-radius: 8px;
+  background: #f9f9f9;
+  margin-bottom: 20px;
+  cursor: pointer;
+  border: 2px solid transparent;
+  transition: all 0.2s ease;
+}
+
+.one-time-option:hover {
+  background: #f8f7ff;
+}
+
+.one-time-option:has(input:checked) {
+  border-color: #341f97;
+  background: #f8f7ff;
+  box-shadow: 0 2px 4px rgba(52, 31, 151, 0.1);
+}
+
+/* Variant Selection */
+.variant-selection {
+  margin-bottom: 20px;
+}
+
+.variant-title {
+  font-size: 16px;
+  margin-bottom: 10px;
+  font-weight: 600;
+}
+
+/* Variant Grid */
+.variant-grid {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+/* Variant Row */
+.variant-row {
+  display: grid;
+  grid-template-columns: 60px 1fr 120px;
+  align-items: center;
+  gap: 12px;
+  padding: 8px;
+  border: 2px solid #ddd;
+  border-radius: 8px;
+  background: white;
+  cursor: default; /* Changed from pointer */
+}
+
+/* Remove hover and selected states */
+.variant-row:hover {
+  border-color: #ddd;
+}
+
+.variant-row.selected {
+  border-color: #ddd;
+  background: white;
+}
+
+/* Colored block instead of product image */
+.variant-image img {
+  width: 60px;
+  height: 60px;
+  border-radius: 4px;
+  object-fit: cover;
+}
+
+.variant-info {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.variant-actions {
+  display: flex;
+  justify-content: flex-end;
+}
+
+.sold-out {
+  color: red;
+  font-weight: bold;
+  margin-top: 4px;
+}
+
+/* Quantity Controls */
+.quantity-controls {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.qty-btn {
+  width: 28px;
+  height: 28px;
+  border: 2px solid #341f97;
+  border-radius: 50%;
+  background: white;
+  color: #341f97;
+  font-size: 16px;
+  font-weight: bold;
+  cursor: pointer;
+  line-height: 1;
+  transition: all 0.2s ease;
+}
+
+.qty-btn:hover:not(:disabled) {
+  background: #341f97;
+  color: white;
+}
+
+.qty-btn:disabled {
+  border-color: #ddd;
+  color: #ddd;
+  cursor: not-allowed;
+}
+
+.qty-display {
+  min-width: 20px;
+  text-align: center;
+  font-weight: 600;
+  color: #333;
+}
+
+/* Selected Variants */
+.selected-variants {
+  margin-bottom: 20px;
+  padding: 15px;
+  border: 2px solid #ddd;
+  border-radius: 10px;
+}
+
+.selected-variants h3 {
+  font-size: 16px;
+  margin-bottom: 10px;
+  font-weight: 600;
+}
+
+.selected-variant-item {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 8px;
+  background: #f9f9f9;
+  border-radius: 6px;
+  margin-bottom: 8px;
+}
+
+/* Small block for the selected variants list */
+.variant-color-block-small {
+  width: 40px;
+  height: 40px;
+  background-color: #a5ffd6;
+  border-radius: 4px;
+}
+
+.empty-selection {
+  color: #666;
+  font-style: italic;
+}
+
+/* Add to Cart */
+.add-to-cart-btn {
+  width: 100%;
+  padding: 15px;
+  background: #341f97;
+  color: white;
+  border: none;
+  border-radius: 8px;
+  font-size: 16px;
+  font-weight: bold;
+  cursor: pointer;
+  transition: background-color 0.2s ease;
+}
+
+.add-to-cart-btn:disabled {
+  background: #ccc;
+  cursor: not-allowed;
+}
+
+.add-to-cart-btn:hover:not(:disabled) {
+  background: #2a1878;
+}
