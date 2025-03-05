@@ -109,6 +109,26 @@
         "name": "list.metaobject_reference",
         "category": "REFERENCE"
       }
+    },
+    {
+      "key": "food-supplement-form",
+      "namespace": "shopify",
+      "name": "Food supplement form",
+      "description": "Specifies the format of a health supplement, such as liquid or tablets",
+      "type": {
+        "name": "list.metaobject_reference",
+        "category": "REFERENCE"
+      }
+    },
+    {
+      "key": "product-certifications-standards",
+      "namespace": "shopify",
+      "name": "Product certifications & standards",
+      "description": "Indicates the certifications or standards a product meets, such as organic or cruelty free",
+      "type": {
+        "name": "list.metaobject_reference",
+        "category": "REFERENCE"
+      }
     }
   ],
   "variant": [
@@ -230,6 +250,36 @@
       "type": {
         "name": "number_integer",
         "category": "NUMBER"
+      }
+    },
+    {
+      "key": "launch_date",
+      "namespace": "custom",
+      "name": "Launch Date",
+      "description": "Launch Date",
+      "type": {
+        "name": "date",
+        "category": "DATE_TIME"
+      }
+    },
+    {
+      "key": "variant_flag",
+      "namespace": "custom",
+      "name": "Variant Flag",
+      "description": "New, Back In Stock, Best Seller, Limited Release",
+      "type": {
+        "name": "list.single_line_text_field",
+        "category": "TEXT"
+      }
+    },
+    {
+      "key": "nutritional_information",
+      "namespace": "custom",
+      "name": "Nutritional Information",
+      "description": "Nutrition Facts / Ingredients Label",
+      "type": {
+        "name": "file_reference",
+        "category": "REFERENCE"
       }
     }
   ],
