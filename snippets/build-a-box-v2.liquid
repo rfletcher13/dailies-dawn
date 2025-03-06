@@ -1,30 +1,45 @@
 {%comment %}Build a box component{% endcomment %}
 {% assign bab_id = all_products['clear-protein-box'].id %}
-
-<div class="bag-selection">
-    {% for bags in (1..4) reversed %}
-      <div class="bag-option {% if selected_bags == bags %}selected{% endif %} {% if bags == 4 %}best-deal{% endif %}" data-bags="{{ bags }}">
-        {% if bags == 4 %}<span class="deal-badge">Best Deal</span>{% endif %}
-        <span class="bag-count">{{ bags }} Bag{% if bags != 1 %}s{% endif %}</span>
-      </div>
-    {% endfor %}
-  </div>
-
-  <div class="variant-selection-container">
-    <div class="purchase-type-button">
-      <div class="purchase-type-label">One Time Purchase</div>
-      <div class="price-container">
-        <div class="original-price" id="originalPrice">$0.00</div>
-        <div class="purchase-type-price" id="totalPrice">$0.00</div>
+<div class="box-builder-container">
+    <!-- Left Side: Images and Logos -->
+    <div class="image-section">
+      <h2 class="image-section-title">Build Your Protein Box</h2>
+      <div class="image-gallery">
+        <div class="product-images-column">
+            <img src="https://savortheflavour.com/wp-content/uploads/2020/07/Blue-Lagoon-Mocktail-Tasty.jpg" alt="Protein Box" class="product-image">
+            <img src="https://savortheflavour.com/wp-content/uploads/2020/07/Blue-Lagoon-Mocktail-Tasty.jpg" alt="Protein Box" class="product-image">
+        </div>
       </div>
     </div>
-    <h3 class="variant-section-title">Select Your Flavors</h3>
-    <div class="variants-grid" id="variantsGrid"></div>
+  
+    <!-- Right Side: Scrollable GUI -->
+    <div class="gui-section">
+      <div class="bag-selection">
+        {% for bags in (1..4) reversed %}
+          <div class="bag-option {% if selected_bags == bags %}selected{% endif %} {% if bags == 4 %}best-deal{% endif %}" data-bags="{{ bags }}">
+            {% if bags == 4 %}<span class="deal-badge">Best Deal</span>{% endif %}
+            <span class="bag-count">{{ bags }} Bag{% if bags != 1 %}s{% endif %}</span>
+          </div>
+        {% endfor %}
+      </div>
+  
+      <div class="variant-selection-container">
+        <div class="purchase-type-button">
+          <div class="purchase-type-label">One Time Purchase</div>
+          <div class="price-container">
+            <div class="original-price" id="originalPrice">$0.00</div>
+            <div class="purchase-type-price" id="totalPrice">$0.00</div>
+          </div>
+        </div>
+        <h3 class="variant-section-title">Select Your Flavors</h3>
+        <div class="variants-grid" id="variantsGrid"></div>
+      </div>
+  
+      <div class="cart-button-container">
+        <button class="add-to-cart-button" id="addToCartButton">Add to Cart</button>
+      </div>
+    </div>
   </div>
-
-<div class="cart-button-container">
-    <button class="add-to-cart-button" id="addToCartButton">Add to Cart</button>
-</div>
 
 <script>
     // Constants and State
@@ -294,268 +309,347 @@
         })
         .catch(error => console.error('Error fetching SkioBox data:', error));
     });
+
+    function handleResize() {
+        const windowHeight = window.innerHeight;
+        const isMobile = window.innerWidth <= 768;
+        const imageSection = document.querySelector('.image-section');
+        const productImages = document.querySelectorAll('.product-image');
+
+        if (isMobile) {
+            imageSection.style.height = 'auto';
+            productImages.forEach(img => {
+                img.style.maxHeight = `calc((60vh - 100px) / 2)`;
+            });
+        } else {
+            imageSection.style.height = `calc(${windowHeight}px - 40px)`;
+            productImages.forEach(img => {
+                img.style.maxHeight = `calc((${windowHeight}px - 150px) / 2)`;
+            });
+        }
+    }
+
+    // Debounce function
+    function debounce(func, wait) {
+        let timeout;
+        return function executedFunction(...args) {
+            const later = () => {
+                clearTimeout(timeout);
+                func(...args);
+            };
+            clearTimeout(timeout);
+            timeout = setTimeout(later, wait);
+        };
+    }
+
+    // Initialize and add event listeners
+    window.addEventListener('load', handleResize);
+    window.addEventListener('resize', debounce(handleResize, 250));
 </script>
 
 <style>
-    /* Layout */
-    .bag-selection,
-    .variant-selection-container,
-    .cart-button-container {
-        max-width: 600px;  /* Increased to match variant grid width */
-        margin: 20px auto;
-        padding: 0 20px;
+    .box-builder-container {
+        display: flex;
+        max-width: 1200px;
+        margin: 0 auto;
+        padding: 20px;
+        gap: 20px;
+        min-height: 100vh;
+        position: relative;
     }
-
-    /* Grid Layout */
-    .bag-selection {
-        display: grid;
-        grid-template-columns: repeat(4, 1fr);  /* Changed to 4 columns */
-        gap: 10px;  /* Reduced gap */
-    }
-
-    /* Bag Options */
-    .bag-option {
-        background-color: #ffffff;
-        border: 2px solid #e0e0e0;
-        border-radius: 6px;  /* Smaller radius */
-        padding: 15px 8px 12px; /* Slightly more padding on top to account for badge */
-        text-align: center;
-        cursor: pointer;
-        width: auto;
-        box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);  /* Lighter shadow */
-        transition: border-color 0.3s ease;
-        aspect-ratio: auto;  /* Removed fixed aspect ratio */
+    
+    /* Left Side: Images */
+    .image-section {
+        width: 45%;
+        max-width: 500px;
+        position: sticky;
+        top: 20px;
+        align-self: flex-start;
+        height: calc(100vh - 40px);
         display: flex;
         flex-direction: column;
-        justify-content: center;
-        align-items: center;
-        position: relative; /* Add this */
-        min-height: 45px; /* Ensure consistent height */
+        overflow: hidden;
     }
-
-    .bag-option:hover {
-        border-color: #a0a0a0;
+    
+    .image-section-title {
+      font-size: 1.5em;
+      color: #333;
+      margin-bottom: 15px;
+      text-align: center;
     }
-
-    .bag-option.selected {
-        border-color: #4a90e2;
-        border-width: 3px;
-    }
-
-    .bag-count {
-        font-size: 13px;
-        font-weight: 600;
-        color: #333333;
-        text-align: center;
-        width: 100%; /* Ensure full width for centering */
-    }
-
-    .deal-badge {
-        position: absolute;
-        top: -15px;
-        left: 50%;
-        transform: translateX(-50%);
-        background-color: #d32f2f;
-        color: white;
-        padding: 1px 4px;
-        border-radius: 2px;
-        font-size: 7px;
-        font-weight: 600;
-        text-transform: uppercase;
-        letter-spacing: 0.3px;
-        white-space: nowrap;
-        box-shadow: 0 1px 2px rgba(0,0,0,0.1);
-        line-height: 1.2;
-    }
-
-    .bag-option.best-deal {
-        margin-top: 6px; /* Add space at top for badge */
-    }
-
-    /* Form Elements */
-    .variant-select,
-    #quantityInput {
-        width: 100%;
-        padding: 12px;
-        border: 2px solid #e0e0e0;
-        border-radius: 8px;
-        font-size: 16px;
-        background-color: white;
-    }
-
-    /* Buttons */
-    .add-to-cart-button,
-    .quantity-btn {
-        background-color: #f0f0f0;
-        border: none;
-        border-radius: 4px;
-        width: 36px;
-        height: 36px;
-        font-size: 20px;
-        cursor: pointer;
+    
+    .image-gallery {
+        flex: 1;
         display: flex;
-        align-items: center;
-        justify-content: center;
+        flex-direction: column;
+        position: relative;
+        overflow: hidden;
     }
 
-    .add-to-cart-button {
-        background-color: #4a90e2;
-        color: white;
-        border: none;
-        border-radius: 8px;
-        padding: 15px 30px;
-        font-size: 16px;
-        font-weight: bold;
-        cursor: pointer;
-        width: 100%;
-        transition: background-color 0.3s ease;
-    }
-
-    .add-to-cart-button:hover {
-        background-color: #357abd;
-    }
-
-    /* Labels and Text */
-    .bag-count,
-    .variant-selector label,
-    .quantity-selector label {
-        display: block;
-        margin-bottom: 8px;
-        font-weight: bold;
-        color: #333;
-    }
-
-    /* Utilities */
-    .deal-badge {
-        display: inline-block;
-        background-color: #d32f2f;
-        color: white;
-        padding: 5px 10px;
-        border-radius: 4px;
-        font-size: 12px;
-        margin-bottom: 8px;
-    }
-
-    /* Variant Grid */
-    .variant-section-title {
-        text-align: center;
-        margin-bottom: 20px;
-        color: #333;
-        font-size: 1.2em;
-    }
-
-    .variants-grid {
+    .product-images-column {
+        flex: 1;
         display: flex;
         flex-direction: column;
         gap: 15px;
-        margin-top: 20px;
+        overflow-y: auto;
+        padding-right: 10px;
+        -webkit-overflow-scrolling: touch;
+    }
+
+    .product-image {
+        width: 100%;
+        height: auto;
+        max-height: calc((100vh - 150px) / 2);
+        object-fit: contain;
+        border-radius: 8px;
+        box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+    }
+    
+    /* Right Side: GUI */
+    .gui-section {
+        flex: 1;
+        min-width: 320px;
         max-width: 600px;
-        margin-left: auto;
-        margin-right: auto;
-    }
-
-    .variant-card {
-        display: grid;
-        grid-template-columns: 80px 1fr auto;
-        align-items: center;
-        gap: 15px;
-        border: 2px solid #e0e0e0;
-        border-radius: 8px;
         padding: 10px;
-        background: white;
-        transition: border-color 0.3s ease;
     }
-
-    .variant-card:hover {
-        border-color: #4a90e2;
+    
+    /* Bag Selection */
+    .bag-selection {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 10px;
+      margin-bottom: 20px;
     }
-
-    .variant-image {
-        width: 80px;
-        height: 80px;
+    
+    .bag-option {
+      position: relative;
+      border: 2px solid #e0e0e0;
+      border-radius: 6px;
+      padding: 15px 8px 12px;
+      text-align: center;
+      cursor: pointer;
+      background: #fff;
+      transition: border 0.3s ease;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+      min-height: 45px;
     }
-
-    .variant-image img {
-        width: 100%;
-        height: 100%;
-        object-fit: cover;
-        border-radius: 4px;
+    
+    .bag-option.selected { border: 3px solid #4a90e2; }
+    .bag-option:hover { border-color: #a0a0a0; }
+    
+    .deal-badge {
+      position: absolute;
+      top: -15px;
+      left: 50%;
+      transform: translateX(-50%);
+      background: #d32f2f;
+      color: white;
+      padding: 1px 4px;
+      border-radius: 2px;
+      font: 600 7px uppercase;
+      letter-spacing: 0.3px;
+      white-space: nowrap;
+      box-shadow: 0 1px 2px rgba(0,0,0,0.1);
     }
-
-    .variant-title {
-        text-align: left;
+    
+    .bag-count {
+      font-size: 13px;
+      font-weight: 600;
+      color: #333;
     }
-
-    .variant-title h4 {
-        margin: 0;
-        font-size: 14px;
-        color: #333;
+    
+    /* Variant Selection */
+    .variant-selection-container {
+      margin-bottom: 20px;
     }
-
-    .quantity-controls {
-        display: flex;
-        align-items: center;
-        gap: 8px;
-    }
-
-    .quantity-btn {
-        width: 28px;
-        height: 28px;
-        font-size: 16px;
-        background-color: #f0f0f0;
-    }
-
-    .variant-quantity {
-        width: 40px;
-        text-align: center;
-        padding: 4px;
-        border: 1px solid #e0e0e0;
-        border-radius: 4px;
-        font-size: 14px;
-    }
-
+    
     .purchase-type-button {
-        background-color: #f8f8f8;
-        border: 2px solid #e0e0e0;
-        border-radius: 8px;
-        padding: 15px 20px;
-        margin-bottom: 20px;
-        display: flex;
-        justify-content: space-between;
-        align-items: center;
-        cursor: pointer;
-        transition: border-color 0.3s ease;
+      background: #f8f8f8;
+      border: 2px solid #e0e0e0;
+      border-radius: 8px;
+      padding: 15px 20px;
+      margin-bottom: 20px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      cursor: pointer;
+      transition: border-color 0.3s ease;
     }
-
-    .purchase-type-button:hover {
-        border-color: #4a90e2;
-    }
-
+    
+    .purchase-type-button:hover { border-color: #4a90e2; }
+    
     .purchase-type-label {
-        font-weight: bold;
-        font-size: 16px;
-        color: #333;
+      font-weight: bold;
+      font-size: 16px;
+      color: #333;
     }
-
+    
     .price-container {
-        display: flex;
-        align-items: center;
-        gap: 10px;
+      display: flex;
+      align-items: center;
+      gap: 10px;
     }
-
+    
     .original-price {
-        color: #666;
-        font-size: 14px;
+      color: #666;
+      font-size: 14px;
     }
-
+    
     .original-price.strikethrough {
-        text-decoration: line-through;
-        color: #999;
+      text-decoration: line-through;
+      color: #999;
+    }
+    
+    .purchase-type-price {
+      font-size: 16px;
+      color: #4a90e2;
+      font-weight: bold;
+    }
+    
+    .variant-section-title {
+      text-align: center;
+      margin-bottom: 20px;
+      color: #333;
+      font-size: 1.2em;
+    }
+    
+    .variants-grid {
+      display: flex;
+      flex-direction: column;
+      gap: 15px;
+    }
+    
+    .variant-card {
+      display: grid;
+      grid-template-columns: 80px 1fr auto;
+      align-items: center;
+      gap: 15px;
+      border: 2px solid #e0e0e0;
+      border-radius: 8px;
+      padding: 10px;
+      background: white;
+      transition: border-color 0.3s ease;
+    }
+    
+    .variant-card:hover { border-color: #4a90e2; }
+    
+    .variant-image {
+      width: 80px;
+      height: 80px;
+    }
+    
+    .variant-image img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      border-radius: 4px;
+    }
+    
+    .variant-title h4 {
+      margin: 0;
+      font-size: 14px;
+      color: #333;
+    }
+    
+    .quantity-controls {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+    
+    .quantity-btn {
+      width: 28px;
+      height: 28px;
+      font-size: 16px;
+      background: #f0f0f0;
+      border: none;
+      border-radius: 4px;
+      cursor: pointer;
+    }
+    
+    .variant-quantity {
+      width: 40px;
+      text-align: center;
+      padding: 4px;
+      border: 1px solid #e0e0e0;
+      border-radius: 4px;
+      font-size: 14px;
+    }
+    
+    /* Cart Button */
+    .cart-button-container {
+      margin-bottom: 20px;
+    }
+    
+    .add-to-cart-button {
+      background: #4a90e2;
+      color: white;
+      border: none;
+      border-radius: 8px;
+      padding: 15px 30px;
+      font-size: 16px;
+      font-weight: bold;
+      cursor: pointer;
+      width: 100%;
+      transition: background-color 0.3s ease;
+    }
+    
+    .add-to-cart-button:hover { background: #357abd; }
+    
+    /* Responsive Design */
+    @media (max-width: 768px) {
+      .box-builder-container {
+        flex-direction: column;
+      }
+
+      .image-section {
+        position: relative;
+        top: 0;
+        width: 100%;
+        height: auto;
+        max-width: 100%;
+      }
+
+      .image-gallery {
+        height: auto;
+        max-height: 60vh;
+      }
+
+      .product-image {
+        max-height: calc((60vh - 100px) / 2);
+      }
+
+      .gui-section {
+        max-width: 100%;
+      }
     }
 
-    .purchase-type-price {
-        font-size: 16px;
-        color: #4a90e2;
-        font-weight: bold;
+    @media (max-width: 1024px) {
+        .box-builder-container {
+            padding: 15px;
+            gap: 15px;
+        }
+
+        .image-section {
+            flex: 0 0 40%;
+        }
+    }
+
+    /* Scrollbar Styling */
+    .product-images-column::-webkit-scrollbar {
+        width: 6px;
+    }
+
+    .product-images-column::-webkit-scrollbar-track {
+        background: #f1f1f1;
+        border-radius: 3px;
+    }
+
+    .product-images-column::-webkit-scrollbar-thumb {
+        background: #888;
+        border-radius: 3px;
     }
 </style>
