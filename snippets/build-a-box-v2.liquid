@@ -1,0 +1,561 @@
+{%comment %}Build a box component{% endcomment %}
+{% assign bab_id = all_products['clear-protein-box'].id %}
+
+<div class="bag-selection">
+    {% for bags in (1..4) reversed %}
+      <div class="bag-option {% if selected_bags == bags %}selected{% endif %} {% if bags == 4 %}best-deal{% endif %}" data-bags="{{ bags }}">
+        {% if bags == 4 %}<span class="deal-badge">Best Deal</span>{% endif %}
+        <span class="bag-count">{{ bags }} Bag{% if bags != 1 %}s{% endif %}</span>
+      </div>
+    {% endfor %}
+  </div>
+
+  <div class="variant-selection-container">
+    <div class="purchase-type-button">
+      <div class="purchase-type-label">One Time Purchase</div>
+      <div class="price-container">
+        <div class="original-price" id="originalPrice">$0.00</div>
+        <div class="purchase-type-price" id="totalPrice">$0.00</div>
+      </div>
+    </div>
+    <h3 class="variant-section-title">Select Your Flavors</h3>
+    <div class="variants-grid" id="variantsGrid"></div>
+  </div>
+
+<div class="cart-button-container">
+    <button class="add-to-cart-button" id="addToCartButton">Add to Cart</button>
+</div>
+
+<script>
+    // Constants and State
+    const BAB_ID = {{ bab_id }};
+    const DEFAULT_SELECTED_BAGS = {{ selected_bags | default: 3 }};
+    let skioData = null;
+    let variantPrices = {};
+    let currentDiscount = 0;
+
+    // Utility Functions
+    class SkioBox { 
+        static parse(apiResponse) {
+            apiResponse = apiResponse.DynamicBox
+            return {
+                boxId: apiResponse.boxId,
+                currencyCode: apiResponse.currencyCode || 'USD',
+                fixedDiscountTier: apiResponse.fixedDiscountTier || null,
+                percentDiscountTier: apiResponse.percentDiscountTier || {
+                    1: "0",
+                    2: "0",
+                    3: "0",
+                    4: "0"
+                },
+                sizeRange: apiResponse.sizeRange || null,
+                sizeInterval: apiResponse.sizeInterval || [1, 2, 3, 4],
+                priceRange: apiResponse.priceRange || null,
+                selectableProductVariants: apiResponse.selectableProductVariants.map(product => ({
+                    productTitle: product.productTitle,
+                    productImageSrc: product.productImageSrc,
+                    productPlatformId: product.productPlatformId,
+                    productHandle: product.productHandle,
+                    productVariants: product.productVariants.map(variant => ({
+                        platformId: variant.platformId,
+                        productVariantTitle: variant.productVariantTitle,
+                        imageSrc: variant.imageSrc,
+                        price: variant.price,
+                        compareAtPrice: variant.compareAtPrice || 0,
+                        inventory: variant.inventory
+                    }))
+                })),
+                sellingPlanGroup: apiResponse.sellingPlanGroup,
+                settings: apiResponse.settings,
+                theme: apiResponse.theme,
+                oneTimeUpsells: apiResponse.oneTimeUpsells || [],
+                oneTimeUpsellsSellingPlanMapping: apiResponse.oneTimeUpsellsSellingPlanMapping || {}
+            };
+        }
+    }
+
+    function parseVariants(skioData) {
+        if (!skioData?.selectableProductVariants || !skioData?.sellingPlanGroup) return [];
+        
+        const sellingPlanId = Object.keys(skioData.sellingPlanGroup)[0];
+        const sellingPlan = skioData.sellingPlanGroup[sellingPlanId];
+        const variantMapping = sellingPlan.variantMapping || {};
+
+        return skioData.selectableProductVariants.flatMap(product => 
+            product.productVariants.map(variant => ({
+                platformId: variant.platformId,
+                productVariantTitle: variant.productVariantTitle,
+                imageSrc: variant.imageSrc,
+                price: variant.price,
+                compareAtPrice: variant.compareAtPrice,
+                inventory: variant.inventory,
+                productTitle: product.productTitle,
+                productHandle: product.productHandle,
+                productPlatformId: product.productPlatformId,
+                adjustedPrice: variantMapping[variant.platformId]?.adjustedPrice || null,
+                sellingPlanId: variantMapping[variant.platformId]?.planId || null
+            }))
+        );
+    }
+
+    function getDiscountForBags(bagCount) {
+        if (!skioData) return 0;
+        
+        const percentTiers = skioData.percentDiscountTier || {};
+        const fixedTiers = skioData.fixedDiscountTier || {};
+        
+        // Check for percentage discount
+        const percentDiscount = parseFloat(percentTiers[bagCount] || 0);
+        if (percentDiscount > 0) {
+            return { type: 'percent', value: percentDiscount };
+        }
+        
+        // Check for fixed discount
+        const fixedDiscount = parseFloat(fixedTiers[bagCount] || 0);
+        if (fixedDiscount > 0) {
+            return { type: 'fixed', value: fixedDiscount };
+        }
+        
+        return { type: 'none', value: 0 };
+    }
+
+    function updateTotalPrice() {
+        let total = 0;
+        document.querySelectorAll('.variant-quantity').forEach(input => {
+            const quantity = parseInt(input.value) || 0;
+            const variantId = input.dataset.variant;
+            if (quantity > 0 && variantPrices[variantId]) {
+                total += quantity * variantPrices[variantId];
+            }
+        });
+
+        const selectedBags = document.querySelector('.bag-option.selected');
+        const bagCount = selectedBags ? parseInt(selectedBags.dataset.bags) : 0;
+        const discount = getDiscountForBags(bagCount);
+        
+        const originalTotal = total;
+        let discountedTotal = total;
+
+        if (discount.type === 'percent') {
+            discountedTotal = total * (1 - (discount.value / 100));
+        } else if (discount.type === 'fixed') {
+            discountedTotal = Math.max(0, total - discount.value);
+        }
+
+        const formatPrice = (price) => new Intl.NumberFormat('en-US', { 
+            style: 'currency', 
+            currency: 'USD' 
+        }).format(price);
+
+        document.getElementById('originalPrice').textContent = formatPrice(originalTotal);
+        document.getElementById('totalPrice').textContent = formatPrice(discountedTotal);
+
+        // Add or remove strikethrough on original price
+        const originalPriceElement = document.getElementById('originalPrice');
+        if (discountedTotal < originalTotal) {
+            originalPriceElement.classList.add('strikethrough');
+        } else {
+            originalPriceElement.classList.remove('strikethrough');
+        }
+    }
+
+    // UI Update Functions
+    function populateVariantSelector(variants) {
+        const grid = document.getElementById('variantsGrid');
+        grid.innerHTML = '';
+        
+        // Store variant prices
+        variants.forEach(variant => {
+            variantPrices[variant.platformId] = variant.price;
+        });
+
+        variants.forEach(variant => {
+            const variantCard = document.createElement('div');
+            variantCard.className = 'variant-card';
+            variantCard.innerHTML = `
+                <div class="variant-image">
+                    <img src="${variant.imageSrc}" alt="${variant.productVariantTitle}">
+                </div>
+                <div class="variant-title">
+                    <h4>${variant.productVariantTitle}</h4>
+                </div>
+                <div class="quantity-controls">
+                    <button class="quantity-btn" data-action="decrease" data-variant="${variant.platformId}">-</button>
+                    <input type="number" 
+                           class="variant-quantity" 
+                           value="0" 
+                           min="0" 
+                           max="99"
+                           data-variant="${variant.platformId}">
+                    <button class="quantity-btn" data-action="increase" data-variant="${variant.platformId}">+</button>
+                </div>
+            `;
+            grid.appendChild(variantCard);
+        });
+
+        initializeVariantQuantityControls();
+    }
+
+    function initializeVariantQuantityControls() {
+        document.querySelectorAll('.variant-card .quantity-btn').forEach(btn => {
+            btn.addEventListener('click', function() {
+                const variantId = this.dataset.variant;
+                const input = document.querySelector(`.variant-quantity[data-variant="${variantId}"]`);
+                const currentValue = parseInt(input.value);
+                
+                input.value = this.dataset.action === 'increase' 
+                    ? Math.min(currentValue + 1, 99)
+                    : Math.max(currentValue - 1, 0);
+
+                updateTotalPrice();
+            });
+        });
+    }
+
+    function initializeBagSelection() {
+        document.querySelectorAll('.bag-option').forEach(option => {
+            if (parseInt(option.dataset.bags) === DEFAULT_SELECTED_BAGS) {
+                option.classList.add('selected');
+            }
+            option.addEventListener('click', handleBagSelection);
+        });
+    }
+
+    function handleBagSelection() {
+        document.querySelectorAll('.bag-option').forEach(opt => opt.classList.remove('selected'));
+        this.classList.add('selected');
+        updateTotalPrice();  // Add this line to update price when bags change
+    }
+
+    function initializeQuantityControls() {
+        document.querySelectorAll('.quantity-btn').forEach(btn => {
+            btn.addEventListener('click', function() {
+                const input = document.getElementById('quantityInput');
+                const currentValue = parseInt(input.value);
+                input.value = this.dataset.action === 'increase' 
+                    ? Math.min(currentValue + 1, 99)
+                    : Math.max(currentValue - 1, 1);
+            });
+        });
+    }
+
+    function handleAddToCart() {
+        const selectedBagOption = document.querySelector('.bag-option.selected');
+        if (!selectedBagOption) return alert('Please select number of bags first');
+
+        const variants = Array.from(document.querySelectorAll('.variant-quantity'))
+            .filter(input => parseInt(input.value) > 0)
+            .map(input => ({
+                id: input.dataset.variant.split('/').pop(),
+                quantity: parseInt(input.value),
+                properties: {
+                    _dynamicBoxIndex: "0",
+                    _dynamicBoxId: skioData.boxId,
+                } 
+            }));
+
+        if (variants.length === 0) return alert('Please select at least one flavor');
+
+        const formData = { items: variants };
+
+        console.log(variants)
+
+        fetch(window.Shopify.routes.root + 'cart/add.js', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(formData),
+        })
+        .then(response => response.json())
+        .then(response => {
+            const cartDrawer = document.querySelector('cart-drawer');
+            if (cartDrawer) cartDrawer.refresh(true);
+        })
+        .catch(error => console.error('Error:', error));
+    }
+
+    // Initialization
+    document.addEventListener('DOMContentLoaded', function() {
+        initializeBagSelection();
+        initializeQuantityControls();
+        document.getElementById('addToCartButton').addEventListener('click', handleAddToCart);
+
+        // Fetch Skio Data
+        fetch('https://api.skio.com/storefront-http/get-dynamic-box', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ productPlatformId: BAB_ID })
+        })
+        .then(response => response.json())
+        .then(data => {
+            skioData = SkioBox.parse(data);
+            console.log(skioData);
+            const variants = parseVariants(skioData);
+            populateVariantSelector(variants);
+        })
+        .catch(error => console.error('Error fetching SkioBox data:', error));
+    });
+</script>
+
+<style>
+    /* Layout */
+    .bag-selection,
+    .variant-selection-container,
+    .cart-button-container {
+        max-width: 600px;  /* Increased to match variant grid width */
+        margin: 20px auto;
+        padding: 0 20px;
+    }
+
+    /* Grid Layout */
+    .bag-selection {
+        display: grid;
+        grid-template-columns: repeat(4, 1fr);  /* Changed to 4 columns */
+        gap: 10px;  /* Reduced gap */
+    }
+
+    /* Bag Options */
+    .bag-option {
+        background-color: #ffffff;
+        border: 2px solid #e0e0e0;
+        border-radius: 6px;  /* Smaller radius */
+        padding: 15px 8px 12px; /* Slightly more padding on top to account for badge */
+        text-align: center;
+        cursor: pointer;
+        width: auto;
+        box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);  /* Lighter shadow */
+        transition: border-color 0.3s ease;
+        aspect-ratio: auto;  /* Removed fixed aspect ratio */
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+        align-items: center;
+        position: relative; /* Add this */
+        min-height: 45px; /* Ensure consistent height */
+    }
+
+    .bag-option:hover {
+        border-color: #a0a0a0;
+    }
+
+    .bag-option.selected {
+        border-color: #4a90e2;
+        border-width: 3px;
+    }
+
+    .bag-count {
+        font-size: 13px;
+        font-weight: 600;
+        color: #333333;
+        text-align: center;
+        width: 100%; /* Ensure full width for centering */
+    }
+
+    .deal-badge {
+        position: absolute;
+        top: -15px;
+        left: 50%;
+        transform: translateX(-50%);
+        background-color: #d32f2f;
+        color: white;
+        padding: 1px 4px;
+        border-radius: 2px;
+        font-size: 7px;
+        font-weight: 600;
+        text-transform: uppercase;
+        letter-spacing: 0.3px;
+        white-space: nowrap;
+        box-shadow: 0 1px 2px rgba(0,0,0,0.1);
+        line-height: 1.2;
+    }
+
+    .bag-option.best-deal {
+        margin-top: 6px; /* Add space at top for badge */
+    }
+
+    /* Form Elements */
+    .variant-select,
+    #quantityInput {
+        width: 100%;
+        padding: 12px;
+        border: 2px solid #e0e0e0;
+        border-radius: 8px;
+        font-size: 16px;
+        background-color: white;
+    }
+
+    /* Buttons */
+    .add-to-cart-button,
+    .quantity-btn {
+        background-color: #f0f0f0;
+        border: none;
+        border-radius: 4px;
+        width: 36px;
+        height: 36px;
+        font-size: 20px;
+        cursor: pointer;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+    }
+
+    .add-to-cart-button {
+        background-color: #4a90e2;
+        color: white;
+        border: none;
+        border-radius: 8px;
+        padding: 15px 30px;
+        font-size: 16px;
+        font-weight: bold;
+        cursor: pointer;
+        width: 100%;
+        transition: background-color 0.3s ease;
+    }
+
+    .add-to-cart-button:hover {
+        background-color: #357abd;
+    }
+
+    /* Labels and Text */
+    .bag-count,
+    .variant-selector label,
+    .quantity-selector label {
+        display: block;
+        margin-bottom: 8px;
+        font-weight: bold;
+        color: #333;
+    }
+
+    /* Utilities */
+    .deal-badge {
+        display: inline-block;
+        background-color: #d32f2f;
+        color: white;
+        padding: 5px 10px;
+        border-radius: 4px;
+        font-size: 12px;
+        margin-bottom: 8px;
+    }
+
+    /* Variant Grid */
+    .variant-section-title {
+        text-align: center;
+        margin-bottom: 20px;
+        color: #333;
+        font-size: 1.2em;
+    }
+
+    .variants-grid {
+        display: flex;
+        flex-direction: column;
+        gap: 15px;
+        margin-top: 20px;
+        max-width: 600px;
+        margin-left: auto;
+        margin-right: auto;
+    }
+
+    .variant-card {
+        display: grid;
+        grid-template-columns: 80px 1fr auto;
+        align-items: center;
+        gap: 15px;
+        border: 2px solid #e0e0e0;
+        border-radius: 8px;
+        padding: 10px;
+        background: white;
+        transition: border-color 0.3s ease;
+    }
+
+    .variant-card:hover {
+        border-color: #4a90e2;
+    }
+
+    .variant-image {
+        width: 80px;
+        height: 80px;
+    }
+
+    .variant-image img {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+        border-radius: 4px;
+    }
+
+    .variant-title {
+        text-align: left;
+    }
+
+    .variant-title h4 {
+        margin: 0;
+        font-size: 14px;
+        color: #333;
+    }
+
+    .quantity-controls {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+    }
+
+    .quantity-btn {
+        width: 28px;
+        height: 28px;
+        font-size: 16px;
+        background-color: #f0f0f0;
+    }
+
+    .variant-quantity {
+        width: 40px;
+        text-align: center;
+        padding: 4px;
+        border: 1px solid #e0e0e0;
+        border-radius: 4px;
+        font-size: 14px;
+    }
+
+    .purchase-type-button {
+        background-color: #f8f8f8;
+        border: 2px solid #e0e0e0;
+        border-radius: 8px;
+        padding: 15px 20px;
+        margin-bottom: 20px;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        cursor: pointer;
+        transition: border-color 0.3s ease;
+    }
+
+    .purchase-type-button:hover {
+        border-color: #4a90e2;
+    }
+
+    .purchase-type-label {
+        font-weight: bold;
+        font-size: 16px;
+        color: #333;
+    }
+
+    .price-container {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+    }
+
+    .original-price {
+        color: #666;
+        font-size: 14px;
+    }
+
+    .original-price.strikethrough {
+        text-decoration: line-through;
+        color: #999;
+    }
+
+    .purchase-type-price {
+        font-size: 16px;
+        color: #4a90e2;
+        font-weight: bold;
+    }
+</style>
