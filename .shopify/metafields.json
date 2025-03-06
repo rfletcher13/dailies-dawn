@@ -281,6 +281,26 @@
         "name": "file_reference",
         "category": "REFERENCE"
       }
+    },
+    {
+      "key": "flavor_description",
+      "namespace": "custom",
+      "name": "Flavor Description",
+      "description": "Short Description of the flavor",
+      "type": {
+        "name": "multi_line_text_field",
+        "category": "TEXT"
+      }
+    },
+    {
+      "key": "subscription_only",
+      "namespace": "custom",
+      "name": "Subscription Only?",
+      "description": "Set to TRUE if a variant should be only purchasable as a subscription.",
+      "type": {
+        "name": "boolean",
+        "category": "TRUE_FALSE"
+      }
     }
   ],
   "shop": []
