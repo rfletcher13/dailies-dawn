@@ -24,12 +24,23 @@
       </div>
   
       <div class="variant-selection-container">
-        <div class="purchase-type-button">
-          <div class="purchase-type-label">One Time Purchase</div>
-          <div class="price-container">
-            <div class="original-price" id="originalPrice">$0.00</div>
-            <div class="purchase-type-price" id="totalPrice">$0.00</div>
-          </div>
+        <div class="purchase-options">
+            <div class="purchase-type-button subscribe-button" data-purchase-type="subscribe">
+                <div class="purchase-type-label">Subscribe & Save</div>
+                <div class="price-container">
+                    <div class="original-price" id="subscribeOriginalPrice">$0.00</div>
+                    <div class="purchase-type-price" id="subscribeTotalPrice">$0.00</div>
+                </div>
+                <div class="discount-badge" id="subscribeDiscountBadge"></div>
+            </div>
+            <div class="purchase-type-button" data-purchase-type="onetime">
+                <div class="purchase-type-label">One Time Purchase</div>
+                <div class="price-container">
+                    <div class="original-price" id="originalPrice">$0.00</div>
+                    <div class="purchase-type-price" id="totalPrice">$0.00</div>
+                </div>
+                <div class="discount-badge" id="discountBadge"></div>
+            </div>
         </div>
         <h3 class="variant-section-title">Select Your Flavors</h3>
         <div class="variants-grid" id="variantsGrid"></div>
@@ -44,10 +55,11 @@
 <script>
     // Constants and State
     const BAB_ID = {{ bab_id }};
-    const DEFAULT_SELECTED_BAGS = {{ selected_bags | default: 3 }};
+    const DEFAULT_SELECTED_BAGS = 3; // Changed to always be 3
     let skioData = null;
     let variantPrices = {};
     let currentDiscount = 0;
+    let isSubscription = false;
 
     // Utility Functions
     class SkioBox { 
@@ -135,43 +147,109 @@
     }
 
     function updateTotalPrice() {
-        let total = 0;
-        document.querySelectorAll('.variant-quantity').forEach(input => {
-            const quantity = parseInt(input.value) || 0;
-            const variantId = input.dataset.variant;
-            if (quantity > 0 && variantPrices[variantId]) {
-                total += quantity * variantPrices[variantId];
-            }
-        });
-
         const selectedBags = document.querySelector('.bag-option.selected');
         const bagCount = selectedBags ? parseInt(selectedBags.dataset.bags) : 0;
-        const discount = getDiscountForBags(bagCount);
+        const singleBagPrice = Object.values(variantPrices)[0] || 0;
         
-        const originalTotal = total;
-        let discountedTotal = total;
-
-        if (discount.type === 'percent') {
-            discountedTotal = total * (1 - (discount.value / 100));
-        } else if (discount.type === 'fixed') {
-            discountedTotal = Math.max(0, total - discount.value);
+        // Calculate base total and discounts
+        const potentialTotal = singleBagPrice * bagCount;
+        const bagDiscount = getDiscountForBags(bagCount);
+        
+        // Calculate one-time purchase price
+        let onetimeTotal = potentialTotal;
+        if (bagDiscount.type === 'percent') {
+            onetimeTotal = potentialTotal * (1 - (bagDiscount.value / 100));
+        } else if (bagDiscount.type === 'fixed') {
+            onetimeTotal = Math.max(0, potentialTotal - bagDiscount.value);
         }
+        
+        // Calculate subscription price (additional 10% off)
+        const planId = Object.keys(skioData.sellingPlanGroup)[0]; // Get the first (and assumed only) selling plan
+        const plan = skioData.sellingPlanGroup[planId];
+        
+        console.log(plan.priceAdjustmentAmount)
+        
+        const subscriptionTotal = onetimeTotal  * (1 - plan.priceAdjustmentAmount/100);
 
         const formatPrice = (price) => new Intl.NumberFormat('en-US', { 
             style: 'currency', 
             currency: 'USD' 
         }).format(price);
 
-        document.getElementById('originalPrice').textContent = formatPrice(originalTotal);
-        document.getElementById('totalPrice').textContent = formatPrice(discountedTotal);
+        // Update one-time purchase prices
+        document.getElementById('originalPrice').textContent = formatPrice(potentialTotal);
+        document.getElementById('totalPrice').textContent = formatPrice(onetimeTotal);
 
-        // Add or remove strikethrough on original price
-        const originalPriceElement = document.getElementById('originalPrice');
-        if (discountedTotal < originalTotal) {
-            originalPriceElement.classList.add('strikethrough');
+        // Update subscription prices
+        document.getElementById('subscribeOriginalPrice').textContent = formatPrice(potentialTotal);
+        document.getElementById('subscribeTotalPrice').textContent = formatPrice(subscriptionTotal);
+
+        // Update badges and strikethroughs
+        updatePriceDisplay('original', 'total', onetimeTotal < potentialTotal);
+        updatePriceDisplay('subscribeOriginal', 'subscribe', true);
+
+        // Update discount badges
+        updateDiscountBadge('discountBadge', potentialTotal, onetimeTotal);
+        updateDiscountBadge('subscribeDiscountBadge', potentialTotal, subscriptionTotal);
+
+        validateQuantities();
+    }
+
+    function updatePriceDisplay(originalId, totalId, shouldStrike) {
+        const originalElement = document.getElementById(`${originalId}Price`);
+        if (shouldStrike) {
+            originalElement.classList.add('strikethrough');
         } else {
-            originalPriceElement.classList.remove('strikethrough');
+            originalElement.classList.remove('strikethrough');
         }
+    }
+
+    function updateDiscountBadge(badgeId, originalPrice, finalPrice) {
+        const badge = document.getElementById(badgeId);
+        if (finalPrice < originalPrice) {
+            const savings = ((originalPrice - finalPrice) / originalPrice) * 100;
+            badge.textContent = `Save ${Math.round(savings)}%`;
+            badge.style.display = 'block';
+        } else {
+            badge.style.display = 'none';
+        }
+    }
+
+    function validateQuantities() {
+        const selectedBags = document.querySelector('.bag-option.selected');
+        const requiredBags = selectedBags ? parseInt(selectedBags.dataset.bags) : 0;
+        const currentBags = Array.from(document.querySelectorAll('.variant-quantity'))
+            .reduce((sum, input) => sum + (parseInt(input.value) || 0), 0);
+
+        const addToCartButton = document.getElementById('addToCartButton');
+        const errorMessage = document.querySelector('.quantity-error') || createErrorMessage();
+
+        if (currentBags < requiredBags) {
+            addToCartButton.disabled = true;
+            errorMessage.textContent = `Please add ${requiredBags - currentBags} more bag(s) to meet the minimum`;
+            errorMessage.classList.remove('info');
+            errorMessage.classList.add('error');
+            errorMessage.style.display = 'block';
+        } else if (currentBags > requiredBags) {
+            addToCartButton.disabled = false;
+            errorMessage.textContent = `You've added ${currentBags - requiredBags} extra bag(s)`;
+            errorMessage.classList.remove('error');
+            errorMessage.classList.add('info');
+            errorMessage.style.display = 'block';
+        } else {
+            addToCartButton.disabled = false;
+            errorMessage.style.display = 'none';
+        }
+    }
+
+    function createErrorMessage() {
+        const message = document.createElement('div');
+        message.className = 'quantity-error';
+        document.querySelector('.cart-button-container').insertBefore(
+            message, 
+            document.getElementById('addToCartButton')
+        );
+        return message;
     }
 
     // UI Update Functions
@@ -223,6 +301,7 @@
                     : Math.max(currentValue - 1, 0);
 
                 updateTotalPrice();
+                validateQuantities();
             });
         });
     }
@@ -240,6 +319,7 @@
         document.querySelectorAll('.bag-option').forEach(opt => opt.classList.remove('selected'));
         this.classList.add('selected');
         updateTotalPrice();  // Add this line to update price when bags change
+        validateQuantities();
     }
 
     function initializeQuantityControls() {
@@ -258,15 +338,25 @@
         const selectedBagOption = document.querySelector('.bag-option.selected');
         if (!selectedBagOption) return alert('Please select number of bags first');
 
+        console.log("SkioData", skioData)
+
+        console.log("is subscriont", isSubscription)
+
+        console.log("Selling plan", skioData.sellingPlanGroup)
+
+        const fullSellingPlanId = Object.keys(skioData.sellingPlanGroup)[0];
+        const sellingPlanId = fullSellingPlanId.split("/").pop();
+
         const variants = Array.from(document.querySelectorAll('.variant-quantity'))
             .filter(input => parseInt(input.value) > 0)
             .map(input => ({
                 id: input.dataset.variant.split('/').pop(),
                 quantity: parseInt(input.value),
+                selling_plan: isSubscription ? sellingPlanId: undefined,
                 properties: {
                     _dynamicBoxIndex: "0",
                     _dynamicBoxId: skioData.boxId,
-                } 
+                },
             }));
 
         if (variants.length === 0) return alert('Please select at least one flavor');
@@ -288,11 +378,31 @@
         .catch(error => console.error('Error:', error));
     }
 
+    function handlePurchaseTypeSelection() {
+        const buttons = document.querySelectorAll('.purchase-type-button');
+        buttons.forEach(btn => {
+            btn.addEventListener('click', function() {
+                buttons.forEach(b => b.classList.remove('selected'));
+                this.classList.add('selected');
+                isSubscription = this.dataset.purchaseType === 'subscribe';
+                updateTotalPrice();
+            });
+        });
+    }
+
     // Initialization
     document.addEventListener('DOMContentLoaded', function() {
         initializeBagSelection();
         initializeQuantityControls();
         document.getElementById('addToCartButton').addEventListener('click', handleAddToCart);
+        handlePurchaseTypeSelection();
+        
+        // Set subscribe as default
+        const subscribeButton = document.querySelector('[data-purchase-type="subscribe"]');
+        if (subscribeButton) {
+            subscribeButton.classList.add('selected');
+            isSubscription = true;
+        }
 
         // Fetch Skio Data
         fetch('https://api.skio.com/storefront-http/get-dynamic-box', {
@@ -303,9 +413,15 @@
         .then(response => response.json())
         .then(data => {
             skioData = SkioBox.parse(data);
-            console.log(skioData);
             const variants = parseVariants(skioData);
             populateVariantSelector(variants);
+            
+            // After variants are loaded, update the price for default 3 bags
+            const defaultBagOption = document.querySelector(`.bag-option[data-bags="${DEFAULT_SELECTED_BAGS}"]`);
+            if (defaultBagOption) {
+                defaultBagOption.classList.add('selected');
+                updateTotalPrice(); // Update price immediately after variants are loaded
+            }
         })
         .catch(error => console.error('Error fetching SkioBox data:', error));
     });
@@ -466,6 +582,34 @@
       margin-bottom: 20px;
     }
     
+    .purchase-options {
+        display: flex;
+        flex-direction: column;
+        gap: 10px;
+        margin-bottom: 20px;
+    }
+
+    .purchase-type-button {
+        cursor: pointer;
+        opacity: 0.7;
+        transition: all 0.3s ease;
+    }
+
+    .purchase-type-button.selected {
+        opacity: 1;
+        border-color: #4a90e2;
+        background: #f8f8f8;
+    }
+
+    .subscribe-button {
+        background: #e3f2fd;
+        border-color: #4a90e2;
+    }
+
+    .subscribe-button.selected {
+        background: #bbdefb;
+    }
+
     .purchase-type-button {
       background: #f8f8f8;
       border: 2px solid #e0e0e0;
@@ -477,6 +621,7 @@
       align-items: center;
       cursor: pointer;
       transition: border-color 0.3s ease;
+      position: relative;
     }
     
     .purchase-type-button:hover { border-color: #4a90e2; }
@@ -491,11 +636,13 @@
       display: flex;
       align-items: center;
       gap: 10px;
+      position: relative;
     }
     
     .original-price {
       color: #666;
       font-size: 14px;
+      opacity: 0.8;
     }
     
     .original-price.strikethrough {
@@ -507,6 +654,20 @@
       font-size: 16px;
       color: #4a90e2;
       font-weight: bold;
+    }
+    
+    .discount-badge {
+        position: absolute;
+        top: -12px;
+        right: -12px;
+        background: #4CAF50;
+        color: white;
+        padding: 4px 8px;
+        border-radius: 12px;
+        font-size: 12px;
+        font-weight: bold;
+        box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        display: none;
     }
     
     .variant-section-title {
@@ -651,5 +812,29 @@
     .product-images-column::-webkit-scrollbar-thumb {
         background: #888;
         border-radius: 3px;
+    }
+
+    .quantity-error {
+        text-align: center;
+        margin-bottom: 10px;
+        font-size: 14px;
+        display: none;
+        padding: 8px;
+        border-radius: 4px;
+    }
+
+    .quantity-error.error {
+        color: #d32f2f;
+        background: rgba(211, 47, 47, 0.1);
+    }
+
+    .quantity-error.info {
+        color: #4a90e2;
+        background: rgba(74, 144, 226, 0.1);
+    }
+
+    .add-to-cart-button:disabled {
+        background: #cccccc;
+        cursor: not-allowed;
     }
 </style>
