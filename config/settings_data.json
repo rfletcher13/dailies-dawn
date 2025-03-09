@@ -158,6 +158,18 @@
         "type": "shopify://apps/commslayer-helpdesk-chat/blocks/chat-widget/e555a08e-ceaa-4a9b-ab9f-a58bccbfc762",
         "disabled": true,
         "settings": {}
+      },
+      "7079518687644006178": {
+        "type": "shopify://apps/checkout-blocks/blocks/app-embed/b0024ca5-9de8-4bf0-a92f-cd0783877ae2",
+        "disabled": false,
+        "settings": {
+          "utm_id": true,
+          "utm_source": true,
+          "utm_medium": true,
+          "utm_campaign": true,
+          "utm_term": true,
+          "ref": true
+        }
       }
     },
     "color_schemes": {
