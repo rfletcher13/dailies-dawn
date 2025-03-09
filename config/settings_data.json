@@ -148,6 +148,16 @@
         "type": "shopify://apps/klaviyo-email-marketing-sms/blocks/klaviyo-onsite-embed/2632fe16-c075-4321-a88b-50b567f42507",
         "disabled": false,
         "settings": {}
+      },
+      "14060646107696862457": {
+        "type": "shopify://apps/judge-me-reviews/blocks/judgeme_core/61ccd3b1-a9f2-4160-9fe9-4fec8413e5d8",
+        "disabled": false,
+        "settings": {}
+      },
+      "4061484991452085298": {
+        "type": "shopify://apps/commslayer-helpdesk-chat/blocks/chat-widget/e555a08e-ceaa-4a9b-ab9f-a58bccbfc762",
+        "disabled": true,
+        "settings": {}
       }
     },
     "color_schemes": {
