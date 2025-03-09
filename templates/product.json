@@ -23,6 +23,10 @@
           "type": "title",
           "settings": {}
         },
+        "judge_me_reviews_preview_badge_3xFPLA": {
+          "type": "shopify://apps/judge-me-reviews/blocks/preview_badge/61ccd3b1-a9f2-4160-9fe9-4fec8413e5d8",
+          "settings": {}
+        },
         "price": {
           "type": "price",
           "settings": {}
@@ -47,7 +51,7 @@
             "default_subscription": "",
             "group_border_radius": 5,
             "group_border_shadow": true,
-            "group_border_selected_color": "#000",
+            "group_border_selected_color": "#000000",
             "onetime_title": "One Time",
             "subscription_title": "Subscribe",
             "prepaid_title": "Prepaid",
@@ -79,6 +83,7 @@
       "block_order": [
         "vendor",
         "title",
+        "judge_me_reviews_preview_badge_3xFPLA",
         "price",
         "variant_picker",
         "quantity_selector",
@@ -103,6 +108,21 @@
         "padding_bottom": 12
       }
     },
+    "17415472726fb40055": {
+      "type": "apps",
+      "blocks": {
+        "judge_me_reviews_review_widget_6eJkV6": {
+          "type": "shopify://apps/judge-me-reviews/blocks/review_widget/61ccd3b1-a9f2-4160-9fe9-4fec8413e5d8",
+          "settings": {}
+        }
+      },
+      "block_order": [
+        "judge_me_reviews_review_widget_6eJkV6"
+      ],
+      "settings": {
+        "include_margins": true
+      }
+    },
     "related-products": {
       "type": "related-products",
       "settings": {
@@ -124,6 +144,7 @@
   },
   "order": [
     "main",
+    "17415472726fb40055",
     "related-products"
   ]
 }
