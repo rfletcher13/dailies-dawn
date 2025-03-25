@@ -144,14 +144,19 @@
     },
     "content_for_index": [],
     "blocks": {
+      "855628211100114053": {
+        "type": "shopify://apps/klaviyo-email-marketing-sms/blocks/klaviyo-onsite-embed/2632fe16-c075-4321-a88b-50b567f42507",
+        "disabled": false,
+        "settings": {}
+      },
       "14060646107696862457": {
         "type": "shopify://apps/judge-me-reviews/blocks/judgeme_core/61ccd3b1-a9f2-4160-9fe9-4fec8413e5d8",
         "disabled": false,
         "settings": {}
       },
-      "855628211100114053": {
-        "type": "shopify://apps/klaviyo-email-marketing-sms/blocks/klaviyo-onsite-embed/2632fe16-c075-4321-a88b-50b567f42507",
-        "disabled": false,
+      "4061484991452085298": {
+        "type": "shopify://apps/commslayer-helpdesk-chat/blocks/chat-widget/e555a08e-ceaa-4a9b-ab9f-a58bccbfc762",
+        "disabled": true,
         "settings": {}
       },
       "7079518687644006178": {
@@ -168,6 +173,11 @@
       },
       "18443944202862238493": {
         "type": "shopify://apps/clarity-session-replay-heatmap/blocks/app-embed/a00e1498-58a5-40f8-a329-090bf3504868",
+        "disabled": false,
+        "settings": {}
+      },
+      "6065014864672580889": {
+        "type": "shopify://apps/amp-slide-cart-drawer/blocks/app-embed/0a410b8d-7dc4-4f2d-b4e8-c12d34fd2255",
         "disabled": false,
         "settings": {}
       }
