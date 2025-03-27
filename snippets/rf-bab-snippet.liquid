@@ -1,18 +1,105 @@
 {%comment %}Build a box component{% endcomment %}
-{% assign bab_id = all_products['clear-protein-box'].id %}
+{% assign box_product = all_products[product] %}
+{% if box_product == blank and product.id != blank %}
+  {% assign box_product = product %}
+{% endif %}
 
-<div class="box-builder-container">
-    <!-- Left Side: Images and Logos -->
-    <div class="image-section">
-      <h2 class="image-section-title">Build Your Protein Box</h2>
-      <div class="image-gallery">
-        <div class="product-images-column">
-            <img src="https://savortheflavour.com/wp-content/uploads/2020/07/Blue-Lagoon-Mocktail-Tasty.jpg" alt="Protein Box" class="product-image">
-            <img src="https://savortheflavour.com/wp-content/uploads/2020/07/Blue-Lagoon-Mocktail-Tasty.jpg" alt="Protein Box" class="product-image">
-        </div>
+<div class="product-container">
+  <!-- Product Header Section -->
+  <div class="product-header">
+    <div class="breadcrumb">
+      <a href="{{ routes.root_url }}">Home</a> &gt;
+      <a href="{{ routes.collections_url }}">Products</a> &gt;
+      <span>{{ box_product.title }}</span>
+    </div>
+    
+    <h1 class="product-title">{{ box_product.title | upcase }}</h1>
+    
+    <div class="product-rating">
+      <div class="stars">★★★★★</div>
+      <span class="reviews">({{ box_product.metafields.reviews.rating_count | default: '26,122' }})</span>
+      <div class="product-tags">
+        <span>Energy</span> | <span>Flavor</span> | <span>Convenience</span>
       </div>
     </div>
-  
+  </div>
+
+  <!-- Product Hero Section -->
+  <div class="product-hero">
+    <!-- Image Carousel -->
+    <div class="product-carousel">
+      <div class="slider-container">
+        <div class="slider">
+          {% if box_product.images.size > 0 %}
+            {% for image in box_product.images %}
+              <div class="slide">
+                <img src="{{ image | img_url: '800x800', crop: 'center' }}" 
+                     alt="{{ box_product.title }}" 
+                     width="800" 
+                     height="800"
+                     loading="{% if forloop.index <= 1 %}eager{% else %}lazy{% endif %}">
+              </div>
+            {% endfor %}
+          {% else %}
+            <div class="slide">
+              <img src="{{ box_product.featured_image | img_url: '800x800', crop: 'center' }}" 
+                   alt="{{ box_product.title }}" 
+                   width="800" 
+                   height="800"
+                   loading="eager">
+            </div>
+          {% endif %}
+        </div>
+        
+        <button class="slider-button prev" aria-label="Previous slide">
+          <svg viewBox="0 0 24 24" width="24" height="24" stroke="currentColor" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round"><polyline points="15 18 9 12 15 6"></polyline></svg>
+        </button>
+        <button class="slider-button next" aria-label="Next slide">
+          <svg viewBox="0 0 24 24" width="24" height="24" stroke="currentColor" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"></polyline></svg>
+        </button>
+      </div>
+    </div>
+    
+    <!-- USP Icons in separate container -->
+    <div class="usp-container">
+      <div class="feature-icons">
+        {% if usp_1 != blank %}
+          <div class="feature-icon">
+            <div class="icon-wrapper">
+              <img src="{{ usp_1 | img_url: '160x160' }}" alt="USP icon" width="80" height="80">
+            </div>
+          </div>
+        {% endif %}
+        
+        {% if usp_2 != blank %}
+          <div class="feature-icon">
+            <div class="icon-wrapper">
+              <img src="{{ usp_2 | img_url: '160x160' }}" alt="USP icon" width="80" height="80">
+            </div>
+          </div>
+        {% endif %}
+        
+        {% if usp_3 != blank %}
+          <div class="feature-icon">
+            <div class="icon-wrapper">
+              <img src="{{ usp_3 | img_url: '160x160' }}" alt="USP icon" width="80" height="80">
+            </div>
+          </div>
+        {% endif %}
+        
+        {% if usp_4 != blank %}
+          <div class="feature-icon">
+            <div class="icon-wrapper">
+              <img src="{{ usp_4 | img_url: '160x160' }}" alt="USP icon" width="80" height="80">
+            </div>
+          </div>
+        {% endif %}
+      </div>
+    </div>
+  </div>
+
+  <div class="box-builder-container">
+    <!-- Original box builder functionality continues below -->
     <!-- Right Side: Scrollable GUI -->
     <div class="gui-section">
       <div class="bag-selection">
@@ -52,17 +139,89 @@
       </div>
     </div>
   </div>
+</div>
 
 <script>
     // Constants and State
-    const BAB_ID = {{ bab_id }};
+    const BAB_ID = {{ box_product.id | json }};
     const DEFAULT_SELECTED_BAGS = 3; // Changed to always be 3
     let skioData = null;
     let variantPrices = {};
     let currentDiscount = 0;
     let isSubscription = false;
 
-    // Utility Functions
+    // Initialize the carousel
+    document.addEventListener('DOMContentLoaded', function() {
+        initializeSlider();
+        
+        // Original box builder code
+        initializeBagSelection();
+        initializeQuantityControls();
+        document.getElementById('addToCartButton').addEventListener('click', handleAddToCart);
+        handlePurchaseTypeSelection();
+        
+        // Set subscribe as default
+        const subscribeButton = document.querySelector('[data-purchase-type="subscribe"]');
+        if (subscribeButton) {
+            subscribeButton.classList.add('selected');
+            isSubscription = true;
+        }
+
+        // Fetch Skio Data
+        fetch('https://api.skio.com/storefront-http/get-dynamic-box', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ productPlatformId: BAB_ID })
+        })
+        .then(response => response.json())
+        .then(data => {
+            skioData = SkioBox.parse(data);
+            const variants = parseVariants(skioData);
+            populateVariantSelector(variants);
+            
+            // After variants are loaded, update the price for default 3 bags
+            const defaultBagOption = document.querySelector(`.bag-option[data-bags="${DEFAULT_SELECTED_BAGS}"]`);
+            if (defaultBagOption) {
+                defaultBagOption.classList.add('selected');
+                updateTotalPrice(); // Update price immediately after variants are loaded
+            }
+        })
+        .catch(error => console.error('Error fetching SkioBox data:', error));
+    });
+
+    // Slider functionality
+    function initializeSlider() {
+        const slider = document.querySelector('.slider');
+        const slides = document.querySelectorAll('.slide');
+        const prevBtn = document.querySelector('.slider-button.prev');
+        const nextBtn = document.querySelector('.slider-button.next');
+        let currentSlide = 0;
+        
+        if (!slider || slides.length === 0) return;
+        
+        function updateSlider() {
+            const slideWidth = slides[0].clientWidth;
+            slider.style.transform = `translateX(${-currentSlide * slideWidth}px)`;
+        }
+        
+        prevBtn.addEventListener('click', () => {
+            currentSlide = (currentSlide > 0) ? currentSlide - 1 : slides.length - 1;
+            updateSlider();
+        });
+        
+        nextBtn.addEventListener('click', () => {
+            currentSlide = (currentSlide < slides.length - 1) ? currentSlide + 1 : 0;
+            updateSlider();
+        });
+        
+        // Initialize slider position
+        updateSlider();
+        
+        // Handle window resize
+        window.addEventListener('resize', updateSlider);
+    }
+
+    // Utility Functions for box builder
     class SkioBox { 
         static parse(apiResponse) {
             apiResponse = apiResponse.DynamicBox
@@ -253,7 +412,6 @@
         return message;
     }
 
-    // UI Update Functions
     function populateVariantSelector(variants) {
         const grid = document.getElementById('variantsGrid');
         grid.innerHTML = '';
@@ -390,92 +548,189 @@
             });
         });
     }
-
-    // Initialization
-    document.addEventListener('DOMContentLoaded', function() {
-        initializeBagSelection();
-        initializeQuantityControls();
-        document.getElementById('addToCartButton').addEventListener('click', handleAddToCart);
-        handlePurchaseTypeSelection();
-        
-        // Set subscribe as default
-        const subscribeButton = document.querySelector('[data-purchase-type="subscribe"]');
-        if (subscribeButton) {
-            subscribeButton.classList.add('selected');
-            isSubscription = true;
-        }
-
-        // Fetch Skio Data
-        fetch('https://api.skio.com/storefront-http/get-dynamic-box', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ productPlatformId: BAB_ID })
-        })
-        .then(response => response.json())
-        .then(data => {
-            skioData = SkioBox.parse(data);
-            const variants = parseVariants(skioData);
-            populateVariantSelector(variants);
-            
-            // After variants are loaded, update the price for default 3 bags
-            const defaultBagOption = document.querySelector(`.bag-option[data-bags="${DEFAULT_SELECTED_BAGS}"]`);
-            if (defaultBagOption) {
-                defaultBagOption.classList.add('selected');
-                updateTotalPrice(); // Update price immediately after variants are loaded
-            }
-        })
-        .catch(error => console.error('Error fetching SkioBox data:', error));
-    });
-
-    function handleResize() {
-        const windowHeight = window.innerHeight;
-        const isMobile = window.innerWidth <= 768;
-        const imageSection = document.querySelector('.image-section');
-        const productImages = document.querySelectorAll('.product-image');
-
-        if (isMobile) {
-            imageSection.style.height = 'auto';
-            productImages.forEach(img => {
-                img.style.maxHeight = `calc((60vh - 100px) / 2)`;
-            });
-        } else {
-            imageSection.style.height = `calc(${windowHeight}px - 40px)`;
-            productImages.forEach(img => {
-                img.style.maxHeight = `calc((${windowHeight}px - 150px) / 2)`;
-            });
-        }
-    }
-
-    // Debounce function
-    function debounce(func, wait) {
-        let timeout;
-        return function executedFunction(...args) {
-            const later = () => {
-                clearTimeout(timeout);
-                func(...args);
-            };
-            clearTimeout(timeout);
-            timeout = setTimeout(later, wait);
-        };
-    }
-
-    // Initialize and add event listeners
-    window.addEventListener('load', handleResize);
-    window.addEventListener('resize', debounce(handleResize, 250));
 </script>
 
 <style>
-    .box-builder-container {
-        display: flex;
+    /* Product Container */
+    .product-container {
         max-width: 1200px;
         margin: 0 auto;
         padding: 20px;
-        gap: 20px;
-        min-height: 100vh;
+        font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;
+    }
+
+    /* Product Header */
+    .product-header {
+        margin-bottom: 20px;
+    }
+
+    .breadcrumb {
+        font-size: 1.05rem;
+        color: #666;
+        margin-bottom: 10px;
+    }
+
+    .breadcrumb a {
+        color: #666;
+        text-decoration: none;
+    }
+
+    .breadcrumb a:hover {
+        text-decoration: underline;
+    }
+
+    .product-title {
+        font-size: 1.5rem;
+        font-weight: 700;
+        margin: 0 0 10px;
+    }
+
+    .product-rating {
+        display: flex;
+        align-items: center;
+        flex-wrap: wrap;
+        gap: 10px;
+        margin-bottom: 20px;
+        font-size: 1.05rem;
+    }
+
+    .stars {
+        color: #FFD700;
+        letter-spacing: 2px;
+    }
+
+    .reviews {
+        color: #333;
+        font-size: 1.05rem;
+    }
+
+    .product-tags {
+        color: #666;
+        font-size: 1.05rem;
+    }
+
+    /* Product Hero Section */
+    .product-hero {
+        overflow: hidden;
+        margin-bottom: 0;
+        padding: 0;
+    }
+
+    /* Carousel */
+    .product-carousel {
+        margin-bottom: 0;
+    }
+
+    .slider-container {
         position: relative;
+        overflow: hidden;
+        max-width: 800px;
+        margin: 0 auto;
+        border-radius: 8px;
+    }
+
+    .slider {
+        display: flex;
+        transition: transform 0.3s ease-in-out;
+    }
+
+    .slide {
+        min-width: 100%;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        aspect-ratio: 1/1;
+    }
+
+    .slide img {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+    }
+
+    .slider-button {
+        position: absolute;
+        top: 50%;
+        transform: translateY(-50%);
+        width: 36px;
+        height: 36px;
+        background: white;
+        color: black;
+        border: none;
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        cursor: pointer;
+        box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
+        z-index: 10;
+    }
+
+    .slider-button:hover {
+        background: #f0f0f0;
+    }
+
+    .slider-button.prev {
+        left: 10px;
+    }
+
+    .slider-button.next {
+        right: 10px;
+    }
+
+    /* USP Icons in separate container */
+    .usp-container {
+        padding: 0;
+        margin-top: 8px;
+        margin-bottom: 30px;
+        border-radius: 0;
+        max-width: 800px;
+        margin-left: auto;
+        margin-right: auto;
+    }
+
+    .feature-icons {
+        display: grid;
+        grid-template-columns: repeat(4, 1fr);
+        gap: 8px;
+        margin: 0 auto;
+    }
+
+    .feature-icon {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        text-align: center;
+    }
+
+    .icon-wrapper {
+        background: none;
+        border-radius: 8px;
+        width: 100%;
+        aspect-ratio: 1/1;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        overflow: hidden;
+    }
+
+    .icon-wrapper img {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+        border-radius: 8px;
+    }
+
+    /* Original Box Builder Styles */
+    .box-builder-container {
+        display: flex;
+        flex-direction: column;
+        max-width: 800px;
+        margin: 0 auto;
+        padding: 0;
     }
     
-    /* Left Side: Images */
+    /* Left Side: Images and Logos */
     .image-section {
         width: 45%;
         max-width: 500px;
@@ -527,22 +782,23 @@
         flex: 1;
         min-width: 320px;
         max-width: 600px;
-        padding: 10px;
+        padding: 0px;
     }
     
     /* Bag Selection */
     .bag-selection {
       display: grid;
       grid-template-columns: repeat(4, 1fr);
-      gap: 10px;
-      margin-bottom: 20px;
+      gap:8px;
+      margin-bottom: 16px;
+      margin-top: 16px;
     }
     
     .bag-option {
       position: relative;
-      border: 2px solid #e0e0e0;
+      border: 1px solid #e0e0e0;
       border-radius: 6px;
-      padding: 15px 8px 12px;
+      padding: 10px 6px;
       text-align: center;
       cursor: pointer;
       background: #fff;
@@ -551,29 +807,30 @@
       flex-direction: column;
       justify-content: center;
       align-items: center;
-      min-height: 45px;
+      min-height: 40px;
     }
     
-    .bag-option.selected { border: 3px solid #4a90e2; }
+    .bag-option.selected { border: 2px solid #4a90e2; }
     .bag-option:hover { border-color: #a0a0a0; }
     
     .deal-badge {
       position: absolute;
-      top: -15px;
+      top: -10px;
       left: 50%;
       transform: translateX(-50%);
       background: #d32f2f;
       color: white;
       padding: 1px 4px;
       border-radius: 2px;
-      font: 600 7px uppercase;
+      font-size: 0.6rem;
+      font-weight: 600;
       letter-spacing: 0.3px;
       white-space: nowrap;
       box-shadow: 0 1px 2px rgba(0,0,0,0.1);
     }
     
     .bag-count {
-      font-size: 13px;
+      font-size: 0.85rem;
       font-weight: 600;
       color: #333;
     }
@@ -586,14 +843,23 @@
     .purchase-options {
         display: flex;
         flex-direction: column;
-        gap: 10px;
-        margin-bottom: 20px;
+        gap: 8px;
+        margin-bottom: 16px;
     }
 
     .purchase-type-button {
-        cursor: pointer;
-        opacity: 0.7;
-        transition: all 0.3s ease;
+      background: #f8f8f8;
+      border: 1px solid #e0e0e0;
+      border-radius: 8px;
+      padding: 12px 16px;
+      margin-bottom: 8px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      cursor: pointer;
+      transition: border-color 0.3s ease;
+      position: relative;
+      opacity: 0.7;
     }
 
     .purchase-type-button.selected {
@@ -602,47 +868,26 @@
         background: #f8f8f8;
     }
 
-    .subscribe-button {
-        background: #e3f2fd;
-        border-color: #4a90e2;
+    .purchase-type-button:hover { 
+        border-color: #4a90e2; 
     }
 
-    .subscribe-button.selected {
-        background: #bbdefb;
-    }
-
-    .purchase-type-button {
-      background: #f8f8f8;
-      border: 2px solid #e0e0e0;
-      border-radius: 8px;
-      padding: 15px 20px;
-      margin-bottom: 20px;
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      cursor: pointer;
-      transition: border-color 0.3s ease;
-      position: relative;
-    }
-    
-    .purchase-type-button:hover { border-color: #4a90e2; }
-    
     .purchase-type-label {
-      font-weight: bold;
-      font-size: 16px;
+      font-weight: 600;
+      font-size: 0.95rem;
       color: #333;
     }
     
     .price-container {
       display: flex;
       align-items: center;
-      gap: 10px;
+      gap: 8px;
       position: relative;
     }
     
     .original-price {
       color: #666;
-      font-size: 14px;
+      font-size: 0.85rem;
       opacity: 0.8;
     }
     
@@ -652,55 +897,58 @@
     }
     
     .purchase-type-price {
-      font-size: 16px;
+      font-size: 0.95rem;
       color: #4a90e2;
-      font-weight: bold;
+      font-weight: 600;
     }
     
     .discount-badge {
         position: absolute;
-        top: -12px;
-        right: -12px;
+        top: -10px;
+        right: -8px;
         background: #4CAF50;
         color: white;
-        padding: 4px 8px;
+        padding: 3px 6px;
         border-radius: 12px;
-        font-size: 12px;
-        font-weight: bold;
-        box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        font-size: 0.7rem;
+        font-weight: 600;
+        box-shadow: 0 1px 3px rgba(0,0,0,0.1);
         display: none;
     }
     
     .variant-section-title {
       text-align: center;
-      margin-bottom: 20px;
+      margin: 16px 0;
       color: #333;
-      font-size: 1.2em;
+      font-size: 1rem;
+      font-weight: 600;
     }
     
     .variants-grid {
       display: flex;
       flex-direction: column;
-      gap: 15px;
+      gap: 8px;
     }
     
     .variant-card {
       display: grid;
-      grid-template-columns: 80px 1fr auto;
+      grid-template-columns: 60px 1fr auto;
       align-items: center;
-      gap: 15px;
-      border: 2px solid #e0e0e0;
+      gap: 12px;
+      border: 1px solid #e0e0e0;
       border-radius: 8px;
-      padding: 10px;
+      padding: 8px;
       background: white;
       transition: border-color 0.3s ease;
     }
     
-    .variant-card:hover { border-color: #4a90e2; }
+    .variant-card:hover { 
+        border-color: #4a90e2; 
+    }
     
     .variant-image {
-      width: 80px;
-      height: 80px;
+      width: 60px;
+      height: 60px;
     }
     
     .variant-image img {
@@ -712,20 +960,20 @@
     
     .variant-title h4 {
       margin: 0;
-      font-size: 14px;
+      font-size: 0.9rem;
       color: #333;
     }
     
     .quantity-controls {
       display: flex;
       align-items: center;
-      gap: 8px;
+      gap: 6px;
     }
     
     .quantity-btn {
-      width: 28px;
-      height: 28px;
-      font-size: 16px;
+      width: 24px;
+      height: 24px;
+      font-size: 14px;
       background: #f0f0f0;
       border: none;
       border-radius: 4px;
@@ -733,17 +981,17 @@
     }
     
     .variant-quantity {
-      width: 40px;
+      width: 32px;
       text-align: center;
-      padding: 4px;
+      padding: 3px;
       border: 1px solid #e0e0e0;
       border-radius: 4px;
-      font-size: 14px;
+      font-size: 0.85rem;
     }
     
     /* Cart Button */
     .cart-button-container {
-      margin-bottom: 20px;
+      margin: 20px 0;
     }
     
     .add-to-cart-button {
@@ -751,15 +999,17 @@
       color: white;
       border: none;
       border-radius: 8px;
-      padding: 15px 30px;
-      font-size: 16px;
-      font-weight: bold;
+      padding: 12px 20px;
+      font-size: 0.95rem;
+      font-weight: 600;
       cursor: pointer;
       width: 100%;
       transition: background-color 0.3s ease;
     }
     
-    .add-to-cart-button:hover { background: #357abd; }
+    .add-to-cart-button:hover { 
+        background: #357abd; 
+    }
     
     /* Responsive Design */
     @media (max-width: 768px) {
@@ -791,7 +1041,6 @@
 
     @media (max-width: 1024px) {
         .box-builder-container {
-            padding: 15px;
             gap: 15px;
         }
 
@@ -817,10 +1066,10 @@
 
     .quantity-error {
         text-align: center;
-        margin-bottom: 10px;
-        font-size: 14px;
+        margin-bottom: 8px;
+        font-size: 0.85rem;
         display: none;
-        padding: 8px;
+        padding: 6px;
         border-radius: 4px;
     }
 

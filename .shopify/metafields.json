@@ -129,6 +129,26 @@
         "name": "list.metaobject_reference",
         "category": "REFERENCE"
       }
+    },
+    {
+      "key": "flavor_options",
+      "namespace": "custom",
+      "name": "Flavor Options",
+      "description": "Flavor Options used for Online store and rendering other flavors",
+      "type": {
+        "name": "list.product_reference",
+        "category": "REFERENCE"
+      }
+    },
+    {
+      "key": "build_a_box_product",
+      "namespace": "custom",
+      "name": "Build A Box Product",
+      "description": "This is the build a box associated with this product.",
+      "type": {
+        "name": "product_reference",
+        "category": "REFERENCE"
+      }
     }
   ],
   "variant": [

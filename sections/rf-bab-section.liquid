@@ -1,0 +1,54 @@
+<div class="rf-bab-section">
+    {% render 'rf-bab-snippet', 
+      product: section.settings.product,
+      usp_1: section.settings.usp_1,
+      usp_2: section.settings.usp_2,
+      usp_3: section.settings.usp_3,
+      usp_4: section.settings.usp_4
+    %}
+</div>
+
+{% schema %}
+{
+  "name": "Build-A-Box Section",
+  "tag": "section",
+  "class": "section",
+  "settings": [
+    {
+      "type": "product",
+      "id": "product",
+      "label": "Box Product"
+    },
+    {
+      "type": "header",
+      "content": "USP Icons"
+    },
+    {
+      "type": "image_picker",
+      "id": "usp_1",
+      "label": "USP 1 Icon"
+    },
+    {
+      "type": "image_picker",
+      "id": "usp_2",
+      "label": "USP 2 Icon"
+    },
+    {
+      "type": "image_picker",
+      "id": "usp_3",
+      "label": "USP 3 Icon"
+    },
+    {
+      "type": "image_picker",
+      "id": "usp_4",
+      "label": "USP 4 Icon"
+    }
+  ],
+  "presets": [
+    {
+      "name": "Build-A-Box Section",
+      "category": "Custom"
+    }
+  ]
+}
+{% endschema %}

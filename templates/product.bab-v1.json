@@ -9,15 +9,6 @@
  */
 {
   "sections": {
-    "custom_liquid_r4cnd8": {
-      "type": "custom-liquid",
-      "settings": {
-        "custom_liquid": "{% if product.type == 'Classic Box' or product.type == 'Dynamic Box' %} \n  <script> \n    (() => { \nconsole.error(\"Dynamic box found!)\n      document.addEventListener('DOMContentLoaded', () => { \n        const form = document.querySelector('form[action=\"/cart/add\"]'); \n        if(!form) { console.error('Skio: No form found'); return; } \n        const addToCart = form.querySelector('button[type=\"submit\"]'); \n        if(!addToCart) { console.error('Skio: No add to cart button found'); return; } \n        const customize = addToCart.cloneNode(true); \n        customize.removeAttribute('name'); \n        customize.type = 'button'; \n        customize.querySelector('span').innerHTML = 'Customize my Box'; \n        customize.addEventListener('click', (event) => { \n          const formData = new FormData(form); \n          const variant = formData.get('id'); \n          const sellingPlan = formData.get('selling_plan');\n          let redirect;\n          {% if product.type == 'Classic Box' %} \n            if (sellingPlan) { redirect = `/a/account/custom-tools/build-a-box?variant=${variant}&selling_plan=${sellingPlan}`; } \n            else { redirect = `/a/account/custom-tools/build-a-box?variant=${variant}`; }\n          {% else %} \n            redirect = `/a/account/custom-tools/dynamic-box?product={{product.id}}`; \n          {% endif %} \n          window.location = redirect; \n        }); \n        const buttonParent = addToCart.parentElement; \n        buttonParent.insertBefore(customize, addToCart); \n        addToCart.remove(); \n        let remove_button = form.querySelector('[data-shopify=\"payment-button\"]'); \n        if (remove_button) remove_button.remove(); \n      }); \n    })(); \n  </script> \n{% endif %}",
-        "color_scheme": "",
-        "padding_top": 40,
-        "padding_bottom": 52
-      }
-    },
     "main": {
       "type": "main-product",
       "blocks": {
@@ -105,6 +96,7 @@
         "collapsible_tab_9K9tB6",
         "share"
       ],
+      "disabled": true,
       "settings": {
         "enable_sticky_info": true,
         "color_scheme": "scheme-1",
@@ -123,6 +115,7 @@
     },
     "related-products": {
       "type": "related-products",
+      "disabled": true,
       "settings": {
         "heading": "You may also like",
         "heading_size": "h2",
@@ -138,11 +131,25 @@
         "padding_top": 36,
         "padding_bottom": 28
       }
+    },
+    "rf_bab_section_q7iWbX": {
+      "type": "rf-bab-section",
+      "settings": {
+        "product": "{{ product.metafields.custom.build_a_box_product.value }}",
+        "usp_1": "shopify://shop_images/IMG_1711.png",
+        "usp_1_title": "Delicious Coffee in Seconds",
+        "usp_2": "shopify://shop_images/Screenshot_2025-03-06_at_4.11.17_PM.png",
+        "usp_2_title": "Zero Sugar",
+        "usp_3": "shopify://shop_images/IMG_1711.png",
+        "usp_3_title": "All Natural",
+        "usp_4": "shopify://shop_images/IMG_1711.png",
+        "usp_4_title": "15+ Indulgent Flavors"
+      }
     }
   },
   "order": [
-    "custom_liquid_r4cnd8",
     "main",
-    "related-products"
+    "related-products",
+    "rf_bab_section_q7iWbX"
   ]
 }
