@@ -149,13 +149,28 @@
         "product": "{{ product.metafields.custom.build_a_box_product.value }}",
         "custom_description": "{{ product.description }}",
         "primary_color": "#334fb4",
-        "secondary_color": "#4CAF50",
+        "secondary_color": "#4caf50",
         "text_color": "#333333",
-        "background_color": "#FFFFFF",
+        "background_color": "#ffffff",
         "usp_1": "shopify://shop_images/Screenshot_2025-03-28_at_10.06.03_AM.png",
         "usp_2": "shopify://shop_images/Screenshot_2025-03-28_at_10.05.56_AM.png",
         "usp_3": "shopify://shop_images/Screenshot_2025-03-28_at_10.05.51_AM.png",
         "usp_4": "shopify://shop_images/Screenshot_2025-03-28_at_10.05.45_AM.png"
+      }
+    },
+    "1743194462d67c4ff8": {
+      "type": "apps",
+      "blocks": {
+        "judge_me_reviews_review_widget_qhFfhV": {
+          "type": "shopify://apps/judge-me-reviews/blocks/review_widget/61ccd3b1-a9f2-4160-9fe9-4fec8413e5d8",
+          "settings": {}
+        }
+      },
+      "block_order": [
+        "judge_me_reviews_review_widget_qhFfhV"
+      ],
+      "settings": {
+        "include_margins": true
       }
     }
   },
@@ -163,6 +178,7 @@
     "main",
     "related-products",
     "rf_bab_section_tailwind_Gp9aFQ",
-    "rf_bab_section_KVzfEW"
+    "rf_bab_section_KVzfEW",
+    "1743194462d67c4ff8"
   ]
 }
