@@ -11,11 +11,16 @@
   "class": "section",
   "settings": [
     {
-      "type": "product",
-      "label": "Select a Product"
+      "type": "checkbox",
+      "id": "include_margins",
+      "default": true,
+      "label": "t:sections.apps.settings.include_margins.label"
     }
   ],
-  "blocks": [ {}
+  "blocks": [
+    {
+      "type": "@app"
+    }
   ],
   "presets": [
     {

@@ -149,6 +149,16 @@
         "name": "product_reference",
         "category": "REFERENCE"
       }
+    },
+    {
+      "key": "dietary-use",
+      "namespace": "shopify",
+      "name": "Dietary use",
+      "description": "Classifies products based on dietary benefits, e.g. muscle building, low carb",
+      "type": {
+        "name": "list.metaobject_reference",
+        "category": "REFERENCE"
+      }
     }
   ],
   "variant": [
