@@ -4,6 +4,20 @@
   {% assign box_product = product %}
 {% endif %}
 
+<script type="application/json" id="flavorMetafields">
+{
+  {% for product in collections.all.products %}
+    {% for variant in product.variants %}
+      {% if variant.metafields.custom.flavor_description != blank %}
+        "{{ variant.id }}": "{{ variant.metafields.custom.flavor_description | escape }}"{% unless forloop.last and forloop.parentloop.last %},{% endunless %}
+      {% else %}
+        "{{ variant.id }}": "No flavor description available."{% unless forloop.last and forloop.parentloop.last %},{% endunless %}
+      {% endif %}
+    {% endfor %}
+  {% endfor %}
+}
+</script>
+
 <div class="product-container">
   <!-- Product Header Section -->
   <div class="product-header">
@@ -59,7 +73,7 @@
         </button>
       </div>
     </div>
-    
+
     <!-- USP Icons in separate container -->
     <div class="usp-container">
       <div class="feature-icons">
@@ -98,6 +112,12 @@
     </div>
   </div>
 
+  <!-- Product Description -->
+  <div class="product-description">
+    {{ custom_description }}
+  </div>
+
+
   <div class="box-builder-container">
     <!-- Original box builder functionality continues below -->
     <!-- Right Side: Scrollable GUI -->
@@ -130,13 +150,30 @@
                 <div class="discount-badge" id="discountBadge"></div>
             </div>
         </div>
-        <h3 class="variant-section-title">Select Your Flavors</h3>
+        <div class="variant-section-header">
+            <h3 class="variant-section-title">Select Your Flavors</h3>
+        </div>
         <div class="variants-grid" id="variantsGrid"></div>
       </div>
   
-      <div class="cart-button-container">
-        <button class="add-to-cart-button" id="addToCartButton">Add to Cart</button>
+      <div class="price-summary">
+        <div class="subtotal">Subtotal: <span id="subtotalPrice">$0.00</span></div>
+        <div class="savings-badge" id="savingsBadge" style="display: none;">
+          You save <span id="savingsAmount">$0.00</span>
+        </div>
       </div>
+      <button class="add-to-cart-button" id="addToCartButton">Add to Cart</button>
+    </div>
+  </div>
+  
+  <!-- Skio Debug Container -->
+  <div class="skio-debug-container" id="skioDebugContainer">
+    <div class="skio-debug-header">
+      <h3>Skio Debug Information</h3>
+      <button id="toggleSkioDebug" class="skio-debug-toggle">Toggle Debug</button>
+    </div>
+    <div class="skio-debug-content" id="skioDebugContent">
+      <pre id="skioDebugData">Loading Skio data...</pre>
     </div>
   </div>
 </div>
@@ -146,12 +183,33 @@
     const BAB_ID = {{ box_product.id | json }};
     const DEFAULT_SELECTED_BAGS = 3; // Changed to always be 3
     let skioData = null;
+    let rawSkioResponse = null; // Add variable to store raw API response
     let variantPrices = {};
     let currentDiscount = 0;
     let isSubscription = false;
+    let isDebugVisible = false;
+    let flavorMetafields = {};
 
     // Initialize the carousel
     document.addEventListener('DOMContentLoaded', function() {
+        // Load flavor metafields data
+        try {
+            const metafieldsData = document.getElementById('flavorMetafields');
+            if (metafieldsData) {
+                try {
+                    flavorMetafields = JSON.parse(metafieldsData.textContent);
+                    console.log('Successfully loaded flavor metafields:', Object.keys(flavorMetafields).length);
+                } catch (parseError) {
+                    console.error('Error parsing metafields JSON:', parseError);
+                    console.log('Raw metafields content:', metafieldsData.textContent);
+                }
+            } else {
+                console.warn('Flavor metafields element not found');
+            }
+        } catch (error) {
+            console.error('Error loading flavor metafields:', error);
+        }
+        
         initializeSlider();
         
         // Original box builder code
@@ -167,6 +225,9 @@
             isSubscription = true;
         }
 
+        // Initialize Skio Debug
+        initializeSkioDebug();
+
         // Fetch Skio Data
         fetch('https://api.skio.com/storefront-http/get-dynamic-box', {
             method: 'POST',
@@ -175,6 +236,10 @@
         })
         .then(response => response.json())
         .then(data => {
+            // Store the raw response first
+            rawSkioResponse = data;
+            
+            // Then parse it for use in the application
             skioData = SkioBox.parse(data);
             const variants = parseVariants(skioData);
             populateVariantSelector(variants);
@@ -185,9 +250,60 @@
                 defaultBagOption.classList.add('selected');
                 updateTotalPrice(); // Update price immediately after variants are loaded
             }
+            
+            // Update debug data
+            updateSkioDebugData();
         })
-        .catch(error => console.error('Error fetching SkioBox data:', error));
+        .catch(error => {
+            console.error('Error fetching SkioBox data:', error);
+            document.getElementById('skioDebugData').textContent = `Error fetching Skio data: ${error}`;
+        });
     });
+
+    // Initialize Skio Debug functionality
+    function initializeSkioDebug() {
+        // Check if debug should be shown (based on URL parameter)
+        const urlParams = new URLSearchParams(window.location.search);
+        const showDebug = urlParams.get('skio_debug') === 'true';
+        
+        const debugContainer = document.getElementById('skioDebugContainer');
+        const debugContent = document.getElementById('skioDebugContent');
+        const toggleButton = document.getElementById('toggleSkioDebug');
+        
+        // Set initial visibility
+        isDebugVisible = showDebug;
+        debugContent.style.display = isDebugVisible ? 'block' : 'none';
+        
+        // Hide debug container completely if not in development mode and no debug param
+        if (!showDebug && !window.Shopify.designMode) {
+            debugContainer.style.display = 'none';
+        }
+        
+        // Add toggle functionality
+        toggleButton.addEventListener('click', function() {
+            isDebugVisible = !isDebugVisible;
+            debugContent.style.display = isDebugVisible ? 'block' : 'none';
+        });
+    }
+    
+    // Update the debug data display
+    function updateSkioDebugData() {
+        const debugElement = document.getElementById('skioDebugData');
+        
+        if (!rawSkioResponse) {
+            debugElement.textContent = "Waiting for Skio API response...";
+            return;
+        }
+        
+        // Build debug information with both Skio data and flavor metafields
+        const debugData = {
+            skioResponse: rawSkioResponse,
+            flavorMetafields: flavorMetafields
+        };
+        
+        // Display the debug data
+        debugElement.textContent = JSON.stringify(debugData, null, 2);
+    }
 
     // Slider functionality
     function initializeSlider() {
@@ -324,12 +440,9 @@
         }
         
         // Calculate subscription price (additional 10% off)
-        const planId = Object.keys(skioData.sellingPlanGroup)[0]; // Get the first (and assumed only) selling plan
+        const planId = Object.keys(skioData.sellingPlanGroup)[0];
         const plan = skioData.sellingPlanGroup[planId];
-        
-        console.log(plan.priceAdjustmentAmount)
-        
-        const subscriptionTotal = onetimeTotal  * (1 - plan.priceAdjustmentAmount/100);
+        const subscriptionTotal = onetimeTotal * (1 - plan.priceAdjustmentAmount/100);
 
         const formatPrice = (price) => new Intl.NumberFormat('en-US', { 
             style: 'currency', 
@@ -344,6 +457,31 @@
         document.getElementById('subscribeOriginalPrice').textContent = formatPrice(potentialTotal);
         document.getElementById('subscribeTotalPrice').textContent = formatPrice(subscriptionTotal);
 
+        // Update subtotal and savings
+        const currentBags = Array.from(document.querySelectorAll('.variant-quantity'))
+            .reduce((sum, input) => sum + (parseInt(input.value) || 0), 0);
+        const requiredBags = selectedBags ? parseInt(selectedBags.dataset.bags) : 0;
+        
+        const finalPrice = isSubscription ? subscriptionTotal : onetimeTotal;
+        const subtotalElement = document.getElementById('subtotalPrice');
+        const subtotalContainer = subtotalElement.closest('.subtotal');
+        
+        if (currentBags >= requiredBags) {
+            subtotalElement.textContent = formatPrice(finalPrice);
+            subtotalContainer.style.display = 'block';
+        } else {
+            subtotalContainer.style.display = 'none';
+        }
+        
+        const savingsBadge = document.getElementById('savingsBadge');
+        if (currentBags >= requiredBags) {
+            const savings = potentialTotal - finalPrice;
+            document.getElementById('savingsAmount').textContent = formatPrice(savings);
+            savingsBadge.style.display = 'block';
+        } else {
+            savingsBadge.style.display = 'none';
+        }
+
         // Update badges and strikethroughs
         updatePriceDisplay('original', 'total', onetimeTotal < potentialTotal);
         updatePriceDisplay('subscribeOriginal', 'subscribe', true);
@@ -353,6 +491,9 @@
         updateDiscountBadge('subscribeDiscountBadge', potentialTotal, subscriptionTotal);
 
         validateQuantities();
+        
+        // Update debug data when price updates
+        updateSkioDebugData();
     }
 
     function updatePriceDisplay(originalId, totalId, shouldStrike) {
@@ -386,29 +527,35 @@
 
         if (currentBags < requiredBags) {
             addToCartButton.disabled = true;
-            errorMessage.textContent = `Please add ${requiredBags - currentBags} more bag(s) to meet the minimum`;
+            addToCartButton.textContent = `Add ${requiredBags - currentBags} More Flavor${requiredBags - currentBags !== 1 ? 's' : ''}`;
+            errorMessage.textContent = `${requiredBags - currentBags} Flavor${requiredBags - currentBags !== 1 ? 's' : ''} to Go`;
             errorMessage.classList.remove('info');
             errorMessage.classList.add('error');
             errorMessage.style.display = 'block';
-        } else if (currentBags > requiredBags) {
+        } 
+        else if (currentBags >= requiredBags) {
             addToCartButton.disabled = false;
-            errorMessage.textContent = `You've added ${currentBags - requiredBags} extra bag(s)`;
+            addToCartButton.textContent = 'Add to Cart';
+            errorMessage.textContent = `All Set! (You can add more)`;
             errorMessage.classList.remove('error');
             errorMessage.classList.add('info');
             errorMessage.style.display = 'block';
-        } else {
+        }
+        else {
             addToCartButton.disabled = false;
+            addToCartButton.textContent = 'Add to Cart';
             errorMessage.style.display = 'none';
         }
+        
+        // Update debug data when quantities change
+        updateSkioDebugData();
     }
 
     function createErrorMessage() {
         const message = document.createElement('div');
         message.className = 'quantity-error';
-        document.querySelector('.cart-button-container').insertBefore(
-            message, 
-            document.getElementById('addToCartButton')
-        );
+        const header = document.querySelector('.variant-section-header');
+        header.appendChild(message);
         return message;
     }
 
@@ -422,24 +569,45 @@
         });
 
         variants.forEach(variant => {
+            // Extract variant ID for finding flavor description
+            // Make sure to use the correct format - Shopify variant IDs are numeric
+            const variantIdFull = variant.platformId.split('/').pop();
+            const variantId = variantIdFull.includes('?') ? variantIdFull.split('?')[0] : variantIdFull;
+            
+            // Safely get flavor description with error handling
+            let flavorDescription = "No flavor description available.";
+            try {
+                flavorDescription = getFlavorDescription(variantId);
+            } catch (error) {
+                console.error(`Error getting flavor description for variant ${variantId}:`, error);
+            }
+            
             const variantCard = document.createElement('div');
             variantCard.className = 'variant-card';
             variantCard.innerHTML = `
                 <div class="variant-image">
                     <img src="${variant.imageSrc}" alt="${variant.productVariantTitle}">
                 </div>
-                <div class="variant-title">
-                    <h4>${variant.productVariantTitle}</h4>
+                <div class="variant-info">
+                    <div class="variant-title">
+                        <h4 class="flavor-name">${variant.productVariantTitle}</h4>
+                    </div>
+                    <div class="variant-description">
+                        <span class="description-text">${flavorDescription}</span>
+                    </div>
                 </div>
                 <div class="quantity-controls">
-                    <button class="quantity-btn" data-action="decrease" data-variant="${variant.platformId}">-</button>
-                    <input type="number" 
-                           class="variant-quantity" 
-                           value="0" 
-                           min="0" 
-                           max="99"
-                           data-variant="${variant.platformId}">
-                    <button class="quantity-btn" data-action="increase" data-variant="${variant.platformId}">+</button>
+                    <button class="add-btn" data-variant="${variant.platformId}">Add</button>
+                    <div class="quantity-input-group" style="display: none;">
+                        <button class="quantity-btn" data-action="decrease" data-variant="${variant.platformId}">-</button>
+                        <input type="number" 
+                               class="variant-quantity" 
+                               value="0" 
+                               min="0" 
+                               max="99"
+                               data-variant="${variant.platformId}">
+                        <button class="quantity-btn" data-action="increase" data-variant="${variant.platformId}">+</button>
+                    </div>
                 </div>
             `;
             grid.appendChild(variantCard);
@@ -447,17 +615,89 @@
 
         initializeVariantQuantityControls();
     }
+    
+    // Get flavor description from metafields
+    function getFlavorDescription(variantId) {
+        // Debug - log the variant ID we're looking up
+        console.log('Looking up flavor description for variant ID:', variantId);
+        
+        if (!flavorMetafields || !flavorMetafields[variantId]) {
+            console.log('No metafield data found for variant ID:', variantId);
+            return "No flavor description available.";
+        }
+        
+        const metafieldData = flavorMetafields[variantId];
+        console.log('Found metafield data:', metafieldData);
+        
+        // Handle string value directly
+        if (typeof metafieldData === 'string') {
+            return metafieldData;
+        }
+        
+        // Handle object with value property (typical Shopify metafield format)
+        if (typeof metafieldData === 'object') {
+            // First check for direct value property
+            if (metafieldData.value !== undefined) {
+                return metafieldData.value;
+            }
+            
+            // Then check for flavor_description property
+            if (metafieldData.flavor_description !== undefined) {
+                return metafieldData.flavor_description;
+            }
+            
+            // Try to stringify the object if all else fails
+            try {
+                return JSON.stringify(metafieldData);
+            } catch (e) {
+                console.error('Error stringifying metafield data:', e);
+            }
+        }
+        
+        return "No flavor description available.";
+    }
 
     function initializeVariantQuantityControls() {
+        // Handle Add buttons
+        document.querySelectorAll('.add-btn').forEach(btn => {
+            btn.addEventListener('click', function() {
+                const variantId = this.dataset.variant;
+                const quantityGroup = this.nextElementSibling;
+                const input = quantityGroup.querySelector('.variant-quantity');
+                
+                // Hide add button, show quantity controls
+                this.style.display = 'none';
+                quantityGroup.style.display = 'flex';
+                
+                // Set initial quantity to 1
+                input.value = 1;
+                
+                updateTotalPrice();
+                validateQuantities();
+            });
+        });
+
+        // Handle quantity buttons
         document.querySelectorAll('.variant-card .quantity-btn').forEach(btn => {
             btn.addEventListener('click', function() {
                 const variantId = this.dataset.variant;
-                const input = document.querySelector(`.variant-quantity[data-variant="${variantId}"]`);
+                const quantityGroup = this.closest('.quantity-input-group');
+                const addBtn = quantityGroup.previousElementSibling;
+                const input = quantityGroup.querySelector('.variant-quantity');
                 const currentValue = parseInt(input.value);
                 
-                input.value = this.dataset.action === 'increase' 
-                    ? Math.min(currentValue + 1, 99)
-                    : Math.max(currentValue - 1, 0);
+                if (this.dataset.action === 'increase') {
+                    input.value = Math.min(currentValue + 1, 99);
+                } else {
+                    const newValue = Math.max(currentValue - 1, 0);
+                    input.value = newValue;
+                    
+                    // If quantity becomes 0, switch back to Add button
+                    if (newValue === 0) {
+                        addBtn.style.display = 'block';
+                        quantityGroup.style.display = 'none';
+                    }
+                }
 
                 updateTotalPrice();
                 validateQuantities();
@@ -479,6 +719,9 @@
         this.classList.add('selected');
         updateTotalPrice();  // Add this line to update price when bags change
         validateQuantities();
+        
+        // Update debug data when bag selection changes
+        updateSkioDebugData();
     }
 
     function initializeQuantityControls() {
@@ -545,6 +788,9 @@
                 this.classList.add('selected');
                 isSubscription = this.dataset.purchaseType === 'subscribe';
                 updateTotalPrice();
+                
+                // Update debug data when purchase type changes
+                updateSkioDebugData();
             });
         });
     }
@@ -788,8 +1034,8 @@
     /* Bag Selection */
     .bag-selection {
       display: grid;
-      grid-template-columns: repeat(4, 1fr);
-      gap:8px;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 8px;
       margin-bottom: 16px;
       margin-top: 16px;
     }
@@ -798,7 +1044,7 @@
       position: relative;
       border: 1px solid #e0e0e0;
       border-radius: 6px;
-      padding: 10px 6px;
+      padding: 12px 6px;
       text-align: center;
       cursor: pointer;
       background: #fff;
@@ -807,7 +1053,7 @@
       flex-direction: column;
       justify-content: center;
       align-items: center;
-      min-height: 40px;
+      min-height: 50px;
     }
     
     .bag-option.selected { border: 2px solid #4a90e2; }
@@ -916,12 +1162,19 @@
         display: none;
     }
     
+    .variant-section-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin: 16px 0;
+    }
+    
     .variant-section-title {
-      text-align: center;
-      margin: 16px 0;
-      color: #333;
-      font-size: 1rem;
-      font-weight: 600;
+        text-align: left;
+        margin: 0;
+        color: #333;
+        font-size: 1rem;
+        font-weight: 600;
     }
     
     .variants-grid {
@@ -931,15 +1184,15 @@
     }
     
     .variant-card {
-      display: grid;
-      grid-template-columns: 60px 1fr auto;
-      align-items: center;
-      gap: 12px;
-      border: 1px solid #e0e0e0;
-      border-radius: 8px;
-      padding: 8px;
-      background: white;
-      transition: border-color 0.3s ease;
+        display: grid;
+        grid-template-columns: 60px 1fr auto;
+        align-items: center;
+        gap: 12px;
+        border: 1px solid #e0e0e0;
+        border-radius: 8px;
+        padding: 12px;
+        background: white;
+        transition: border-color 0.3s ease;
     }
     
     .variant-card:hover { 
@@ -947,46 +1200,112 @@
     }
     
     .variant-image {
-      width: 60px;
-      height: 60px;
+        width: 60px;
+        height: 60px;
     }
     
     .variant-image img {
-      width: 100%;
-      height: 100%;
-      object-fit: cover;
-      border-radius: 4px;
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+        border-radius: 4px;
     }
     
-    .variant-title h4 {
-      margin: 0;
-      font-size: 0.9rem;
-      color: #333;
+    .variant-info {
+        display: flex;
+        flex-direction: column;
+        gap: 4px;
+    }
+    
+    .variant-title h4.flavor-name {
+        margin: 0;
+        font-size: 0.95rem;
+        font-weight: 700;
+        color: #333;
+    }
+    
+    .variant-description {
+        margin: 0;
+    }
+    
+    .description-text {
+        font-size: 0.8rem;
+        color: #666;
+        line-height: 1.3;
+        display: block;
     }
     
     .quantity-controls {
-      display: flex;
-      align-items: center;
-      gap: 6px;
+        display: flex;
+        align-items: center;
+        gap: 6px;
+        width: 75px;
+    }
+    
+    .add-btn {
+        background: #4a90e2;
+        color: white;
+        border: none;
+        border-radius: 6px;
+        padding: 8px 16px;
+        font-size: 0.9rem;
+        font-weight: 600;
+        cursor: pointer;
+        transition: background-color 0.3s ease;
+        width: 100%;
+    }
+    
+    .add-btn:hover {
+        background: #357abd;
+    }
+    
+    .quantity-input-group {
+        display: flex;
+        align-items: center;
+        gap: 2px;
+        border: 1px solid #e0e0e0;
+        border-radius: 6px;
+        padding: 1px;
+        width: 100%;
+        justify-content: space-between;
     }
     
     .quantity-btn {
-      width: 24px;
-      height: 24px;
-      font-size: 14px;
-      background: #f0f0f0;
-      border: none;
-      border-radius: 4px;
-      cursor: pointer;
+        background: #f5f5f5;
+        border: none;
+        border-radius: 4px;
+        width: 22px;
+        height: 22px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 1rem;
+        cursor: pointer;
+        color: #333;
+        transition: background-color 0.2s ease;
+        flex-shrink: 0;
+    }
+    
+    .quantity-btn:hover {
+        background: #e0e0e0;
     }
     
     .variant-quantity {
-      width: 32px;
-      text-align: center;
-      padding: 3px;
-      border: 1px solid #e0e0e0;
-      border-radius: 4px;
-      font-size: 0.85rem;
+        width: 25px;
+        text-align: center;
+        border: none;
+        font-size: 0.9rem;
+        font-weight: 600;
+        color: #333;
+        -moz-appearance: textfield;
+        padding: 0;
+        flex-shrink: 0;
+    }
+    
+    .variant-quantity::-webkit-outer-spin-button,
+    .variant-quantity::-webkit-inner-spin-button {
+        -webkit-appearance: none;
+        margin: 0;
     }
     
     /* Cart Button */
@@ -1065,12 +1384,11 @@
     }
 
     .quantity-error {
-        text-align: center;
-        margin-bottom: 8px;
+        text-align: right;
         font-size: 0.85rem;
-        display: none;
-        padding: 6px;
+        padding: 4px 8px;
         border-radius: 4px;
+        margin: 0;
     }
 
     .quantity-error.error {
@@ -1086,5 +1404,105 @@
     .add-to-cart-button:disabled {
         background: #cccccc;
         cursor: not-allowed;
+    }
+
+    /* Skio Debug Styles */
+    .skio-debug-container {
+        margin-top: 40px;
+        padding: 20px;
+        border: 2px dashed #4a90e2;
+        border-radius: 8px;
+        background-color: #f8f9fa;
+        max-width: 800px;
+        margin-left: auto;
+        margin-right: auto;
+    }
+    
+    .skio-debug-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 15px;
+    }
+    
+    .skio-debug-header h3 {
+        margin: 0;
+        font-size: 1.1rem;
+        color: #333;
+    }
+    
+    .skio-debug-toggle {
+        background-color: #4a90e2;
+        color: white;
+        border: none;
+        border-radius: 4px;
+        padding: 6px 12px;
+        font-size: 0.8rem;
+        cursor: pointer;
+        transition: background-color 0.3s;
+    }
+    
+    .skio-debug-toggle:hover {
+        background-color: #357abd;
+    }
+    
+    .skio-debug-content {
+        border: 1px solid #ddd;
+        border-radius: 4px;
+        background-color: #fff;
+        padding: 15px;
+        overflow: auto;
+        max-height: 500px;
+    }
+    
+    .skio-debug-content pre {
+        margin: 0;
+        font-family: monospace;
+        font-size: 0.85rem;
+        white-space: pre-wrap;
+        word-break: break-word;
+    }
+
+    .price-summary {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 12px;
+    }
+    
+    .subtotal {
+        font-size: 1rem;
+        font-weight: 600;
+        color: #333;
+    }
+    
+    .savings-badge {
+        background: rgba(74, 144, 226, 0.1);
+        color: #4a90e2;
+        padding: 6px 12px;
+        border-radius: 6px;
+        font-size: 0.9rem;
+        font-weight: 600;
+    }
+
+    /* Product Description */
+    .product-description {
+        margin: 0;
+        padding-bottom: 6px;
+        font-size: 1rem;
+        line-height: 1.6;
+        color: #333;
+        text-align: left;
+        max-width: 800px;
+    }
+
+    .product-description p {
+        margin: 0;
+        text-align: left;
+    }
+
+    .product-description p:last-child {
+        margin: 0;
+        text-align: left;
     }
 </style>

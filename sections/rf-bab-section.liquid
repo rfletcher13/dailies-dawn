@@ -4,7 +4,12 @@
       usp_1: section.settings.usp_1,
       usp_2: section.settings.usp_2,
       usp_3: section.settings.usp_3,
-      usp_4: section.settings.usp_4
+      usp_4: section.settings.usp_4,
+      custom_description: section.settings.custom_description,
+      primary_color: section.settings.primary_color,
+      secondary_color: section.settings.secondary_color,
+      text_color: section.settings.text_color,
+      background_color: section.settings.background_color
     %}
 </div>
 
@@ -18,6 +23,48 @@
       "type": "product",
       "id": "product",
       "label": "Box Product"
+    },
+    {
+      "type": "header",
+      "content": "Product Description"
+    },
+    {
+      "type": "richtext",
+      "id": "custom_description",
+      "label": "Custom Product Description",
+      "default": "<p>Enter your custom product description here. This will be displayed between the bag selector and USP images.</p>"
+    },
+    {
+      "type": "header",
+      "content": "Color Scheme"
+    },
+    {
+      "type": "color",
+      "id": "primary_color",
+      "label": "Primary Color",
+      "default": "#4a90e2",
+      "info": "Used for buttons, borders, and interactive elements"
+    },
+    {
+      "type": "color",
+      "id": "secondary_color",
+      "label": "Secondary Color",
+      "default": "#4CAF50",
+      "info": "Used for badges and accents"
+    },
+    {
+      "type": "color",
+      "id": "text_color",
+      "label": "Text Color",
+      "default": "#333333",
+      "info": "Main text color"
+    },
+    {
+      "type": "color",
+      "id": "background_color",
+      "label": "Background Color",
+      "default": "#FFFFFF",
+      "info": "Background color for cards and containers"
     },
     {
       "type": "header",

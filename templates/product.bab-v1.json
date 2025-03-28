@@ -132,24 +132,37 @@
         "padding_bottom": 28
       }
     },
-    "rf_bab_section_q7iWbX": {
+    "rf_bab_section_tailwind_Gp9aFQ": {
+      "type": "rf-bab-section-tailwind",
+      "disabled": true,
+      "settings": {
+        "product": "{{ product.metafields.custom.build_a_box_product.value }}",
+        "usp_1": "shopify://shop_images/Screenshot_2025-03-28_at_10.05.45_AM.png",
+        "usp_2": "shopify://shop_images/Screenshot_2025-03-28_at_10.05.51_AM.png",
+        "usp_3": "shopify://shop_images/Screenshot_2025-03-28_at_10.05.56_AM.png",
+        "usp_4": "shopify://shop_images/Screenshot_2025-03-28_at_10.06.03_AM.png"
+      }
+    },
+    "rf_bab_section_KVzfEW": {
       "type": "rf-bab-section",
       "settings": {
         "product": "{{ product.metafields.custom.build_a_box_product.value }}",
-        "usp_1": "shopify://shop_images/IMG_1711.png",
-        "usp_1_title": "Delicious Coffee in Seconds",
-        "usp_2": "shopify://shop_images/Screenshot_2025-03-06_at_4.11.17_PM.png",
-        "usp_2_title": "Zero Sugar",
-        "usp_3": "shopify://shop_images/IMG_1711.png",
-        "usp_3_title": "All Natural",
-        "usp_4": "shopify://shop_images/IMG_1711.png",
-        "usp_4_title": "15+ Indulgent Flavors"
+        "custom_description": "{{ product.description }}",
+        "primary_color": "#334fb4",
+        "secondary_color": "#4CAF50",
+        "text_color": "#333333",
+        "background_color": "#FFFFFF",
+        "usp_1": "shopify://shop_images/Screenshot_2025-03-28_at_10.06.03_AM.png",
+        "usp_2": "shopify://shop_images/Screenshot_2025-03-28_at_10.05.56_AM.png",
+        "usp_3": "shopify://shop_images/Screenshot_2025-03-28_at_10.05.51_AM.png",
+        "usp_4": "shopify://shop_images/Screenshot_2025-03-28_at_10.05.45_AM.png"
       }
     }
   },
   "order": [
     "main",
     "related-products",
-    "rf_bab_section_q7iWbX"
+    "rf_bab_section_tailwind_Gp9aFQ",
+    "rf_bab_section_KVzfEW"
   ]
 }
