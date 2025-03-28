@@ -155,16 +155,16 @@
         "usp_4": "shopify://shop_images/Screenshot_2025-03-28_at_10.05.45_AM.png"
       }
     },
-    "17431942822d800fdc": {
+    "1743194462d67c4ff8": {
       "type": "apps",
       "blocks": {
-        "judge_me_reviews_review_widget_jLgk87": {
+        "judge_me_reviews_review_widget_qhFfhV": {
           "type": "shopify://apps/judge-me-reviews/blocks/review_widget/61ccd3b1-a9f2-4160-9fe9-4fec8413e5d8",
           "settings": {}
         }
       },
       "block_order": [
-        "judge_me_reviews_review_widget_jLgk87"
+        "judge_me_reviews_review_widget_qhFfhV"
       ],
       "settings": {
         "include_margins": true
@@ -176,6 +176,6 @@
     "related-products",
     "rf_bab_section_tailwind_Gp9aFQ",
     "rf_bab_section_KVzfEW",
-    "17431942822d800fdc"
+    "1743194462d67c4ff8"
   ]
 }
