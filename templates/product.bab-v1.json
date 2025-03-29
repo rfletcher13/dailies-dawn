@@ -146,9 +146,14 @@
     "rf_bab_section_KVzfEW": {
       "type": "rf-bab-section",
       "settings": {
+        "main_product": "{{ product }}",
         "product": "{{ product.metafields.custom.build_a_box_product.value }}",
-        "custom_description": "{{ product.description }}",
+        "custom_description": "<p>{{ product.description }}</p>",
         "product_tags": "Energy | Flavor | Convenience",
+        "benefit_1": "<p><strong>SAVE 10%</strong> on every order</p>",
+        "benefit_2": "<p>FREE SHIPPING on your first order</p>",
+        "benefit_3": "<p>Cancel or skip anytime</p>",
+        "benefit_4": "<p>EXCLUSIVE subscriber perks</p>",
         "usp_1": "shopify://shop_images/Screenshot_2025-03-28_at_10.06.03_AM.png",
         "usp_2": "shopify://shop_images/Screenshot_2025-03-28_at_10.05.56_AM.png",
         "usp_3": "shopify://shop_images/Screenshot_2025-03-28_at_10.05.51_AM.png",

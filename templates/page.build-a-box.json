@@ -7,28 +7,45 @@
  * made to this file may be overwritten.
  * ------------------------------------------------------------
  */
-/*
- * ------------------------------------------------------------
- * IMPORTANT: The contents of this file are auto-generated.
- *
- * This file may be updated by the Shopify admin theme editor
- * or related systems. Please exercise caution as any changes
- * made to this file may be overwritten.
- * ------------------------------------------------------------
- */
- {
+{
   "sections": {
-    "custom_html_section": {
-      "type": "custom-liquid",
+    "rf_bab_section_Gc8yrF": {
+      "type": "rf-bab-section",
       "settings": {
-        "custom_liquid": "{% render 'build-a-box-v2'%}",
-        "color_scheme": "",
-        "padding_top": 40,
-        "padding_bottom": 40
+        "main_product": "clear-protein",
+        "product": "{{ section.settings.main_product.metafields.custom.build_a_box_product.value }}",
+        "custom_description": "{{ section.settings.main_product.description }}",
+        "product_tags": "{{ section.settings.main_product.metafields.custom.value_props | metafield_text }}",
+        "benefit_1": "<p>Save 10% on every order</p>",
+        "benefit_2": "<p>Free shipping on orders over $50</p>",
+        "benefit_3": "<p>Cancel or skip anytime</p>",
+        "benefit_4": "<p>Exclusive subscriber perks</p>",
+        "usp_1": "shopify://shop_images/Screenshot_2025-03-28_at_10.06.03_AM.png",
+        "usp_2": "shopify://shop_images/Screenshot_2025-03-28_at_10.05.56_AM.png",
+        "usp_3": "shopify://shop_images/Screenshot_2025-03-28_at_10.05.51_AM.png",
+        "usp_4": "shopify://shop_images/Screenshot_2025-03-28_at_10.05.45_AM.png"
+      }
+    },
+    "1743208951673271f6": {
+      "type": "apps",
+      "blocks": {
+        "judge_me_reviews_review_widget_homepage_BFLeLd": {
+          "type": "shopify://apps/judge-me-reviews/blocks/review_widget_homepage/61ccd3b1-a9f2-4160-9fe9-4fec8413e5d8",
+          "settings": {
+            "product": "clear-protein"
+          }
+        }
+      },
+      "block_order": [
+        "judge_me_reviews_review_widget_homepage_BFLeLd"
+      ],
+      "settings": {
+        "include_margins": true
       }
     }
   },
   "order": [
-    "custom_html_section"
+    "rf_bab_section_Gc8yrF",
+    "1743208951673271f6"
   ]
 }

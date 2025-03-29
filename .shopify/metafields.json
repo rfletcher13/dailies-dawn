@@ -159,6 +159,26 @@
         "name": "list.metaobject_reference",
         "category": "REFERENCE"
       }
+    },
+    {
+      "key": "rating",
+      "namespace": "reviews",
+      "name": "Product rating",
+      "description": "Average rating from customers",
+      "type": {
+        "name": "rating",
+        "category": "RATING"
+      }
+    },
+    {
+      "key": "rating_count",
+      "namespace": "reviews",
+      "name": "Product rating count",
+      "description": "Total number of ratings from customers",
+      "type": {
+        "name": "number_integer",
+        "category": "NUMBER"
+      }
     }
   ],
   "variant": [
@@ -330,6 +350,46 @@
       "type": {
         "name": "boolean",
         "category": "TRUE_FALSE"
+      }
+    },
+    {
+      "key": "primary_color",
+      "namespace": "custom",
+      "name": "Primary Color",
+      "description": "Primary Color",
+      "type": {
+        "name": "color",
+        "category": "COLOR"
+      }
+    },
+    {
+      "key": "secondary_color",
+      "namespace": "custom",
+      "name": "Secondary Color",
+      "description": "Secondary Flavor Color",
+      "type": {
+        "name": "color",
+        "category": "COLOR"
+      }
+    },
+    {
+      "key": "background_color",
+      "namespace": "custom",
+      "name": "Background Color",
+      "description": "Background Flavor Color",
+      "type": {
+        "name": "color",
+        "category": "COLOR"
+      }
+    },
+    {
+      "key": "text_color",
+      "namespace": "custom",
+      "name": "Text Color",
+      "description": "Text Color",
+      "type": {
+        "name": "color",
+        "category": "COLOR"
       }
     }
   ],

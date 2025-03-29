@@ -35,7 +35,7 @@
         <span class="reviews">({{ product.metafields.reviews.rating_count | default: '26,122' }})</span>
       </div>
       <div class="product-tags">
-        {{ product_tags }}
+        {{ product_tags | remove:' and' | split: ', ' | join: " | "}}
       </div>
     </div>
   </div>
@@ -147,19 +147,19 @@
                 <div class="subscribe-benefits-grid">
                     <div class="benefit-item">
                         <span class="checkmark">✓</span>
-                        <span>Save 10% on every order</span>
+                        <span>{{ benefit_1 }}</span>
                     </div>
                     <div class="benefit-item">
                         <span class="checkmark">✓</span>
-                        <span>Free shipping on orders over $50</span>
+                        <span>{{ benefit_2 }}</span>
                     </div>
                     <div class="benefit-item">
                         <span class="checkmark">✓</span>
-                        <span>Cancel or skip anytime</span>
+                        <span>{{ benefit_3 }}</span>
                     </div>
                     <div class="benefit-item">
                         <span class="checkmark">✓</span>
-                        <span>Exclusive subscriber perks</span>
+                        <span>{{ benefit_4 }}</span>
                     </div>
                 </div>
             </div>
@@ -187,17 +187,31 @@
         </div>
       </div>
       <button class="add-to-cart-button" id="addToCartButton">Add to Cart</button>
-    </div>
-  </div>
-  
-  <!-- Skio Debug Container -->
-  <div class="skio-debug-container" id="skioDebugContainer">
-    <div class="skio-debug-header">
-      <h3>Skio Debug Information</h3>
-      <button id="toggleSkioDebug" class="skio-debug-toggle">Toggle Debug</button>
-    </div>
-    <div class="skio-debug-content" id="skioDebugContent">
-      <pre id="skioDebugData">Loading Skio data...</pre>
+      
+      <!-- Add Collapsible Flavor Selector -->
+      <div class="flavor-selector-container">
+        <button class="flavor-selector-toggle" aria-expanded="false">
+          <span>Nutritional Information</span>
+          <svg class="toggle-icon" viewBox="0 0 24 24" width="24" height="24" stroke="currentColor" stroke-width="2" fill="none">
+            <polyline points="6 9 12 15 18 9"></polyline>
+          </svg>
+        </button>
+        <div class="flavor-selector-content">
+          <select class="flavor-dropdown" id="flavorDropdown">
+            <option value="">Select A Flavor</option>
+            {% for product in collections['clear-protein'].products %}
+              {% for variant in product.variants %}
+                <option value="{{ variant.id }}" data-nutritional-info="{{ variant.metafields.custom.nutritional_information | file_url }}">
+                  {{ variant.title }}
+                </option>
+              {% endfor %}
+            {% endfor %}
+          </select>
+          <div id="nutritionalInfo" class="nutritional-info">
+            <img id="nutritionalImage" src="" alt="Nutritional Information" style="display: none;" width="600" height="800">
+          </div>
+        </div>
+      </div>
     </div>
   </div>
 </div>
@@ -211,7 +225,6 @@
     let variantPrices = {};
     let currentDiscount = 0;
     let isSubscription = false;
-    let isDebugVisible = false;
     let flavorMetafields = {};
 
     // Initialize the carousel
@@ -249,9 +262,6 @@
             isSubscription = true;
         }
 
-        // Initialize Skio Debug
-        initializeSkioDebug();
-
         // Fetch Skio Data
         fetch('https://api.skio.com/storefront-http/get-dynamic-box', {
             method: 'POST',
@@ -274,60 +284,14 @@
                 defaultBagOption.classList.add('selected');
                 updateTotalPrice(); // Update price immediately after variants are loaded
             }
-            
-            // Update debug data
-            updateSkioDebugData();
         })
         .catch(error => {
             console.error('Error fetching SkioBox data:', error);
-            document.getElementById('skioDebugData').textContent = `Error fetching Skio data: ${error}`;
         });
-    });
 
-    // Initialize Skio Debug functionality
-    function initializeSkioDebug() {
-        // Check if debug should be shown (based on URL parameter)
-        const urlParams = new URLSearchParams(window.location.search);
-        const showDebug = urlParams.get('skio_debug') === 'true';
-        
-        const debugContainer = document.getElementById('skioDebugContainer');
-        const debugContent = document.getElementById('skioDebugContent');
-        const toggleButton = document.getElementById('toggleSkioDebug');
-        
-        // Set initial visibility
-        isDebugVisible = showDebug;
-        debugContent.style.display = isDebugVisible ? 'block' : 'none';
-        
-        // Hide debug container completely if not in development mode and no debug param
-        if (!showDebug && !window.Shopify.designMode) {
-            debugContainer.style.display = 'none';
-        }
-        
-        // Add toggle functionality
-        toggleButton.addEventListener('click', function() {
-            isDebugVisible = !isDebugVisible;
-            debugContent.style.display = isDebugVisible ? 'block' : 'none';
-        });
-    }
-    
-    // Update the debug data display
-    function updateSkioDebugData() {
-        const debugElement = document.getElementById('skioDebugData');
-        
-        if (!rawSkioResponse) {
-            debugElement.textContent = "Waiting for Skio API response...";
-            return;
-        }
-        
-        // Build debug information with both Skio data and flavor metafields
-        const debugData = {
-            skioResponse: rawSkioResponse,
-            flavorMetafields: flavorMetafields
-        };
-        
-        // Display the debug data
-        debugElement.textContent = JSON.stringify(debugData, null, 2);
-    }
+        // Initialize Flavor Selector
+        initializeFlavorSelector();
+    });
 
     // Slider functionality
     function initializeSlider() {
@@ -488,13 +452,13 @@
         
         const finalPrice = isSubscription ? subscriptionTotal : onetimeTotal;
         const subtotalElement = document.getElementById('subtotalPrice');
-        const subtotalContainer = subtotalElement.closest('.subtotal');
+        const subtotalContainer = subtotalElement.closest('.price-summary');
         
         if (currentBags >= requiredBags) {
             subtotalElement.textContent = formatPrice(finalPrice);
-            subtotalContainer.style.display = 'block';
+            subtotalContainer.classList.add('visible');
         } else {
-            subtotalContainer.style.display = 'none';
+            subtotalContainer.classList.remove('visible');
         }
         
         const savingsBadge = document.getElementById('savingsBadge');
@@ -515,9 +479,6 @@
         updateDiscountBadge('subscribeDiscountBadge', potentialTotal, subscriptionTotal);
 
         validateQuantities();
-        
-        // Update debug data when price updates
-        updateSkioDebugData();
     }
 
     function updatePriceDisplay(originalId, totalId, shouldStrike) {
@@ -570,9 +531,6 @@
             addToCartButton.textContent = 'Add to Cart';
             errorMessage.style.display = 'none';
         }
-        
-        // Update debug data when quantities change
-        updateSkioDebugData();
     }
 
     function createErrorMessage() {
@@ -743,9 +701,6 @@
         this.classList.add('selected');
         updateTotalPrice();  // Add this line to update price when bags change
         validateQuantities();
-        
-        // Update debug data when bag selection changes
-        updateSkioDebugData();
     }
 
     function initializeQuantityControls() {
@@ -812,10 +767,40 @@
                 this.classList.add('selected');
                 isSubscription = this.dataset.purchaseType === 'subscribe';
                 updateTotalPrice();
-                
-                // Update debug data when purchase type changes
-                updateSkioDebugData();
             });
+        });
+    }
+
+    function initializeFlavorSelector() {
+        const toggle = document.querySelector('.flavor-selector-toggle');
+        const content = document.querySelector('.flavor-selector-content');
+        const dropdown = document.getElementById('flavorDropdown');
+        const nutritionalImage = document.getElementById('nutritionalImage');
+
+        if (!toggle || !content || !dropdown) return;
+
+        toggle.addEventListener('click', () => {
+            const isExpanded = toggle.getAttribute('aria-expanded') === 'true';
+            toggle.setAttribute('aria-expanded', !isExpanded);
+            content.classList.toggle('expanded');
+        });
+
+        dropdown.addEventListener('change', (e) => {
+            const selectedOption = dropdown.options[dropdown.selectedIndex];
+            if (selectedOption.value) {
+                const nutritionalInfoUrl = selectedOption.dataset.nutritionalInfo;
+                if (nutritionalInfoUrl) {
+                    nutritionalImage.src = nutritionalInfoUrl;
+                    nutritionalImage.style.display = 'block';
+                    nutritionalImage.alt = `Nutritional Information for ${selectedOption.text}`;
+                } else {
+                    nutritionalImage.style.display = 'none';
+                    nutritionalImage.src = '';
+                }
+            } else {
+                nutritionalImage.style.display = 'none';
+                nutritionalImage.src = '';
+            }
         });
     }
 </script>
@@ -1126,7 +1111,7 @@
     
     /* Variant Selection */
     .variant-selection-container {
-      margin-bottom: 20px;
+      margin-bottom: 16px;
     }
     
     .purchase-options {
@@ -1535,68 +1520,108 @@
         cursor: not-allowed;
     }
 
-    /* Skio Debug Styles */
-    .skio-debug-container {
-        margin-top: 40px;
-        padding: 20px;
-        border: 2px dashed #4a90e2;
+    /* Flavor Selector Styles */
+    .flavor-selector-container {
+        margin-top: 12px;
+        border: 1px solid #e0e0e0;
         border-radius: 8px;
-        background-color: #f8f9fa;
-        max-width: 800px;
-        margin-left: auto;
-        margin-right: auto;
+        overflow: hidden;
     }
-    
-    .skio-debug-header {
+
+    .flavor-selector-toggle {
+        width: 100%;
         display: flex;
         justify-content: space-between;
         align-items: center;
-        margin-bottom: 15px;
-    }
-    
-    .skio-debug-header h3 {
-        margin: 0;
-        font-size: 1.1rem;
-        color: #333;
-    }
-    
-    .skio-debug-toggle {
-        background-color: #4a90e2;
-        color: white;
+        padding: 12px 16px;
+        background: white;
         border: none;
-        border-radius: 4px;
-        padding: 6px 12px;
-        font-size: 0.8rem;
         cursor: pointer;
-        transition: background-color 0.3s;
+        font-size: 0.95rem;
+        font-weight: 600;
+        color: #333;
+        transition: background-color 0.3s ease;
     }
-    
-    .skio-debug-toggle:hover {
-        background-color: #357abd;
+
+    .flavor-selector-toggle:hover {
+        background: #f8f8f8;
     }
-    
-    .skio-debug-content {
-        border: 1px solid #ddd;
-        border-radius: 4px;
-        background-color: #fff;
-        padding: 15px;
-        overflow: auto;
-        max-height: 500px;
+
+    .toggle-icon {
+        transition: transform 0.3s ease;
     }
-    
-    .skio-debug-content pre {
-        margin: 0;
-        font-family: monospace;
-        font-size: 0.85rem;
-        white-space: pre-wrap;
-        word-break: break-word;
+
+    .flavor-selector-toggle[aria-expanded="true"] .toggle-icon {
+        transform: rotate(180deg);
+    }
+
+    .flavor-selector-content {
+        max-height: 0;
+        overflow: hidden;
+        transition: max-height 0.3s ease, padding 0.3s ease;
+        background: white;
+    }
+
+    .flavor-selector-content.expanded {
+        max-height: 800px;
+        padding: 12px 16px;
+        border-top: 1px solid #e0e0e0;
+    }
+
+    .flavor-dropdown {
+        width: 100%;
+        padding: 10px;
+        border: 1px solid #e0e0e0;
+        border-radius: 6px;
+        font-size: 0.9rem;
+        color: #333;
+        background: white;
+        cursor: pointer;
+        margin-bottom: 12px;
+    }
+
+    .flavor-dropdown:focus {
+        outline: none;
+        border-color: #4a90e2;
+    }
+
+    .nutritional-info {
+        margin-top: 12px;
+        text-align: center;
+    }
+
+    .nutritional-info img {
+        max-width: 100%;
+        height: auto;
+        border-radius: 6px;
+        box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+    }
+
+    @media (max-width: 768px) {
+        .flavor-selector-container {
+            margin-top: 16px;
+        }
+
+        .flavor-selector-toggle {
+            padding: 10px 12px;
+        }
+
+        .flavor-selector-content.expanded {
+            padding: 8px 12px;
+        }
     }
 
     .price-summary {
-        display: flex;
+        display: none;
         justify-content: space-between;
         align-items: center;
-        margin-bottom: 12px;
+        margin: 0;
+        padding: 0;
+    }
+    
+    .price-summary.visible {
+        display: flex;
+        margin-bottom: 16px;
     }
     
     .subtotal {

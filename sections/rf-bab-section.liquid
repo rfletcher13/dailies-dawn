@@ -6,7 +6,11 @@
       usp_3: section.settings.usp_3,
       usp_4: section.settings.usp_4,
       custom_description: section.settings.custom_description,
-      product_tags: section.settings.product_tags
+      product_tags: section.settings.product_tags,
+      benefit_1: section.settings.benefit_1,
+      benefit_2: section.settings.benefit_2,
+      benefit_3: section.settings.benefit_3,
+      benefit_4: section.settings.benefit_4
     %}
 </div>
 
@@ -16,6 +20,12 @@
   "tag": "section",
   "class": "section",
   "settings": [
+    {
+      "type": "product",
+      "id": "main_product",
+      "label": "Main Product",
+      "info": "Select the main product that this Build-A-Box will work with"
+    },
     {
       "type": "product",
       "id": "product",
@@ -40,7 +50,35 @@
       "id": "product_tags",
       "label": "Product Tags",
       "default": "Energy | Flavor | Convenience",
-      "info": "Enter product tags separated by |"
+      "info": "This will connected to the metafield custom.value_props on the main product. It returns a list."
+    },
+    {
+      "type": "header",
+      "content": "Subscribe Benefits"
+    },
+    {
+      "type": "richtext",
+      "id": "benefit_1",
+      "label": "Benefit 1",
+      "default": "<p>Save 10% on every order</p>"
+    },
+    {
+      "type": "richtext",
+      "id": "benefit_2",
+      "label": "Benefit 2",
+      "default": "<p>Free shipping on orders over $50</p>"
+    },
+    {
+      "type": "richtext",
+      "id": "benefit_3",
+      "label": "Benefit 3",
+      "default": "<p>Cancel or skip anytime</p>"
+    },
+    {
+      "type": "richtext",
+      "id": "benefit_4",
+      "label": "Benefit 4",
+      "default": "<p>Exclusive subscriber perks</p>"
     },
     {
       "type": "header",
