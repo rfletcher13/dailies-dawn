@@ -179,6 +179,16 @@
         "name": "number_integer",
         "category": "NUMBER"
       }
+    },
+    {
+      "key": "value_props",
+      "namespace": "custom",
+      "name": "Value Props",
+      "description": "The Product Value props in the top right corner of the Build a Box",
+      "type": {
+        "name": "list.single_line_text_field",
+        "category": "TEXT"
+      }
     }
   ],
   "variant": [

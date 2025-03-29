@@ -1,0 +1,61 @@
+{% comment %}
+  Renders the font-face declarations for custom fonts.
+
+  Usage:
+    {% render 'custom-fonts' %}
+{% endcomment %}
+
+{% style %}
+  {% liquid
+    assign font_heading = shop.metaobjects.typeface.values | where: 'role', 'Heading' | first
+    assign font_body = shop.metaobjects.typeface.values | where: 'role', 'Body' | first
+  %}
+
+  :root {
+    --font-heading-family: {{ font_heading.name | json }}, {{ font_heading.type | downcase | json }};
+    --font-heading-style: normal;
+    --font-heading-weight: 500;
+    --font-heading-weight-bold: 700;
+
+    --font-body-family: {{ font_body.name | json }}, {{ font_body.type | downcase | json }};
+    --font-body-style: normal;
+    --font-body-weight: 400;
+    --font-body-weight-bold: 700;
+  }
+
+  {% for font in font_heading.fonts.value %}
+    {% capture font_src %}
+      {% for asset in font.assets.value %}
+        {% assign asset_type = asset.url | split: '.' | last | split: '?' | first %}
+          url({{ asset.url | json }}) format({{ asset_type | json }})
+        {% unless forloop.last %},{% endunless %}
+      {% endfor %}
+    {% endcapture %}
+
+    @font-face {
+      font-family: {{ font_heading.name | json }};
+      src: {{ font_src }};
+      font-weight: {{ font.weight | json }};
+      font-style: {{ font.style | json }};
+      font-display: swap;
+    }
+  {% endfor %}
+
+  {% for font in font_body.fonts.value %}
+    {% capture font_src %}
+      {% for asset in font.assets.value %}
+        {% assign asset_type = asset.url | split: '.' | last | split: '?' | first %}
+          url({{ asset.url | json }}) format({{ asset_type | json }})
+        {% unless forloop.last %},{% endunless %}
+      {% endfor %}
+    {% endcapture %}
+
+    @font-face {
+      font-family: {{ font_body.name | json }};
+      src: {{ font_src }};
+      font-weight: {{ font.weight | json }};
+      font-style: {{ font.style | json }};
+      font-display: swap;
+    }
+  {% endfor %}
+{% endstyle %}
