@@ -10,7 +10,9 @@
       benefit_1: section.settings.benefit_1,
       benefit_2: section.settings.benefit_2,
       benefit_3: section.settings.benefit_3,
-      benefit_4: section.settings.benefit_4
+      benefit_4: section.settings.benefit_4,
+      guarantee_icon: section.settings.guarantee_icon,
+      guarantee_text: section.settings.guarantee_text
     %}
 </div>
 
@@ -79,6 +81,22 @@
       "id": "benefit_4",
       "label": "Benefit 4",
       "default": "<p>Exclusive subscriber perks</p>"
+    },
+    {
+      "type": "header",
+      "content": "Risk-Free Trial Section"
+    },
+    {
+      "type": "image_picker",
+      "id": "guarantee_icon",
+      "label": "Risk-Free Trial Icon",
+      "info": "Upload an icon for the risk-free trial section (SVG, PNG, or JPG)"
+    },
+    {
+      "type": "richtext",
+      "id": "guarantee_text",
+      "label": "Risk-Free Trial Text",
+      "default": "<p><strong>Try it risk-free for 30 days.</strong> If you're not totally in love with the product, we will refund you 100%.</p>"
     },
     {
       "type": "header",
