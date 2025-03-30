@@ -23,22 +23,22 @@
         "link_list_DJkDgj": {
           "type": "link_list",
           "settings": {
-            "heading": "Quick links",
+            "heading": "Shop",
             "menu": "footer"
           }
         },
         "link_list_KDKcdj": {
           "type": "link_list",
           "settings": {
-            "heading": "Quick links",
-            "menu": "footer"
+            "heading": "Help",
+            "menu": "help-footer"
           }
         },
         "link_list_fhc66N": {
           "type": "link_list",
           "settings": {
-            "heading": "Quick links",
-            "menu": "footer"
+            "heading": "Legal",
+            "menu": "legal-footer"
           }
         }
       },
