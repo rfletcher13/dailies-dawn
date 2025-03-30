@@ -30,7 +30,7 @@
     "buttons_shadow_horizontal_offset": 2,
     "buttons_shadow_vertical_offset": 4,
     "buttons_shadow_blur": 5,
-    "variant_pills_border_thickness": 0,
+    "variant_pills_border_thickness": 1,
     "variant_pills_border_opacity": 50,
     "variant_pills_radius": 10,
     "variant_pills_shadow_opacity": 20,
