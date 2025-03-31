@@ -1,0 +1,106 @@
+{% comment %}theme-check-disable AssetPreload{% endcomment %}
+{% comment %}
+  Renders font faces and font variables.
+
+  Usage:
+    {% render 'typography' %}
+{% endcomment %}
+
+{% unless settings.enable_custom_fonts %}
+    {% unless settings.font_heading.system? %}
+      <link
+        rel="preload"
+        href="{{ settings.font_heading | font_url }}"
+        type="font/woff2"
+        as="font"
+        fetchpriority="high"
+        crossorigin
+      >
+    {% endunless %}
+  
+    {% unless settings.font_body.system? %}
+      <link
+        rel="preload"
+        href="{{ settings.font_body | font_url }}"
+        type="font/woff2"
+        as="font"
+        fetchpriority="high"
+        crossorigin
+      >
+    {% endunless %}
+  {% endunless %}
+  
+  {% style %}
+    {% unless settings.enable_custom_fonts %}
+      {% unless settings.font_heading.system? %}
+        {% liquid
+          assign font_heading_medium = settings.font_heading | font_modify: 'weight', '500'
+          assign font_heading_semi_bold = settings.font_heading | font_modify: 'weight', '600'
+          assign font_heading_bold = settings.font_heading | font_modify: 'weight', 'bold'
+          assign font_heading_bold_italic = font_heading_bold | font_modify: 'style', 'italic'
+        %}
+  
+        {{ settings.font_heading | font_face: font_display: 'swap' }}
+        {{ font_heading_medium | font_face: font_display: 'swap' }}
+        {{ font_heading_semi_bold | font_face: font_display: 'swap' }}
+        {{ font_heading_bold | font_face: font_display: 'swap' }}
+        {{ font_heading_bold_italic | font_face: font_display: 'swap' }}
+      {% endunless %}
+  
+      {% unless settings.font_body.system? %}
+        {% liquid
+          assign font_body_medium = settings.font_body | font_modify: 'weight', '500'
+          assign font_body_semi_bold = settings.font_body | font_modify: 'weight', '600'
+          assign font_body_bold = settings.font_body | font_modify: 'weight', 'bold'
+          assign font_body_italic = settings.font_body | font_modify: 'style', 'italic'
+          assign font_body_bold_italic = font_body_bold | font_modify: 'style', 'italic'
+        %}
+  
+        {{ settings.font_body | font_face: font_display: 'swap' }}
+        {{ font_body_medium | font_face: font_display: 'swap' }}
+        {{ font_body_semi_bold | font_face: font_display: 'swap' }}
+        {{ font_body_bold | font_face: font_display: 'swap' }}
+        {{ font_body_italic | font_face: font_display: 'swap' }}
+        {{ font_body_bold_italic | font_face: font_display: 'swap' }}
+      {% endunless %}
+    {% endunless %}
+  
+    :root {
+      --font-scale: {{ settings.font_scale | divided_by: 100.0 }};
+      --letter-spacing: {{ settings.letter_spacing | divided_by: 62.5 }}em;
+  
+      {% unless settings.enable_custom_fonts %}
+        --font-heading-family: {{ settings.font_heading.family }}, {{ settings.font_heading.fallback_families }};
+        --font-heading-style: {{ settings.font_heading.style }};
+        --font-heading-weight: {{ settings.font_heading.weight }};
+        --font-heading-weight-bold: {{ settings.font_heading.weight | plus: 200 | at_most: 900 }};
+  
+        --font-body-family: {{ settings.font_body.family }}, {{ settings.font_body.fallback_families }};
+        --font-body-style: {{ settings.font_body.style }};
+        --font-body-weight: {{ settings.font_body.weight }};
+        --font-body-weight-bold: {{ settings.font_body.weight | plus: 200 | at_most: 900 }};
+      {% endunless %}
+  
+      --font-size-xxs: calc(var(--font-scale) * 0.625rem);
+      --font-size-xs: calc(var(--font-scale) * 0.75rem);
+      --font-size-sm: calc(var(--font-scale) * 0.875rem);
+      --font-size-base: calc(var(--font-scale) * 1rem);
+      --font-size-lg: calc(var(--font-scale) * 1.125rem);
+      --font-size-xl: calc(var(--font-scale) * 1.25rem);
+      --font-size-2xl: calc(var(--font-scale) * 1.5rem);
+      --font-size-3xl: calc(var(--font-scale) * 1.875rem);
+      --font-size-4xl: calc(var(--font-scale) * 2.25rem);
+      --font-size-5xl: calc(var(--font-scale) * 3rem);
+      --font-size-6xl: calc(var(--font-scale) * 3.75rem);
+      --font-size-7xl: calc(var(--font-scale) * 4.5rem);
+      --font-size-8xl: calc(var(--font-scale) * 6rem);
+      --font-size-9xl: calc(var(--font-scale) * 8rem);
+    }
+  {% endstyle %}
+  
+  {% liquid
+    if settings.enable_custom_fonts
+      render 'custom-fonts'
+    endif
+  %}
+  

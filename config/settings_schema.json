@@ -137,6 +137,12 @@
         "info": "t:settings_schema.typography.settings.type_body_font.info"
       },
       {
+        "type": "checkbox",
+        "id": "enable_custom_fonts",
+        "label": "Enable custom fonts",
+        "info": "If you want to use custom fonts and avoid loading Shopify default fonts. Learn more about [custom fonts](https://help.shopify.com/en/manual/online-store/os/using-themes/change-the-layout/fonts#custom-fonts)."
+      },
+      {
         "type": "range",
         "id": "body_scale",
         "min": 100,

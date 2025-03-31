@@ -1,0 +1,557 @@
+{% comment %}Build a box component{% endcomment %}
+{% assign box_product = all_products[product] %}
+{% if box_product == blank and product.id != blank %}
+  {% assign box_product = product %}
+{% endif %}
+
+<div class="max-w-[1200px] mx-auto p-5 font-sans">
+  <!-- Product Header Section -->
+  <div class="mb-5">
+    <div class="text-sm text-gray-500 mb-2.5">
+      <a href="{{ routes.root_url }}" class="text-gray-500 hover:underline">Home</a> >
+      <a href="{{ routes.collections_url }}" class="text-gray-500 hover:underline">Products</a> >
+      <span>{{ box_product.title }}</span>
+    </div>
+    
+    <h1 class="text-3xl font-bold uppercase mb-2.5">{{ box_product.title | upcase }}</h1>
+    
+    <div class="flex items-center flex-wrap gap-2 mb-5 text-sm">
+      <div class="text-yellow-400 tracking-wide">★★★★★</div>
+      <span class="text-gray-600">({{ box_product.metafields.reviews.rating_count | default: '26,122' }})</span>
+      <div class="text-gray-600 uppercase">
+        <span>Energy</span> | <span>Flavor</span> | <span>Convenience</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- Product Hero Section -->
+  <div class="overflow-hidden mb-0 p-0">
+    <!-- Image Carousel -->
+    <div class="mb-0">
+      <div class="relative overflow-hidden max-w-[800px] mx-auto rounded-lg bg-blue-100">
+        <div class="slider flex transition-transform duration-300 ease-in-out">
+          {% if box_product.images.size > 0 %}
+            {% for image in box_product.images %}
+              <div class="slide min-w-full flex justify-center items-center aspect-square">
+                <img src="{{ image | img_url: '800x800', crop: 'center' }}" 
+                     alt="{{ box_product.title }}" 
+                     class="w-full h-full object-cover"
+                     width="800" 
+                     height="800"
+                     loading="{% if forloop.index <= 1 %}eager{% else %}lazy{% endif %}">
+              </div>
+            {% endfor %}
+          {% else %}
+            <div class="slide min-w-full flex justify-center items-center aspect-square">
+              <img src="{{ box_product.featured_image | img_url: '800x800', crop: 'center' }}" 
+                   alt="{{ box_product.title }}" 
+                   class="w-full h-full object-cover"
+                   width="800" 
+                   height="800"
+                   loading="eager">
+            </div>
+          {% endif %}
+        </div>        
+        <button class="slider-button prev absolute top-1/2 -translate-y-1/2 left-2 w-9 h-9 bg-white text-black border-none rounded-full flex items-center justify-center cursor-pointer shadow-md z-10 hover:bg-gray-100" aria-label="Previous slide">
+          <svg viewBox="0 0 24 24" width="24" height="24" stroke="currentColor" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round"><polyline points="15 18 9 12 15 6"></polyline></svg>
+        </button>
+        <button class="slider-button next absolute top-1/2 -translate-y-1/2 right-2 w-9 h-9 bg-white text-black border-none rounded-full flex items-center justify-center cursor-pointer shadow-md z-10 hover:bg-gray-100" aria-label="Next slide">
+          <svg viewBox="0 0 24 24" width="24" height="24" stroke="currentColor" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"></polyline></svg>
+        </button>
+      </div>
+    </div>
+    
+    <!-- USP Icons in separate container -->
+    <div class="mt-4 mb-8 mx-auto px-2 grid grid-cols-4 gap-4">
+        <div class="bg-blue-900 rounded-lg aspect-square flex items-center justify-center overflow-hidden">
+          {% if usp_1 != blank %}
+          <img src="{{ usp_1 | img_url: '160x160' }}" alt="USP icon" class="w-full h-full object-cover" width="160" height="160" loading="lazy">
+          {% endif %}
+          {% if usp_2 != blank %}
+            <img src="{{ usp_2 | img_url: '160x160' }}" alt="USP icon" class="w-full h-full object-cover" width="160" height="160" loading="lazy">
+          {% endif %}
+          
+          {% if usp_3 != blank %}
+                <img src="{{ usp_3 | img_url: '160x160' }}" alt="USP icon" class="w-full h-full object-cover" width="160" height="160" loading="lazy">
+          {% endif %}
+          
+          {% if usp_4 != blank %}
+            <img src="{{ usp_4 | img_url: '160x160' }}" alt="USP icon" class="w-full h-full object-cover" width="160" height="160" loading="lazy">
+          {% endif %}
+        </div>
+    </div>
+  </div>
+
+  <div class="flex flex-col max-w-[800px] mx-auto p-0">
+    <!-- Right Side: Scrollable GUI -->
+    <div class="flex-1 min-w-[320px] max-w-[600px] p-0">
+      <div class="bag-selection grid grid-cols-4 gap-2 mb-4 mt-4">
+        {% for bags in (1..4) reversed %}
+          <div class="bag-option relative border border-gray-200 rounded-md p-2.5 text-center cursor-pointer bg-white hover:border-gray-400 transition duration-300 flex flex-col justify-center items-center min-h-[40px] {% if selected_bags == bags %}!border-2 !border-blue-500{% endif %} {% if bags == 4 %}best-deal{% endif %}" data-bags="{{ bags }}">
+            {% if bags == 4 %}<span class="absolute -top-2.5 left-1/2 -translate-x-1/2 bg-red-600 text-white px-1 py-0.5 rounded-sm text-xs font-semibold tracking-wide whitespace-nowrap shadow-sm">Best Deal</span>{% endif %}
+            <span class="text-sm font-semibold text-gray-800">{{ bags }} Bag{% if bags != 1 %}s{% endif %}</span>
+          </div>
+        {% endfor %}
+      </div>
+  
+      <div class="mb-5">
+        <div class="purchase-options flex flex-col gap-2 mb-4">
+          <div class="purchase-type-button relative bg-gray-50 border border-gray-200 rounded-lg p-3 mb-1 flex justify-between items-center cursor-pointer hover:border-blue-500 transition duration-300" data-purchase-type="subscribe">
+            <div class="font-semibold text-[0.95rem] text-gray-800">Subscribe & Save</div>
+            <div class="flex items-center gap-2 relative">
+              <div class="text-sm text-gray-400 line-through" id="subscribeOriginalPrice">$0.00</div>
+              <div class="text-[0.95rem] text-blue-500 font-semibold" id="subscribeTotalPrice">$0.00</div>
+            </div>
+            <div class="absolute -top-2.5 right-2 bg-blue-500 text-white px-1.5 py-0.5 rounded-full text-[0.7rem] font-semibold shadow" id="subscribeDiscountBadge">Save 30% on First Order</div>
+          </div>
+          <div class="flex flex-wrap gap-2 text-sm text-gray-600 mt-2">
+            <span class="flex items-center"><span class="text-green-500 mr-1">✓</span> FREE SHIPPING on first order</span>
+            <span class="flex items-center"><span class="text-green-500 mr-1">✓</span> 15% OFF future orders</span>
+            <span class="flex items-center"><span class="text-green-500 mr-1">✓</span> NO CONTRACT cancel easily</span>
+            <span class="flex items-center"><span class="text-green-500 mr-1">✓</span> OUT OF STOCK PROTECTION</span>
+          </div>
+          <div class="purchase-type-button relative bg-gray-50 border border-gray-200 rounded-lg p-3 mb-1 flex justify-between items-center cursor-pointer hover:border-blue-500 transition duration-300" data-purchase-type="onetime">
+            <div class="font-semibold text-[0.95rem] text-gray-800">One Time Purchase</div>
+            <div class="flex items-center gap-2 relative">
+              <div class="text-sm text-gray-400 line-through" id="originalPrice">$0.00</div>
+              <div class="text-[0.95rem] text-blue-500 font-semibold" id="totalPrice">$0.00</div>
+            </div>
+            <div class="absolute -top-2.5 right-2 bg-blue-500 text-white px-1.5 py-0.5 rounded-full text-[0.7rem] font-semibold shadow hidden" id="discountBadge"></div>
+          </div>
+        </div>
+        <div class="flex justify-between items-center my-4">
+          <h3 class="text-base font-semibold text-gray-800">Select Your Flavors <span class="text-yellow-400">★</span></h3>
+          <span id="flavorCounter" class="bg-blue-500 text-white rounded-full px-2 py-1 text-sm">3 Flavors to Go</span>
+        </div>
+        <div class="variants-grid flex flex-col gap-2" id="variantsGrid"></div>
+      </div>
+  
+      <div class="mt-5">
+        <button class="w-full bg-blue-500 text-white border-none rounded-lg p-3 text-[0.95rem] font-semibold cursor-pointer hover:bg-blue-600 disabled:bg-gray-300 disabled:cursor-not-allowed transition duration-300" id="addToCartButton">Add to Cart</button>
+      </div>
+    </div>
+  </div>
+  
+  <!-- Debug Container  -->
+  <div class="mt-12 p-4 bg-gray-100 rounded-lg max-w-[800px] mx-auto">
+    <h2 class="text-lg font-bold mb-2 text-gray-800">SKIO API Debug Data</h2>
+    <div class="bg-white rounded-lg p-4 shadow-sm">
+      <pre id="skioDebugData" class="text-xs overflow-auto max-h-[300px] p-2 bg-gray-50 rounded"></pre>
+      <button id="toggleDebugBtn" class="mt-2 px-3 py-1 bg-blue-500 text-white text-sm rounded hover:bg-blue-600 transition duration-300">Toggle Debug</button>
+    </div>
+  </div>
+</div>
+
+<script>
+  // Constants and State
+  const BAB_ID = {{ box_product.id | json }};
+  const DEFAULT_SELECTED_BAGS = 3;
+  let skioData = null;
+  let variantPrices = {};
+  let currentDiscount = 0;
+  let isSubscription = false;
+
+  document.addEventListener('DOMContentLoaded', function() {
+    initializeSlider();
+    initializeBagSelection();
+    initializeQuantityControls();
+    document.getElementById('addToCartButton').addEventListener('click', handleAddToCart);
+    handlePurchaseTypeSelection();
+    
+    // Set subscribe as default
+    const subscribeButton = document.querySelector('[data-purchase-type="subscribe"]');
+    if (subscribeButton) {
+      subscribeButton.classList.add('bg-blue-50', 'border-blue-500', 'border-2');
+      isSubscription = true;
+    }
+
+    // Debug toggle
+    document.getElementById('toggleDebugBtn').addEventListener('click', function() {
+      const debugData = document.getElementById('skioDebugData');
+      if (debugData.style.display === 'none') {
+        debugData.style.display = 'block';
+      } else {
+        debugData.style.display = 'none';
+      }
+    });
+
+    // Fetch Skio Data
+    fetch('https://api.skio.com/storefront-http/get-dynamic-box', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ productPlatformId: BAB_ID })
+    })
+    .then(response => response.json())
+    .then(data => {
+      skioData = SkioBox.parse(data);
+      const variants = parseVariants(skioData);
+      populateVariantSelector(variants);
+      
+      // After variants are loaded, update the price for default 3 bags
+      const defaultBagOption = document.querySelector(`.bag-option[data-bags="${DEFAULT_SELECTED_BAGS}"]`);
+      if (defaultBagOption) {
+        defaultBagOption.classList.add('!border-2', '!border-blue-500');
+        updateTotalPrice(); // Update price immediately after variants are loaded
+      }
+
+      // Update debug data
+      document.getElementById('skioDebugData').textContent = JSON.stringify(skioData, null, 2);
+    })
+    .catch(error => {
+      console.error('Error fetching SkioBox data:', error);
+      document.getElementById('skioDebugData').textContent = "Error: " + error.message;
+    });
+  });
+
+  // Slider functionality
+  function initializeSlider() {
+    const slider = document.querySelector('.slider');
+    const slides = document.querySelectorAll('.slide');
+    const prevBtn = document.querySelector('.slider-button.prev');
+    const nextBtn = document.querySelector('.slider-button.next');
+    let currentSlide = 0;
+    
+    if (!slider || slides.length === 0) return;
+    
+    function updateSlider() {
+      const slideWidth = slides[0].clientWidth;
+      slider.style.transform = `translateX(${-currentSlide * slideWidth}px)`;
+    }
+    
+    prevBtn.addEventListener('click', () => {
+      currentSlide = (currentSlide > 0) ? currentSlide - 1 : slides.length - 1;
+      updateSlider();
+    });
+    
+    nextBtn.addEventListener('click', () => {
+      currentSlide = (currentSlide < slides.length - 1) ? currentSlide + 1 : 0;
+      updateSlider();
+    });
+    
+    // Initialize slider position
+    updateSlider();
+    
+    // Handle window resize
+    window.addEventListener('resize', updateSlider);
+  }
+
+  // Utility Functions for box builder
+  class SkioBox { 
+    static parse(apiResponse) {
+      apiResponse = apiResponse.DynamicBox
+      return {
+        boxId: apiResponse.boxId,
+        currencyCode: apiResponse.currencyCode || 'USD',
+        fixedDiscountTier: apiResponse.fixedDiscountTier || null,
+        percentDiscountTier: apiResponse.percentDiscountTier || {
+          1: "0",
+          2: "0",
+          3: "0",
+          4: "0"
+        },
+        sizeRange: apiResponse.sizeRange || null,
+        sizeInterval: apiResponse.sizeInterval || [1, 2, 3, 4],
+        priceRange: apiResponse.priceRange || null,
+        selectableProductVariants: apiResponse.selectableProductVariants.map(product => ({
+          productTitle: product.productTitle,
+          productImageSrc: product.productImageSrc,
+          productPlatformId: product.productPlatformId,
+          productHandle: product.productHandle,
+          productVariants: product.productVariants.map(variant => ({
+            platformId: variant.platformId,
+            productVariantTitle: variant.productVariantTitle,
+            imageSrc: variant.imageSrc,
+            price: variant.price,
+            compareAtPrice: variant.compareAtPrice || 0,
+            inventory: variant.inventory
+          }))
+        })),
+        sellingPlanGroup: apiResponse.sellingPlanGroup,
+        settings: apiResponse.settings,
+        theme: apiResponse.theme,
+        oneTimeUpsells: apiResponse.oneTimeUpsells || [],
+        oneTimeUpsellsSellingPlanMapping: apiResponse.oneTimeUpsellsSellingPlanMapping || {}
+      };
+    }
+  }
+
+  function parseVariants(skioData) {
+    if (!skioData?.selectableProductVariants || !skioData?.sellingPlanGroup) return [];
+    
+    const sellingPlanId = Object.keys(skioData.sellingPlanGroup)[0];
+    const sellingPlan = skioData.sellingPlanGroup[sellingPlanId];
+    const variantMapping = sellingPlan.variantMapping || {};
+
+    return skioData.selectableProductVariants.flatMap(product => 
+      product.productVariants.map(variant => ({
+        platformId: variant.platformId,
+        productVariantTitle: variant.productVariantTitle,
+        imageSrc: variant.imageSrc,
+        price: variant.price,
+        compareAtPrice: variant.compareAtPrice,
+        inventory: variant.inventory,
+        productTitle: product.productTitle,
+        productHandle: product.productHandle,
+        productPlatformId: product.productPlatformId,
+        adjustedPrice: variantMapping[variant.platformId]?.adjustedPrice || null,
+        sellingPlanId: variantMapping[variant.platformId]?.planId || null
+      }))
+    );
+  }
+
+  function getDiscountForBags(bagCount) {
+    if (!skioData) return 0;
+    
+    const percentTiers = skioData.percentDiscountTier || {};
+    const fixedTiers = skioData.fixedDiscountTier || {};
+    
+    // Check for percentage discount
+    const percentDiscount = parseFloat(percentTiers[bagCount] || 0);
+    if (percentDiscount > 0) {
+      return { type: 'percent', value: percentDiscount };
+    }
+    
+    // Check for fixed discount
+    const fixedDiscount = parseFloat(fixedTiers[bagCount] || 0);
+    if (fixedDiscount > 0) {
+      return { type: 'fixed', value: fixedDiscount };
+    }
+    
+    return { type: 'none', value: 0 };
+  }
+
+  function updateTotalPrice() {
+    const selectedBags = document.querySelector('.bag-option[class*="!border-blue-500"]');
+    const bagCount = selectedBags ? parseInt(selectedBags.dataset.bags) : 0;
+    const singleBagPrice = Object.values(variantPrices)[0] || 0;
+    
+    // Calculate base total and discounts
+    const potentialTotal = singleBagPrice * bagCount;
+    const bagDiscount = getDiscountForBags(bagCount);
+    
+    // Calculate one-time purchase price
+    let onetimeTotal = potentialTotal;
+    if (bagDiscount.type === 'percent') {
+      onetimeTotal = potentialTotal * (1 - (bagDiscount.value / 100));
+    } else if (bagDiscount.type === 'fixed') {
+      onetimeTotal = Math.max(0, potentialTotal - bagDiscount.value);
+    }
+    
+    // Calculate subscription price (additional 10% off)
+    const planId = Object.keys(skioData.sellingPlanGroup)[0]; // Get the first (and assumed only) selling plan
+    const plan = skioData.sellingPlanGroup[planId];
+    
+    const subscriptionTotal = onetimeTotal * (1 - plan.priceAdjustmentAmount/100);
+
+    const formatPrice = (price) => new Intl.NumberFormat('en-US', { 
+      style: 'currency', 
+      currency: 'USD' 
+    }).format(price);
+
+    // Update one-time purchase prices
+    document.getElementById('originalPrice').textContent = formatPrice(potentialTotal);
+    document.getElementById('totalPrice').textContent = formatPrice(onetimeTotal);
+
+    // Update subscription prices
+    document.getElementById('subscribeOriginalPrice').textContent = formatPrice(potentialTotal);
+    document.getElementById('subscribeTotalPrice').textContent = formatPrice(subscriptionTotal);
+
+    // Update badges and strikethroughs
+    updatePriceDisplay('original', 'total', onetimeTotal < potentialTotal);
+    updatePriceDisplay('subscribeOriginal', 'subscribe', true);
+
+    // Update discount badges
+    updateDiscountBadge('discountBadge', potentialTotal, onetimeTotal);
+    updateDiscountBadge('subscribeDiscountBadge', potentialTotal, subscriptionTotal);
+
+    validateQuantities();
+  }
+
+  function updatePriceDisplay(originalId, totalId, shouldStrike) {
+    const originalElement = document.getElementById(`${originalId}Price`);
+    if (shouldStrike) {
+      originalElement.classList.add('line-through', 'text-gray-400');
+    } else {
+      originalElement.classList.remove('line-through', 'text-gray-400');
+    }
+  }
+
+  function updateDiscountBadge(badgeId, originalPrice, finalPrice) {
+    const badge = document.getElementById(badgeId);
+    if (finalPrice < originalPrice) {
+      const savings = ((originalPrice - finalPrice) / originalPrice) * 100;
+      badge.textContent = `Save ${Math.round(savings)}%`;
+      badge.style.display = 'block';
+    } else {
+      badge.style.display = 'none';
+    }
+  }
+
+  function validateQuantities() {
+    const selectedBags = document.querySelector('.bag-option[class*="!border-blue-500"]');
+    const requiredBags = selectedBags ? parseInt(selectedBags.dataset.bags) : 0;
+    const currentBags = Array.from(document.querySelectorAll('.variant-quantity'))
+      .reduce((sum, input) => sum + (parseInt(input.value) || 0), 0);
+
+    const addToCartButton = document.getElementById('addToCartButton');
+    const errorMessage = document.querySelector('.quantity-error') || createErrorMessage();
+
+    if (currentBags < requiredBags) {
+      addToCartButton.disabled = true;
+      errorMessage.textContent = `Please add ${requiredBags - currentBags} more bag(s) to meet the minimum`;
+      errorMessage.classList.remove('bg-blue-100', 'text-blue-600');
+      errorMessage.classList.add('bg-red-100', 'text-red-600');
+      errorMessage.style.display = 'block';
+    } else if (currentBags > requiredBags) {
+      addToCartButton.disabled = false;
+      errorMessage.textContent = `You've added ${currentBags - requiredBags} extra bag(s)`;
+      errorMessage.classList.remove('bg-red-100', 'text-red-600');
+      errorMessage.classList.add('bg-blue-100', 'text-blue-600');
+      errorMessage.style.display = 'block';
+    } else {
+      addToCartButton.disabled = false;
+      errorMessage.style.display = 'none';
+    }
+  }
+
+  function createErrorMessage() {
+    const message = document.createElement('div');
+    message.className = 'quantity-error text-center mb-2 text-sm p-1.5 rounded';
+    const buttonContainer = document.getElementById('addToCartButton').parentElement;
+    buttonContainer.insertBefore(message, document.getElementById('addToCartButton'));
+    return message;
+  }
+
+  function populateVariantSelector(variants) {
+    const grid = document.getElementById('variantsGrid');
+    grid.innerHTML = '';
+    
+    // Store variant prices
+    variants.forEach(variant => {
+      variantPrices[variant.platformId] = variant.price;
+    });
+
+    variants.forEach(variant => {
+      const variantCard = document.createElement('div');
+      variantCard.className = 'variant-card grid grid-cols-[60px_1fr_auto] items-center gap-3 border border-gray-200 rounded-lg p-2 bg-white hover:border-blue-500 transition duration-300';
+      variantCard.innerHTML = `
+        <div class="w-[60px] h-[60px]">
+          <img src="${variant.imageSrc}" alt="${variant.productVariantTitle}" class="w-full h-full object-cover rounded">
+        </div>
+        <div>
+          <h4 class="m-0 text-sm font-semibold text-gray-800">${variant.productVariantTitle}</h4>
+        </div>
+        <div class="flex items-center gap-1.5">
+          <button class="quantity-btn w-6 h-6 text-sm bg-gray-100 border-none rounded cursor-pointer" data-action="decrease" data-variant="${variant.platformId}">-</button>
+          <input type="number" 
+                 class="variant-quantity w-8 text-center p-1 border border-gray-200 rounded text-sm" 
+                 value="0" 
+                 min="0" 
+                 max="99"
+                 data-variant="${variant.platformId}">
+          <button class="quantity-btn w-6 h-6 text-sm bg-gray-100 border-none rounded cursor-pointer" data-action="increase" data-variant="${variant.platformId}">+</button>
+        </div>
+      `;
+      grid.appendChild(variantCard);
+    });
+
+    initializeVariantQuantityControls();
+  }
+
+  function initializeVariantQuantityControls() {
+    document.querySelectorAll('.variant-card .quantity-btn').forEach(btn => {
+      btn.addEventListener('click', function() {
+        const variantId = this.dataset.variant;
+        const input = document.querySelector(`.variant-quantity[data-variant="${variantId}"]`);
+        const currentValue = parseInt(input.value) || 0;
+        
+        input.value = this.dataset.action === 'increase' 
+          ? Math.min(currentValue + 1, 99)
+          : Math.max(currentValue - 1, 0);
+
+        updateTotalPrice();
+        validateQuantities();
+      });
+    });
+  }
+
+  function initializeBagSelection() {
+    document.querySelectorAll('.bag-option').forEach(option => {
+      if (parseInt(option.dataset.bags) === DEFAULT_SELECTED_BAGS) {
+        option.classList.add('!border-2', '!border-blue-500');
+      }
+      option.addEventListener('click', handleBagSelection);
+    });
+  }
+
+  function handleBagSelection() {
+    document.querySelectorAll('.bag-option').forEach(opt => {
+      opt.classList.remove('!border-2', '!border-blue-500');
+    });
+    this.classList.add('!border-2', '!border-blue-500');
+    updateTotalPrice();
+    validateQuantities();
+  }
+
+  function initializeQuantityControls() {
+    document.querySelectorAll('.quantity-btn').forEach(btn => {
+      btn.addEventListener('click', function() {
+        const input = document.getElementById('quantityInput');
+        const currentValue = parseInt(input.value) || 0;
+        input.value = this.dataset.action === 'increase' 
+          ? Math.min(currentValue + 1, 99)
+          : Math.max(currentValue - 1, 1);
+      });
+    });
+  }
+
+  function handleAddToCart() {
+    const selectedBagOption = document.querySelector('.bag-option[class*="!border-blue-500"]');
+    if (!selectedBagOption) return alert('Please select number of bags first');
+
+    const fullSellingPlanId = Object.keys(skioData.sellingPlanGroup)[0];
+    const sellingPlanId = fullSellingPlanId.split("/").pop();
+
+    const variants = Array.from(document.querySelectorAll('.variant-quantity'))
+      .filter(input => parseInt(input.value) > 0)
+      .map(input => ({
+        id: input.dataset.variant.split('/').pop(),
+        quantity: parseInt(input.value),
+        selling_plan: isSubscription ? sellingPlanId : undefined,
+        properties: {
+          _dynamicBoxIndex: "0",
+          _dynamicBoxId: skioData.boxId,
+        },
+      }));
+
+    if (variants.length === 0) return alert('Please select at least one flavor');
+
+    const formData = { items: variants };
+
+    fetch(window.Shopify.routes.root + 'cart/add.js', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(formData),
+    })
+    .then(response => response.json())
+    .then(response => {
+      const cartDrawer = document.querySelector('cart-drawer');
+      if (cartDrawer) cartDrawer.refresh(true);
+    })
+    .catch(error => console.error('Error:', error));
+  }
+
+  function handlePurchaseTypeSelection() {
+    const buttons = document.querySelectorAll('.purchase-type-button');
+    buttons.forEach(btn => {
+      btn.addEventListener('click', function() {
+        buttons.forEach(b => {
+          b.classList.remove('bg-blue-50', 'border-blue-500', 'border-2');
+        });
+        this.classList.add('bg-blue-50', 'border-blue-500', 'border-2');
+        isSubscription = this.dataset.purchaseType === 'subscribe';
+        updateTotalPrice();
+      });
+    });
+  }
+</script>

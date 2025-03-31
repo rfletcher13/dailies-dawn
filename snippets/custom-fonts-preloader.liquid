@@ -1,0 +1,51 @@
+{% comment %}
+  Preloads the custom font-face.
+
+  Usage:
+    {% render 'custom-fonts-preload' %}
+{% endcomment %}
+
+{% liquid
+    assign font_heading = shop.metaobjects.typeface.values | where: 'role', 'Heading' | first
+    assign font_body = shop.metaobjects.typeface.values | where: 'role', 'Body' | first
+    assign processed_urls = ''
+  %}
+  
+  {% for font in font_heading.fonts.value %}
+    {% for asset in font.assets.value %}
+      {% assign asset_type = asset.url | split: '.' | last | split: '?' | first %}
+      {% assign url = asset.url %}
+  
+      {% unless processed_urls contains url %}
+        <link
+          rel="preload"
+          href="{{ url }}"
+          type="font/{{- asset_type -}}"
+          as="font"
+          fetchpriority="high"
+          crossorigin
+        >
+        {% capture processed_urls %}{{ processed_urls }}{{ url }}{% endcapture %}
+      {% endunless %}
+    {% endfor %}
+  {% endfor %}
+  
+  {% for font in font_body.fonts.value %}
+    {% for asset in font.assets.value %}
+      {% assign asset_type = asset.url | split: '.' | last | split: '?' | first %}
+      {% assign url = asset.url %}
+  
+      {% unless processed_urls contains url %}
+        <link
+          rel="preload"
+          href="{{ url }}"
+          type="font/{{- asset_type -}}"
+          as="font"
+          fetchpriority="high"
+          crossorigin
+        >
+        {% capture processed_urls %}{{ processed_urls }}{{ url }}{% endcapture %}
+      {% endunless %}
+    {% endfor %}
+  {% endfor %}
+  

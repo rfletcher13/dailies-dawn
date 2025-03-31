@@ -1,0 +1,133 @@
+<div class="rf-bab-section">
+    {% render 'rf-bab-snippet', 
+      product: section.settings.product,
+      usp_1: section.settings.usp_1,
+      usp_2: section.settings.usp_2,
+      usp_3: section.settings.usp_3,
+      usp_4: section.settings.usp_4,
+      custom_description: section.settings.custom_description,
+      product_tags: section.settings.product_tags,
+      benefit_1: section.settings.benefit_1,
+      benefit_2: section.settings.benefit_2,
+      benefit_3: section.settings.benefit_3,
+      benefit_4: section.settings.benefit_4,
+      guarantee_icon: section.settings.guarantee_icon,
+      guarantee_text: section.settings.guarantee_text
+    %}
+</div>
+
+{% schema %}
+{
+  "name": "Build-A-Box Section",
+  "tag": "section",
+  "class": "section",
+  "settings": [
+    {
+      "type": "product",
+      "id": "main_product",
+      "label": "Main Product",
+      "info": "Select the main product that this Build-A-Box will work with"
+    },
+    {
+      "type": "product",
+      "id": "product",
+      "label": "Box Product"
+    },
+    {
+      "type": "header",
+      "content": "Product Description"
+    },
+    {
+      "type": "richtext",
+      "id": "custom_description",
+      "label": "Custom Product Description",
+      "default": "<p>Enter your custom product description here. This will be displayed between the bag selector and USP images.</p>"
+    },
+    {
+      "type": "header",
+      "content": "Product Tags"
+    },
+    {
+      "type": "text",
+      "id": "product_tags",
+      "label": "Product Tags",
+      "default": "Energy | Flavor | Convenience",
+      "info": "This will connected to the metafield custom.value_props on the main product. It returns a list."
+    },
+    {
+      "type": "header",
+      "content": "Subscribe Benefits"
+    },
+    {
+      "type": "richtext",
+      "id": "benefit_1",
+      "label": "Benefit 1",
+      "default": "<p>Save 10% on every order</p>"
+    },
+    {
+      "type": "richtext",
+      "id": "benefit_2",
+      "label": "Benefit 2",
+      "default": "<p>Free shipping on orders over $50</p>"
+    },
+    {
+      "type": "richtext",
+      "id": "benefit_3",
+      "label": "Benefit 3",
+      "default": "<p>Cancel or skip anytime</p>"
+    },
+    {
+      "type": "richtext",
+      "id": "benefit_4",
+      "label": "Benefit 4",
+      "default": "<p>Exclusive subscriber perks</p>"
+    },
+    {
+      "type": "header",
+      "content": "Risk-Free Trial Section"
+    },
+    {
+      "type": "image_picker",
+      "id": "guarantee_icon",
+      "label": "Risk-Free Trial Icon",
+      "info": "Upload an icon for the risk-free trial section (SVG, PNG, or JPG)"
+    },
+    {
+      "type": "richtext",
+      "id": "guarantee_text",
+      "label": "Risk-Free Trial Text",
+      "default": "<p><strong>Try it risk-free for 30 days.</strong> If you're not totally in love with the product, we will refund you 100%.</p>"
+    },
+    {
+      "type": "header",
+      "content": "USP Icons"
+    },
+    {
+      "type": "image_picker",
+      "id": "usp_1",
+      "label": "USP 1 Icon"
+    },
+    {
+      "type": "image_picker",
+      "id": "usp_2",
+      "label": "USP 2 Icon"
+    },
+    {
+      "type": "image_picker",
+      "id": "usp_3",
+      "label": "USP 3 Icon"
+    },
+    {
+      "type": "image_picker",
+      "id": "usp_4",
+      "label": "USP 4 Icon"
+    }
+  ],
+  "presets": [
+    {
+      "name": "Build-A-Box Section",
+      "category": "Custom"
+    }
+  ]
+}
+{% endschema %}

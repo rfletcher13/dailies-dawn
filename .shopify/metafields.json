@@ -129,6 +129,66 @@
         "name": "list.metaobject_reference",
         "category": "REFERENCE"
       }
+    },
+    {
+      "key": "flavor_options",
+      "namespace": "custom",
+      "name": "Flavor Options",
+      "description": "Flavor Options used for Online store and rendering other flavors",
+      "type": {
+        "name": "list.product_reference",
+        "category": "REFERENCE"
+      }
+    },
+    {
+      "key": "build_a_box_product",
+      "namespace": "custom",
+      "name": "Build A Box Product",
+      "description": "This is the build a box associated with this product.",
+      "type": {
+        "name": "product_reference",
+        "category": "REFERENCE"
+      }
+    },
+    {
+      "key": "dietary-use",
+      "namespace": "shopify",
+      "name": "Dietary use",
+      "description": "Classifies products based on dietary benefits, e.g. muscle building, low carb",
+      "type": {
+        "name": "list.metaobject_reference",
+        "category": "REFERENCE"
+      }
+    },
+    {
+      "key": "rating",
+      "namespace": "reviews",
+      "name": "Product rating",
+      "description": "Average rating from customers",
+      "type": {
+        "name": "rating",
+        "category": "RATING"
+      }
+    },
+    {
+      "key": "rating_count",
+      "namespace": "reviews",
+      "name": "Product rating count",
+      "description": "Total number of ratings from customers",
+      "type": {
+        "name": "number_integer",
+        "category": "NUMBER"
+      }
+    },
+    {
+      "key": "value_props",
+      "namespace": "custom",
+      "name": "Value Props",
+      "description": "The Product Value props in the top right corner of the Build a Box",
+      "type": {
+        "name": "list.single_line_text_field",
+        "category": "TEXT"
+      }
     }
   ],
   "variant": [
@@ -300,6 +360,46 @@
       "type": {
         "name": "boolean",
         "category": "TRUE_FALSE"
+      }
+    },
+    {
+      "key": "primary_color",
+      "namespace": "custom",
+      "name": "Primary Color",
+      "description": "Primary Color",
+      "type": {
+        "name": "color",
+        "category": "COLOR"
+      }
+    },
+    {
+      "key": "secondary_color",
+      "namespace": "custom",
+      "name": "Secondary Color",
+      "description": "Secondary Flavor Color",
+      "type": {
+        "name": "color",
+        "category": "COLOR"
+      }
+    },
+    {
+      "key": "background_color",
+      "namespace": "custom",
+      "name": "Background Color",
+      "description": "Background Flavor Color",
+      "type": {
+        "name": "color",
+        "category": "COLOR"
+      }
+    },
+    {
+      "key": "text_color",
+      "namespace": "custom",
+      "name": "Text Color",
+      "description": "Text Color",
+      "type": {
+        "name": "color",
+        "category": "COLOR"
       }
     }
   ],

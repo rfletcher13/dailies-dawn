@@ -23,10 +23,6 @@
           "type": "title",
           "settings": {}
         },
-        "judge_me_reviews_preview_badge_MMj3UN": {
-          "type": "shopify://apps/judge-me-reviews/blocks/preview_badge/61ccd3b1-a9f2-4160-9fe9-4fec8413e5d8",
-          "settings": {}
-        },
         "price": {
           "type": "price",
           "settings": {}
@@ -42,7 +38,7 @@
           "type": "quantity_selector",
           "settings": {}
         },
-        "skio_subscriptions_yc_s20_app_block_3qcPyx": {
+        "skio_subscriptions_yc_s20_app_block_NETMK4": {
           "type": "shopify://apps/skio-subscriptions-yc-s20/blocks/app-block/de50f7a4-0bb0-4d4c-84e2-c03dce83436d",
           "settings": {
             "form_id": "product-form-{{section.id}}",
@@ -83,11 +79,10 @@
       "block_order": [
         "vendor",
         "title",
-        "judge_me_reviews_preview_badge_MMj3UN",
         "price",
         "variant_picker",
         "quantity_selector",
-        "skio_subscriptions_yc_s20_app_block_3qcPyx",
+        "skio_subscriptions_yc_s20_app_block_NETMK4",
         "buy_buttons",
         "description",
         "share"
@@ -126,21 +121,16 @@
         "padding_bottom": 28
       }
     },
-    "1741547149dde349a5": {
+    "1741547224d023fc2f": {
       "type": "apps",
       "blocks": {
-        "judge_me_reviews_ugc_media_grid_VhA6YF": {
-          "type": "shopify://apps/judge-me-reviews/blocks/ugc_media_grid/61ccd3b1-a9f2-4160-9fe9-4fec8413e5d8",
-          "settings": {}
-        },
-        "judge_me_reviews_review_widget_33zfpr": {
+        "judge_me_reviews_review_widget_Ya88ax": {
           "type": "shopify://apps/judge-me-reviews/blocks/review_widget/61ccd3b1-a9f2-4160-9fe9-4fec8413e5d8",
           "settings": {}
         }
       },
       "block_order": [
-        "judge_me_reviews_ugc_media_grid_VhA6YF",
-        "judge_me_reviews_review_widget_33zfpr"
+        "judge_me_reviews_review_widget_Ya88ax"
       ],
       "settings": {
         "include_margins": true
@@ -149,7 +139,7 @@
   },
   "order": [
     "main",
-    "related-products",
-    "1741547149dde349a5"
+    "1741547224d023fc2f",
+    "related-products"
   ]
 }

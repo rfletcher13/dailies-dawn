@@ -1,0 +1,1783 @@
+{%comment %}Build a box component{% endcomment %}
+{% assign box_product = all_products[product] %}
+{% if box_product == blank and product.id != blank %}
+  {% assign box_product = product %}
+{% endif %}
+
+<script type="application/json" id="flavorMetafields">
+{
+  {% for product in collections.all.products %}
+    {% for variant in product.variants %}
+      {% if variant.metafields.custom.flavor_description != blank %}
+        "{{ variant.id }}": "{{ variant.metafields.custom.flavor_description | escape }}"{% unless forloop.last and forloop.parentloop.last %},{% endunless %}
+      {% else %}
+        "{{ variant.id }}": "No flavor description available."{% unless forloop.last and forloop.parentloop.last %},{% endunless %}
+      {% endif %}
+    {% endfor %}
+  {% endfor %}
+}
+</script>
+
+<div class="product-container">
+  <!-- Product Header Section -->
+  <div class="product-header">
+    <div class="breadcrumb">
+      <a href="{{ routes.root_url }}">Home</a> &gt;
+      <a href="{{ routes.collections_url }}">Products</a> &gt;
+      <span>{{ product.title | remove: ' Box' }}</span>
+    </div>
+    
+    <h1 class="product-title">{{ product.title | remove: ' Box' | upcase }}</h1>
+    
+    <div class="product-rating">
+      <div class="rating-left">
+        <div class="stars">★★★★★</div>
+        <span class="reviews">({{ product.metafields.reviews.rating_count | default: '26,122' }})</span>
+      </div>
+      <div class="product-tags">
+        {{ product_tags | remove:' and' | split: ', ' | join: " | "}}
+      </div>
+    </div>
+  </div>
+
+  <!-- Product Hero Section -->
+  <div class="product-hero">
+    <!-- Image Carousel -->
+    <div class="product-carousel">
+      <div class="slider-container">
+        <div class="slider">
+          {% if box_product.images.size > 0 %}
+            {% for image in box_product.images %}
+              <div class="slide">
+                <img src="{{ image | img_url: '800x800', crop: 'center' }}" 
+                     alt="{{ box_product.title }}" 
+                     width="800" 
+                     height="800"
+                     loading="{% if forloop.index <= 1 %}eager{% else %}lazy{% endif %}">
+              </div>
+            {% endfor %}
+          {% else %}
+            <div class="slide">
+              <img src="{{ box_product.featured_image | img_url: '800x800', crop: 'center' }}" 
+                   alt="{{ box_product.title }}" 
+                   width="800" 
+                   height="800"
+                   loading="eager">
+            </div>
+          {% endif %}
+        </div>
+        
+        <button class="slider-button prev" aria-label="Previous slide">
+          <svg viewBox="0 0 24 24" width="24" height="24" stroke="currentColor" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round"><polyline points="15 18 9 12 15 6"></polyline></svg>
+        </button>
+        <button class="slider-button next" aria-label="Next slide">
+          <svg viewBox="0 0 24 24" width="24" height="24" stroke="currentColor" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"></polyline></svg>
+        </button>
+      </div>
+    </div>
+
+    <!-- USP Icons in separate container -->
+    <div class="usp-container">
+      <div class="feature-icons">
+        {% if usp_1 != blank %}
+          <div class="feature-icon">
+            <div class="icon-wrapper">
+              <img src="{{ usp_1 | img_url: '160x160' }}" alt="USP icon" width="80" height="80">
+            </div>
+          </div>
+        {% endif %}
+        
+        {% if usp_2 != blank %}
+          <div class="feature-icon">
+            <div class="icon-wrapper">
+              <img src="{{ usp_2 | img_url: '160x160' }}" alt="USP icon" width="80" height="80">
+            </div>
+          </div>
+        {% endif %}
+        
+        {% if usp_3 != blank %}
+          <div class="feature-icon">
+            <div class="icon-wrapper">
+              <img src="{{ usp_3 | img_url: '160x160' }}" alt="USP icon" width="80" height="80">
+            </div>
+          </div>
+        {% endif %}
+        
+        {% if usp_4 != blank %}
+          <div class="feature-icon">
+            <div class="icon-wrapper">
+              <img src="{{ usp_4 | img_url: '160x160' }}" alt="USP icon" width="80" height="80">
+            </div>
+          </div>
+        {% endif %}
+      </div>
+    </div>
+  </div>
+
+  <!-- Product Description -->
+  <div class="product-description">
+    {{ custom_description }}
+  </div>
+
+
+  <div class="box-builder-container">
+    <!-- Original box builder functionality continues below -->
+    <!-- Right Side: Scrollable GUI -->
+    <div class="gui-section">
+      <div class="bag-selection">
+        {% for bags in (1..4) reversed %}
+          <div class="bag-option {% if selected_bags == bags %}selected{% endif %} {% if bags == 4 %}best-deal{% endif %}" data-bags="{{ bags }}">
+            {% if bags == 4 %}<span class="deal-badge">Best Deal</span>{% endif %}
+            <span class="bag-count">{{ bags }} Bag{% if bags != 1 %}s{% endif %}</span>
+          </div>
+        {% endfor %}
+      </div>
+  
+      <div class="variant-selection-container">
+        <div class="purchase-options">
+            <div class="purchase-type-button subscribe-button" data-purchase-type="subscribe">
+                <div class="purchase-header">
+                    <div class="purchase-type-label">Subscribe & Save</div>
+                    <div class="price-container">
+                        <div class="original-price" id="subscribeOriginalPrice">$0.00</div>
+                        <div class="purchase-type-price" id="subscribeTotalPrice">$0.00</div>
+                    </div>
+                </div>
+                <div class="discount-badge" id="subscribeDiscountBadge"></div>
+                <div class="subscribe-benefits-grid">
+                    <div class="benefit-item">
+                        <span class="checkmark">✓</span>
+                        <span>{{ benefit_1 }}</span>
+                    </div>
+                    <div class="benefit-item">
+                        <span class="checkmark">✓</span>
+                        <span>{{ benefit_2 }}</span>
+                    </div>
+                    <div class="benefit-item">
+                        <span class="checkmark">✓</span>
+                        <span>{{ benefit_3 }}</span>
+                    </div>
+                    <div class="benefit-item">
+                        <span class="checkmark">✓</span>
+                        <span>{{ benefit_4 }}</span>
+                    </div>
+                </div>
+            </div>
+            <div class="purchase-type-button" data-purchase-type="onetime">
+                <div class="purchase-header">
+                    <div class="purchase-type-label">One Time Purchase</div>
+                    <div class="price-container">
+                        <div class="original-price" id="originalPrice">$0.00</div>
+                        <div class="purchase-type-price" id="totalPrice">$0.00</div>
+                    </div>
+                </div>
+                <!-- <div class="discount-badge" id="discountBadge"></div> -->
+            </div>
+        </div>
+        <div class="variant-section-header">
+            <h3 class="variant-section-title">Select Your Flavors</h3>
+        </div>
+        <div class="variants-grid" id="variantsGrid"></div>
+      </div>
+  
+      <div class="price-summary">
+        <div class="subtotal">Subtotal: <span id="subtotalPrice">$0.00</span></div>
+        <div class="savings-badge" id="savingsBadge" style="display: none;">
+          You save <span id="savingsAmount">$0.00</span>
+        </div>
+      </div>
+      <button class="add-to-cart-button" id="addToCartButton">Add to Cart</button>
+      
+      <!-- Risk-Free Trial Section -->
+      <div class="risk-free-trial">
+        <div class="risk-free-icon">
+          {% if guarantee_icon != blank %}
+            <img src="{{ guarantee_icon | img_url: '80x80' }}" alt="Risk-Free Trial" width="40" height="40">
+          {% else %}
+            <svg width="40" height="40" viewBox="0 0 40 40" fill="none">
+              <circle cx="20" cy="20" r="19" stroke="#5046E4" stroke-width="2" stroke-dasharray="4 4"/>
+              <path d="M12 20L17 25L28 14" stroke="#5046E4" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+            </svg>
+          {% endif %}
+        </div>
+        <div class="risk-free-text">
+          {{ guarantee_text }}
+        </div>
+      </div>
+
+      <!-- Divider Line -->
+      <div class="section-divider"></div>
+      
+      <!-- Add Collapsible Flavor Selector -->
+      <div class="flavor-selector-container">
+        <button class="flavor-selector-toggle" aria-expanded="false">
+          <span>Nutritional Information</span>
+          <svg class="toggle-icon" viewBox="0 0 24 24" width="24" height="24" stroke="currentColor" stroke-width="2" fill="none">
+            <polyline points="6 9 12 15 18 9"></polyline>
+          </svg>
+        </button>
+        <div class="flavor-selector-content">
+          <select class="flavor-dropdown" id="flavorDropdown">
+            <option value="">Select A Flavor</option>
+            {% for product in collections['clear-protein'].products %}
+              {% for variant in product.variants %}
+                <option value="{{ variant.id }}" data-nutritional-info="{{ variant.metafields.custom.nutritional_information | file_url }}">
+                  {{ variant.title }}
+                </option>
+              {% endfor %}
+            {% endfor %}
+          </select>
+          <div id="nutritionalInfo" class="nutritional-info">
+            <img id="nutritionalImage" src="" alt="Nutritional Information" style="display: none;" width="600" height="800">
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+    // Constants and State
+    const BAB_ID = {{ box_product.id | json }};
+    const DEFAULT_SELECTED_BAGS = 3; // Changed to always be 3
+    let skioData = null;
+    let rawSkioResponse = null; // Add variable to store raw API response
+    let variantPrices = {};
+    let currentDiscount = 0;
+    let isSubscription = false;
+    let flavorMetafields = {};
+
+    // Initialize the carousel
+    document.addEventListener('DOMContentLoaded', function() {
+        // Load flavor metafields data
+        try {
+            const metafieldsData = document.getElementById('flavorMetafields');
+            if (metafieldsData) {
+                try {
+                    flavorMetafields = JSON.parse(metafieldsData.textContent);
+                    console.log('Successfully loaded flavor metafields:', Object.keys(flavorMetafields).length);
+                } catch (parseError) {
+                    console.error('Error parsing metafields JSON:', parseError);
+                    console.log('Raw metafields content:', metafieldsData.textContent);
+                }
+            } else {
+                console.warn('Flavor metafields element not found');
+            }
+        } catch (error) {
+            console.error('Error loading flavor metafields:', error);
+        }
+        
+        initializeSlider();
+        
+        // Original box builder code
+        initializeBagSelection();
+        initializeQuantityControls();
+        document.getElementById('addToCartButton').addEventListener('click', handleAddToCart);
+        handlePurchaseTypeSelection();
+        
+        // Set subscribe as default
+        const subscribeButton = document.querySelector('[data-purchase-type="subscribe"]');
+        if (subscribeButton) {
+            subscribeButton.classList.add('selected');
+            isSubscription = true;
+        }
+
+        // Fetch Skio Data
+        fetch('https://api.skio.com/storefront-http/get-dynamic-box', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ productPlatformId: BAB_ID })
+        })
+        .then(response => response.json())
+        .then(data => {
+            // Store the raw response first
+            rawSkioResponse = data;
+            
+            // Then parse it for use in the application
+            skioData = SkioBox.parse(data);
+            const variants = parseVariants(skioData);
+            populateVariantSelector(variants);
+            
+            // After variants are loaded, update the price for default 3 bags
+            const defaultBagOption = document.querySelector(`.bag-option[data-bags="${DEFAULT_SELECTED_BAGS}"]`);
+            if (defaultBagOption) {
+                defaultBagOption.classList.add('selected');
+                updateTotalPrice(); // Update price immediately after variants are loaded
+            }
+        })
+        .catch(error => {
+            console.error('Error fetching SkioBox data:', error);
+        });
+
+        // Initialize Flavor Selector
+        initializeFlavorSelector();
+    });
+
+    // Slider functionality
+    function initializeSlider() {
+        const slider = document.querySelector('.slider');
+        const slides = document.querySelectorAll('.slide');
+        const prevBtn = document.querySelector('.slider-button.prev');
+        const nextBtn = document.querySelector('.slider-button.next');
+        let currentSlide = 0;
+        
+        if (!slider || slides.length === 0) return;
+        
+        function updateSlider() {
+            const slideWidth = slides[0].clientWidth;
+            slider.style.transform = `translateX(${-currentSlide * slideWidth}px)`;
+        }
+        
+        prevBtn.addEventListener('click', () => {
+            currentSlide = (currentSlide > 0) ? currentSlide - 1 : slides.length - 1;
+            updateSlider();
+        });
+        
+        nextBtn.addEventListener('click', () => {
+            currentSlide = (currentSlide < slides.length - 1) ? currentSlide + 1 : 0;
+            updateSlider();
+        });
+        
+        // Initialize slider position
+        updateSlider();
+        
+        // Handle window resize
+        window.addEventListener('resize', updateSlider);
+    }
+
+    // Utility Functions for box builder
+    class SkioBox { 
+        static parse(apiResponse) {
+            apiResponse = apiResponse.DynamicBox
+            return {
+                boxId: apiResponse.boxId,
+                currencyCode: apiResponse.currencyCode || 'USD',
+                fixedDiscountTier: apiResponse.fixedDiscountTier || null,
+                percentDiscountTier: apiResponse.percentDiscountTier || {
+                    1: "0",
+                    2: "0",
+                    3: "0",
+                    4: "0"
+                },
+                sizeRange: apiResponse.sizeRange || null,
+                sizeInterval: apiResponse.sizeInterval || [1, 2, 3, 4],
+                priceRange: apiResponse.priceRange || null,
+                selectableProductVariants: apiResponse.selectableProductVariants.map(product => ({
+                    productTitle: product.productTitle,
+                    productImageSrc: product.productImageSrc,
+                    productPlatformId: product.productPlatformId,
+                    productHandle: product.productHandle,
+                    productVariants: product.productVariants.map(variant => ({
+                        platformId: variant.platformId,
+                        productVariantTitle: variant.productVariantTitle,
+                        imageSrc: variant.imageSrc,
+                        price: variant.price,
+                        compareAtPrice: variant.compareAtPrice || 0,
+                        inventory: variant.inventory
+                    }))
+                })),
+                sellingPlanGroup: apiResponse.sellingPlanGroup,
+                settings: apiResponse.settings,
+                theme: apiResponse.theme,
+                oneTimeUpsells: apiResponse.oneTimeUpsells || [],
+                oneTimeUpsellsSellingPlanMapping: apiResponse.oneTimeUpsellsSellingPlanMapping || {}
+            };
+        }
+    }
+
+    function parseVariants(skioData) {
+        if (!skioData?.selectableProductVariants || !skioData?.sellingPlanGroup) return [];
+        
+        const sellingPlanId = Object.keys(skioData.sellingPlanGroup)[0];
+        const sellingPlan = skioData.sellingPlanGroup[sellingPlanId];
+        const variantMapping = sellingPlan.variantMapping || {};
+
+        return skioData.selectableProductVariants.flatMap(product => 
+            product.productVariants.map(variant => ({
+                platformId: variant.platformId,
+                productVariantTitle: variant.productVariantTitle,
+                imageSrc: variant.imageSrc,
+                price: variant.price,
+                compareAtPrice: variant.compareAtPrice,
+                inventory: variant.inventory,
+                productTitle: product.productTitle,
+                productHandle: product.productHandle,
+                productPlatformId: product.productPlatformId,
+                adjustedPrice: variantMapping[variant.platformId]?.adjustedPrice || null,
+                sellingPlanId: variantMapping[variant.platformId]?.planId || null
+            }))
+        );
+    }
+
+    function getDiscountForBags(bagCount) {
+        if (!skioData) return 0;
+        
+        const percentTiers = skioData.percentDiscountTier || {};
+        const fixedTiers = skioData.fixedDiscountTier || {};
+        
+        // Check for percentage discount
+        const percentDiscount = parseFloat(percentTiers[bagCount] || 0);
+        if (percentDiscount > 0) {
+            return { type: 'percent', value: percentDiscount };
+        }
+        
+        // Check for fixed discount
+        const fixedDiscount = parseFloat(fixedTiers[bagCount] || 0);
+        if (fixedDiscount > 0) {
+            return { type: 'fixed', value: fixedDiscount };
+        }
+        
+        return { type: 'none', value: 0 };
+    }
+
+    function updateTotalPrice() {
+        const selectedBags = document.querySelector('.bag-option.selected');
+        const bagCount = selectedBags ? parseInt(selectedBags.dataset.bags) : 0;
+        const singleBagPrice = Object.values(variantPrices)[0] || 0;
+        
+        // Calculate base total and discounts
+        const potentialTotal = singleBagPrice * bagCount;
+        const bagDiscount = getDiscountForBags(bagCount);
+        
+        // Calculate one-time purchase price
+        let onetimeTotal = potentialTotal;
+        if (bagDiscount.type === 'percent') {
+            onetimeTotal = potentialTotal * (1 - (bagDiscount.value / 100));
+        } else if (bagDiscount.type === 'fixed') {
+            onetimeTotal = Math.max(0, potentialTotal - bagDiscount.value);
+        }
+        
+        // Calculate subscription price (additional 10% off)
+        const planId = Object.keys(skioData.sellingPlanGroup)[0];
+        const plan = skioData.sellingPlanGroup[planId];
+        const subscriptionTotal = onetimeTotal * (1 - plan.priceAdjustmentAmount/100);
+
+        const formatPrice = (price) => new Intl.NumberFormat('en-US', { 
+            style: 'currency', 
+            currency: 'USD' 
+        }).format(price);
+
+        // Update one-time purchase prices
+        document.getElementById('originalPrice').textContent = formatPrice(potentialTotal);
+        document.getElementById('totalPrice').textContent = formatPrice(onetimeTotal);
+
+        // Update subscription prices
+        document.getElementById('subscribeOriginalPrice').textContent = formatPrice(potentialTotal);
+        document.getElementById('subscribeTotalPrice').textContent = formatPrice(subscriptionTotal);
+
+        // Update subtotal and savings
+        const currentBags = Array.from(document.querySelectorAll('.variant-quantity'))
+            .reduce((sum, input) => sum + (parseInt(input.value) || 0), 0);
+        const requiredBags = selectedBags ? parseInt(selectedBags.dataset.bags) : 0;
+        
+        const finalPrice = isSubscription ? subscriptionTotal : onetimeTotal;
+        const subtotalElement = document.getElementById('subtotalPrice');
+        const subtotalContainer = subtotalElement.closest('.price-summary');
+        
+        if (currentBags >= requiredBags) {
+            subtotalElement.textContent = formatPrice(finalPrice);
+            subtotalContainer.classList.add('visible');
+        } else {
+            subtotalContainer.classList.remove('visible');
+        }
+        
+        const savingsBadge = document.getElementById('savingsBadge');
+        if (currentBags >= requiredBags) {
+            const savings = potentialTotal - finalPrice;
+            document.getElementById('savingsAmount').textContent = formatPrice(savings);
+            savingsBadge.style.display = 'block';
+        } else {
+            savingsBadge.style.display = 'none';
+        }
+
+        // Update badges and strikethroughs
+        updatePriceDisplay('original', 'total', onetimeTotal < potentialTotal);
+        updatePriceDisplay('subscribeOriginal', 'subscribe', true);
+
+        // Update discount badges
+        // updateDiscountBadge('discountBadge', potentialTotal, onetimeTotal);
+        updateDiscountBadge('subscribeDiscountBadge', potentialTotal, subscriptionTotal);
+
+        validateQuantities();
+    }
+
+    function updatePriceDisplay(originalId, totalId, shouldStrike) {
+        const originalElement = document.getElementById(`${originalId}Price`);
+        if (shouldStrike) {
+            originalElement.classList.add('strikethrough');
+        } else {
+            originalElement.classList.remove('strikethrough');
+        }
+    }
+
+    function updateDiscountBadge(badgeId, originalPrice, finalPrice) {
+        const badge = document.getElementById(badgeId);
+        if (finalPrice < originalPrice) {
+            const savings = ((originalPrice - finalPrice) / originalPrice) * 100;
+            badge.textContent = `SAVE ${Math.round(savings)}% on your first order`;
+            badge.style.display = 'block';
+        } else {
+            badge.style.display = 'none';
+        }
+    }
+
+    function validateQuantities() {
+        const selectedBags = document.querySelector('.bag-option.selected');
+        const requiredBags = selectedBags ? parseInt(selectedBags.dataset.bags) : 0;
+        const currentBags = Array.from(document.querySelectorAll('.variant-quantity'))
+            .reduce((sum, input) => sum + (parseInt(input.value) || 0), 0);
+
+        const addToCartButton = document.getElementById('addToCartButton');
+        const errorMessage = document.querySelector('.quantity-error') || createErrorMessage();
+
+        if (currentBags < requiredBags) {
+            addToCartButton.disabled = true;
+            addToCartButton.textContent = `Add ${requiredBags - currentBags} More Flavor${requiredBags - currentBags !== 1 ? 's' : ''}`;
+            errorMessage.textContent = `${requiredBags - currentBags} Flavor${requiredBags - currentBags !== 1 ? 's' : ''} to Go`;
+            errorMessage.classList.remove('info');
+            errorMessage.classList.add('error');
+            errorMessage.style.display = 'block';
+        } 
+        else if (currentBags >= requiredBags) {
+            addToCartButton.disabled = false;
+            addToCartButton.textContent = 'Add to Cart';
+            errorMessage.textContent = `All Set! (You can add more)`;
+            errorMessage.classList.remove('error');
+            errorMessage.classList.add('info');
+            errorMessage.style.display = 'block';
+        }
+        else {
+            addToCartButton.disabled = false;
+            addToCartButton.textContent = 'Add to Cart';
+            errorMessage.style.display = 'none';
+        }
+    }
+
+    function createErrorMessage() {
+        const message = document.createElement('div');
+        message.className = 'quantity-error';
+        const header = document.querySelector('.variant-section-header');
+        header.appendChild(message);
+        return message;
+    }
+
+    function populateVariantSelector(variants) {
+        const grid = document.getElementById('variantsGrid');
+        grid.innerHTML = '';
+        
+        // Store variant prices
+        variants.forEach(variant => {
+            variantPrices[variant.platformId] = variant.price;
+        });
+
+        variants.forEach(variant => {
+            // Extract variant ID for finding flavor description
+            // Make sure to use the correct format - Shopify variant IDs are numeric
+            const variantIdFull = variant.platformId.split('/').pop();
+            const variantId = variantIdFull.includes('?') ? variantIdFull.split('?')[0] : variantIdFull;
+            
+            // Safely get flavor description with error handling
+            let flavorDescription = "No flavor description available.";
+            try {
+                flavorDescription = getFlavorDescription(variantId);
+            } catch (error) {
+                console.error(`Error getting flavor description for variant ${variantId}:`, error);
+            }
+            
+            const variantCard = document.createElement('div');
+            variantCard.className = 'variant-card';
+            variantCard.innerHTML = `
+                <div class="variant-image">
+                    <img src="${variant.imageSrc}" alt="${variant.productVariantTitle}">
+                </div>
+                <div class="variant-info">
+                    <div class="variant-title">
+                        <h4 class="flavor-name">${variant.productVariantTitle}</h4>
+                    </div>
+                    <div class="variant-description">
+                        <span class="description-text">${flavorDescription}</span>
+                    </div>
+                </div>
+                <div class="quantity-controls">
+                    <button class="add-btn" data-variant="${variant.platformId}">Add</button>
+                    <div class="quantity-input-group" style="display: none;">
+                        <button class="quantity-btn" data-action="decrease" data-variant="${variant.platformId}">-</button>
+                        <input type="number" 
+                               class="variant-quantity" 
+                               value="0" 
+                               min="0" 
+                               max="99"
+                               data-variant="${variant.platformId}">
+                        <button class="quantity-btn" data-action="increase" data-variant="${variant.platformId}">+</button>
+                    </div>
+                </div>
+            `;
+            grid.appendChild(variantCard);
+        });
+
+        initializeVariantQuantityControls();
+    }
+    
+    // Get flavor description from metafields
+    function getFlavorDescription(variantId) {
+        // Debug - log the variant ID we're looking up
+        console.log('Looking up flavor description for variant ID:', variantId);
+        
+        if (!flavorMetafields || !flavorMetafields[variantId]) {
+            console.log('No metafield data found for variant ID:', variantId);
+            return "No flavor description available.";
+        }
+        
+        const metafieldData = flavorMetafields[variantId];
+        console.log('Found metafield data:', metafieldData);
+        
+        // Handle string value directly
+        if (typeof metafieldData === 'string') {
+            return metafieldData;
+        }
+        
+        // Handle object with value property (typical Shopify metafield format)
+        if (typeof metafieldData === 'object') {
+            // First check for direct value property
+            if (metafieldData.value !== undefined) {
+                return metafieldData.value;
+            }
+            
+            // Then check for flavor_description property
+            if (metafieldData.flavor_description !== undefined) {
+                return metafieldData.flavor_description;
+            }
+            
+            // Try to stringify the object if all else fails
+            try {
+                return JSON.stringify(metafieldData);
+            } catch (e) {
+                console.error('Error stringifying metafield data:', e);
+            }
+        }
+        
+        return "No flavor description available.";
+    }
+
+    function initializeVariantQuantityControls() {
+        // Handle Add buttons
+        document.querySelectorAll('.add-btn').forEach(btn => {
+            btn.addEventListener('click', function() {
+                const variantId = this.dataset.variant;
+                const quantityGroup = this.nextElementSibling;
+                const input = quantityGroup.querySelector('.variant-quantity');
+                
+                // Hide add button, show quantity controls
+                this.style.display = 'none';
+                quantityGroup.style.display = 'flex';
+                
+                // Set initial quantity to 1
+                input.value = 1;
+                
+                updateTotalPrice();
+                validateQuantities();
+            });
+        });
+
+        // Handle quantity buttons
+        document.querySelectorAll('.variant-card .quantity-btn').forEach(btn => {
+            btn.addEventListener('click', function() {
+                const variantId = this.dataset.variant;
+                const quantityGroup = this.closest('.quantity-input-group');
+                const addBtn = quantityGroup.previousElementSibling;
+                const input = quantityGroup.querySelector('.variant-quantity');
+                const currentValue = parseInt(input.value);
+                
+                if (this.dataset.action === 'increase') {
+                    input.value = Math.min(currentValue + 1, 99);
+                } else {
+                    const newValue = Math.max(currentValue - 1, 0);
+                    input.value = newValue;
+                    
+                    // If quantity becomes 0, switch back to Add button
+                    if (newValue === 0) {
+                        addBtn.style.display = 'block';
+                        quantityGroup.style.display = 'none';
+                    }
+                }
+
+                updateTotalPrice();
+                validateQuantities();
+            });
+        });
+    }
+
+    function initializeBagSelection() {
+        document.querySelectorAll('.bag-option').forEach(option => {
+            if (parseInt(option.dataset.bags) === DEFAULT_SELECTED_BAGS) {
+                option.classList.add('selected');
+            }
+            option.addEventListener('click', handleBagSelection);
+        });
+    }
+
+    function handleBagSelection() {
+        document.querySelectorAll('.bag-option').forEach(opt => opt.classList.remove('selected'));
+        this.classList.add('selected');
+        updateTotalPrice();  // Add this line to update price when bags change
+        validateQuantities();
+    }
+
+    function initializeQuantityControls() {
+        document.querySelectorAll('.quantity-btn').forEach(btn => {
+            btn.addEventListener('click', function() {
+                const input = document.getElementById('quantityInput');
+                const currentValue = parseInt(input.value);
+                input.value = this.dataset.action === 'increase' 
+                    ? Math.min(currentValue + 1, 99)
+                    : Math.max(currentValue - 1, 1);
+            });
+        });
+    }
+
+    function handleAddToCart() {
+        const selectedBagOption = document.querySelector('.bag-option.selected');
+        if (!selectedBagOption) return alert('Please select number of bags first');
+
+        console.log("SkioData", skioData)
+
+        console.log("is subscriont", isSubscription)
+
+        console.log("Selling plan", skioData.sellingPlanGroup)
+
+        const fullSellingPlanId = Object.keys(skioData.sellingPlanGroup)[0];
+        const sellingPlanId = fullSellingPlanId.split("/").pop();
+
+        const variants = Array.from(document.querySelectorAll('.variant-quantity'))
+            .filter(input => parseInt(input.value) > 0)
+            .map(input => ({
+                id: input.dataset.variant.split('/').pop(),
+                quantity: parseInt(input.value),
+                selling_plan: isSubscription ? sellingPlanId: undefined,
+                properties: {
+                    _dynamicBoxIndex: "0",
+                    _dynamicBoxId: skioData.boxId,
+                },
+            }));
+
+        if (variants.length === 0) return alert('Please select at least one flavor');
+
+        const formData = { items: variants };
+
+        console.log(variants)
+
+        fetch(window.Shopify.routes.root + 'cart/add.js', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(formData),
+        })
+        .then(response => response.json())
+        .then(response => {
+            const cartDrawer = document.querySelector('cart-drawer');
+            if (cartDrawer) cartDrawer.refresh(true);
+        })
+        .catch(error => console.error('Error:', error));
+    }
+
+    function handlePurchaseTypeSelection() {
+        const buttons = document.querySelectorAll('.purchase-type-button');
+        buttons.forEach(btn => {
+            btn.addEventListener('click', function() {
+                buttons.forEach(b => b.classList.remove('selected'));
+                this.classList.add('selected');
+                isSubscription = this.dataset.purchaseType === 'subscribe';
+                updateTotalPrice();
+            });
+        });
+    }
+
+    function initializeFlavorSelector() {
+        const toggle = document.querySelector('.flavor-selector-toggle');
+        const content = document.querySelector('.flavor-selector-content');
+        const dropdown = document.getElementById('flavorDropdown');
+        const nutritionalImage = document.getElementById('nutritionalImage');
+
+        if (!toggle || !content || !dropdown) return;
+
+        toggle.addEventListener('click', () => {
+            const isExpanded = toggle.getAttribute('aria-expanded') === 'true';
+            toggle.setAttribute('aria-expanded', !isExpanded);
+            content.classList.toggle('expanded');
+        });
+
+        dropdown.addEventListener('change', (e) => {
+            const selectedOption = dropdown.options[dropdown.selectedIndex];
+            if (selectedOption.value) {
+                const nutritionalInfoUrl = selectedOption.dataset.nutritionalInfo;
+                if (nutritionalInfoUrl) {
+                    nutritionalImage.src = nutritionalInfoUrl;
+                    nutritionalImage.style.display = 'block';
+                    nutritionalImage.alt = `Nutritional Information for ${selectedOption.text}`;
+                } else {
+                    nutritionalImage.style.display = 'none';
+                    nutritionalImage.src = '';
+                }
+            } else {
+                nutritionalImage.style.display = 'none';
+                nutritionalImage.src = '';
+            }
+        });
+    }
+</script>
+
+<style>
+    
+    /* ============================================= */
+    /* === Complete CSS for Product Box Builder === */
+    /* ============================================= */
+    
+    /* --- Base & Mobile Styles (Mobile First) --- */
+    
+    /* Product Container */
+    .product-container {
+        max-width: 1200px;
+        margin: 0 auto;
+        padding: 1.5rem; /* Default padding */
+        font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;
+        width: 100%;
+        box-sizing: border-box;
+        overflow-x: hidden; /* Prevent horizontal scroll */
+        /* Desktop layout handled via @media query */
+    }
+    
+    /* Product Header */
+    .product-header {
+        margin-bottom: 20px;
+    }
+    
+    .breadcrumb {
+        font-size: 1.05rem;
+        color: #666;
+        margin-bottom: 10px;
+    }
+    
+    .breadcrumb a {
+        color: #666;
+        text-decoration: none;
+    }
+    
+    .breadcrumb a:hover {
+        text-decoration: underline;
+    }
+    
+    .product-title {
+        font-size: 1.5rem; /* Base size */
+        font-weight: 700;
+        margin: 0 0 10px;
+    }
+    
+    .product-rating {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        flex-wrap: wrap;
+        gap: 10px;
+        margin-bottom: 20px;
+        font-size: 1.05rem;
+    }
+    
+    .rating-left {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+    }
+    
+    .stars {
+        color: #FFD700;
+        letter-spacing: 2px;
+    }
+    
+    .reviews {
+        color: #333;
+        font-size: 1.05rem;
+    }
+    
+    .product-tags {
+        color: #666;
+        font-size: 1.05rem;
+    }
+    
+    /* Product Hero Section (Image Area) */
+    .product-hero {
+        overflow: hidden; /* Contained overflow */
+        margin-bottom: 0; /* Reset margin for consistent spacing */
+        padding: 0;
+        width: 100%;
+        /* Desktop positioning handled via @media query */
+    }
+    
+    /* Carousel */
+    .product-carousel {
+        margin-bottom: 0; /* No margin below carousel itself */
+        width: 100%;
+    }
+    
+    .slider-container {
+        position: relative;
+        overflow: hidden;
+        max-width: 800px; /* Max width for mobile centering */
+        width: 100%;
+        margin: 0 auto; /* Center on mobile */
+        border-radius: 8px;
+    }
+    
+    .slider {
+        display: flex;
+        transition: transform 0.3s ease-in-out;
+    }
+    
+    .slide {
+        min-width: 100%;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        aspect-ratio: 1/1; /* Maintain square aspect ratio */
+    }
+    
+    .slide img {
+        width: 100%;
+        height: 100%;
+        object-fit: cover; /* Cover the slide area */
+        display: block; /* Remove extra space below image */
+    }
+    
+    .slider-button {
+        position: absolute;
+        top: 50%;
+        transform: translateY(-50%);
+        width: 36px;
+        height: 36px;
+        background: white;
+        color: black;
+        border: none;
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        cursor: pointer;
+        box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
+        z-index: 1; /* Above slides */
+    }
+    
+    .slider-button:hover {
+        background: #f0f0f0;
+    }
+    
+    .slider-button.prev {
+        left: 10px;
+    }
+    
+    .slider-button.next {
+        right: 10px;
+    }
+    
+    /* USP Icons */
+    .usp-container {
+        padding: 0;
+        margin-top: 8px;
+        margin-bottom: 30px; /* Space below icons on mobile */
+        border-radius: 0;
+        max-width: 800px; /* Max width for mobile centering */
+        width: 100%;
+        margin-left: auto; /* Center on mobile */
+        margin-right: auto; /* Center on mobile */
+    }
+    
+    .feature-icons {
+        display: grid;
+        grid-template-columns: repeat(4, 1fr); /* 4 columns */
+        gap: 8px;
+        margin: 0 auto;
+        width: 100%;
+    }
+    
+    .feature-icon {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        text-align: center;
+    }
+    
+    .icon-wrapper {
+        background: none;
+        border-radius: 8px;
+        width: 100%;
+        aspect-ratio: 1/1; /* Square icons */
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        overflow: hidden;
+    }
+    
+    .icon-wrapper img {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+        border-radius: 8px; /* Match wrapper radius */
+        display: block;
+    }
+    
+    /* Product Description */
+    .product-description {
+        margin: 0 auto; /* Center on mobile */
+        padding-bottom: 16px; /* Space below description on mobile */
+        font-size: 1rem;
+        line-height: 1.6;
+        color: #333;
+        text-align: left;
+        max-width: 800px; /* Max width for mobile centering */
+        width: 100%;
+        /* Desktop positioning handled via @media query */
+    }
+    
+    .product-description p {
+        margin: 0 0 1em 0; /* Standard paragraph spacing */
+        text-align: left;
+    }
+    
+    .product-description p:last-child {
+        margin-bottom: 0;
+    }
+    
+    /* Box Builder Container */
+    .box-builder-container {
+        display: flex; /* Use flex for internal layout */
+        flex-direction: column;
+        max-width: 800px; /* Max width for mobile centering */
+        width: 100%;
+        margin: 0 auto; /* Center on mobile */
+        padding: 0;
+        box-sizing: border-box;
+        /* Desktop positioning handled via @media query */
+    }
+    
+    /* GUI Section (Right Side Content) */
+    .gui-section {
+        flex: 1; /* Allow flex grow if needed */
+        min-width: 0; /* Prevent flex items from overflowing */
+        width: 100%;
+        padding: 0px;
+        box-sizing: border-box;
+    }
+    
+    /* Bag Selection */
+    .bag-selection {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr); /* 2 columns */
+      gap: 8px;
+      margin-bottom: 16px;
+      margin-top: 16px; /* Space above */
+    }
+    
+    .bag-option {
+      position: relative;
+      border: 1px solid #e0e0e0;
+      border-radius: 6px;
+      padding: 12px 6px;
+      text-align: center;
+      cursor: pointer;
+      background: #fff;
+      transition: border 0.3s ease;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+      min-height: 50px;
+    }
+    
+    .bag-option.selected {
+        border: 2px solid #4a90e2;
+    }
+    .bag-option:hover {
+        border-color: #a0a0a0; /* Subtle hover */
+    }
+    
+    .deal-badge {
+      position: absolute;
+      top: -10px;
+      left: 50%;
+      transform: translateX(-50%);
+      background: #d32f2f; /* Red */
+      color: white;
+      padding: 1px 4px;
+      border-radius: 2px;
+      font-size: 0.6rem;
+      font-weight: 600;
+      letter-spacing: 0.3px;
+      white-space: nowrap;
+      box-shadow: 0 1px 2px rgba(0,0,0,0.1);
+    }
+    
+    .bag-count {
+      font-size: 0.85rem;
+      font-weight: 600;
+      color: #333;
+    }
+    
+    /* Variant Selection Container */
+    .variant-selection-container {
+      margin-bottom: 16px; /* Space below */
+    }
+    
+    /* Purchase Options (Subscribe/One-time) */
+    .purchase-options {
+        display: flex;
+        flex-direction: column;
+        gap: 8px;
+        margin-bottom: 16px; /* Space below */
+    }
+    
+    .purchase-type-button {
+        background: #f8f8f8;
+        border: 1px solid #e0e0e0;
+        border-radius: 8px;
+        padding: 12px 16px;
+        margin-bottom: 8px; /* Space between buttons */
+        display: flex;
+        flex-direction: column;
+        gap: 12px;
+        cursor: pointer;
+        transition: border-color 0.3s ease, background-color 0.3s ease;
+        position: relative;
+        opacity: 0.7; /* Dim unselected */
+    }
+    
+    .purchase-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        width: 100%;
+    }
+    
+    .subscribe-benefits-grid {
+        display: grid;
+        grid-template-columns: repeat(2, 1fr);
+        gap: 6px;
+        margin-top: 4px;
+        padding: 0 2px;
+    }
+    
+    .benefit-item {
+        display: flex;
+        align-items: flex-start;
+        gap: 6px;
+        font-size: 0.75rem;
+        color: #666;
+        line-height: 1.2;
+        letter-spacing: -0.2px;
+    }
+    
+    .benefit-item span:not(.checkmark) {
+        display: block;
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+    }
+    
+    .checkmark {
+        color: #4a90e2; /* Blue checkmark */
+        font-weight: bold;
+        flex-shrink: 0;
+        font-size: 0.8rem;
+        margin-top: -1px;
+    }
+    
+    .purchase-type-button.selected {
+        opacity: 1; /* Full opacity when selected */
+        border-color: #4a90e2; /* Blue border */
+        background: #f0f7ff; /* Light blue background */
+    }
+    
+    .purchase-type-button:hover {
+        border-color: #4a90e2; /* Blue border on hover */
+    }
+    
+    .purchase-type-label {
+        font-weight: 600;
+        font-size: 0.95rem;
+        color: #333;
+        flex-shrink: 0;
+        margin-right: 12px;
+    }
+    
+    .price-container {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        position: relative;
+        flex-shrink: 0;
+    }
+    
+    .original-price {
+      color: #666;
+      font-size: 0.85rem;
+      opacity: 0.8;
+    }
+    
+    .original-price.strikethrough {
+      text-decoration: line-through;
+      color: #999;
+    }
+    
+    .purchase-type-price {
+      font-size: 0.95rem;
+      color: #4a90e2; /* Blue price */
+      font-weight: 600;
+    }
+    
+    .discount-badge {
+        position: absolute;
+        top: -10px;
+        left: 50%;
+        transform: translateX(-50%);
+        background: #4CAF50; /* Green */
+        color: white;
+        padding: 3px 6px;
+        border-radius: 12px;
+        font-size: 0.7rem;
+        font-weight: 600;
+        box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+        display: none; /* Shown by JS */
+        white-space: nowrap;
+    }
+    
+    /* Variant Grid Section */
+    .variant-section-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin: 16px 0; /* Vertical spacing */
+    }
+    
+    .variant-section-title {
+        text-align: left;
+        margin: 0;
+        color: #333;
+        font-size: 1rem;
+        font-weight: 600;
+    }
+    
+    .variants-grid {
+      display: flex;
+      flex-direction: column;
+      gap: 8px; /* Space between variant cards */
+    }
+    
+    .variant-card {
+        display: grid;
+        grid-template-columns: 60px 1fr auto; /* Image | Info | Controls */
+        align-items: center;
+        gap: 12px;
+        border: 1px solid #e0e0e0;
+        border-radius: 8px;
+        padding: 12px;
+        background: white;
+        transition: border-color 0.3s ease;
+        width: 100%;
+        box-sizing: border-box;
+    }
+    
+    .variant-card:hover {
+        border-color: #4a90e2; /* Highlight on hover */
+    }
+    
+    .variant-image {
+        width: 60px;
+        height: 60px;
+        flex-shrink: 0;
+    }
+    
+    .variant-image img {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+        border-radius: 4px;
+        display: block;
+    }
+    
+    .variant-info {
+        display: flex;
+        flex-direction: column;
+        gap: 4px;
+        overflow: hidden; /* Prevent text overflow issues */
+    }
+    
+    .variant-title h4.flavor-name {
+        margin: 0;
+        font-size: 0.95rem;
+        font-weight: 700;
+        color: #333;
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+    }
+    
+    .variant-description {
+        margin: 0;
+    }
+    
+    .description-text {
+        font-size: 0.8rem;
+        color: #666;
+        line-height: 1.3;
+        display: block;
+        /* Optional: Limit lines */
+        /* display: -webkit-box;
+        -webkit-line-clamp: 2;
+        -webkit-box-orient: vertical;
+        overflow: hidden; */
+    }
+    
+    .quantity-controls {
+        display: flex;
+        align-items: center;
+        gap: 6px;
+        width: 75px; /* Fixed width for consistency */
+        flex-shrink: 0;
+    }
+    
+    .add-btn {
+        background: #4a90e2;
+        color: white;
+        border: none;
+        border-radius: 6px;
+        padding: 8px 16px;
+        font-size: 0.9rem;
+        font-weight: 600;
+        cursor: pointer;
+        transition: background-color 0.3s ease;
+        width: 100%;
+        white-space: nowrap;
+    }
+    
+    .add-btn:hover {
+        background: #357abd; /* Darker blue */
+    }
+    
+    .quantity-input-group {
+        display: flex; /* Hidden by default, shown by JS */
+        align-items: center;
+        gap: 2px;
+        border: 1px solid #e0e0e0;
+        border-radius: 6px;
+        padding: 1px;
+        width: 100%;
+        justify-content: space-between;
+    }
+    
+    .quantity-btn {
+        background: #f5f5f5;
+        border: none;
+        border-radius: 4px;
+        width: 22px;
+        height: 22px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 1rem;
+        cursor: pointer;
+        color: #333;
+        transition: background-color 0.2s ease;
+        flex-shrink: 0;
+    }
+    
+    .quantity-btn:hover {
+        background: #e0e0e0;
+    }
+    
+    .variant-quantity {
+        width: 25px; /* Space for 2 digits */
+        text-align: center;
+        border: none;
+        font-size: 0.9rem;
+        font-weight: 600;
+        color: #333;
+        -moz-appearance: textfield; /* Remove spinners Firefox */
+        padding: 0;
+        flex-shrink: 0;
+        background: transparent;
+        outline: none;
+    }
+    /* Remove spinners Chrome, Safari, Edge, Opera */
+    .variant-quantity::-webkit-outer-spin-button,
+    .variant-quantity::-webkit-inner-spin-button {
+        -webkit-appearance: none;
+        margin: 0;
+    }
+    
+    /* Price Summary & Savings */
+    .price-summary {
+        display: none; /* Hidden by default, shown by JS */
+        justify-content: space-between;
+        align-items: center;
+        margin: 0;
+        padding: 0;
+    }
+    
+    .price-summary.visible {
+        display: flex;
+        margin-bottom: 16px; /* Space below summary when visible */
+    }
+    
+    .subtotal {
+        font-size: 1rem;
+        font-weight: 600;
+        color: #333;
+    }
+    
+    .savings-badge {
+        background: rgba(74, 144, 226, 0.1); /* Light blue background */
+        color: #4a90e2; /* Blue text */
+        padding: 6px 12px;
+        border-radius: 6px;
+        font-size: 0.9rem;
+        font-weight: 600;
+    }
+    
+    /* Add to Cart Button */
+    .add-to-cart-button {
+      background: #4a90e2; /* Blue */
+      color: white;
+      border: none;
+      border-radius: 8px;
+      padding: 12px 20px;
+      font-size: 0.95rem;
+      font-weight: 600;
+      cursor: pointer;
+      width: 100%;
+      transition: background-color 0.3s ease, opacity 0.3s ease;
+      margin-top: 0; /* Adjusted if needed based on summary visibility */
+      text-align: center;
+    }
+    
+    .add-to-cart-button:hover {
+        background: #357abd; /* Darker blue */
+    }
+    
+    .add-to-cart-button:disabled {
+        background: #cccccc; /* Grey out when disabled */
+        cursor: not-allowed;
+        opacity: 0.7;
+    }
+    
+    /* Flavor Selector (Nutritional Info) */
+    .flavor-selector-container {
+        margin-top: 12px; /* Space above */
+        border: 1px solid #e0e0e0;
+        border-radius: 8px;
+        overflow: hidden; /* Contains the expanding content */
+    }
+    
+    .flavor-selector-toggle {
+        width: 100%;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        padding: 12px 16px;
+        background: white;
+        border: none;
+        cursor: pointer;
+        font-size: 0.95rem;
+        font-weight: 600;
+        color: #333;
+        transition: background-color 0.3s ease;
+        text-align: left;
+    }
+    
+    .flavor-selector-toggle:hover {
+        background: #f8f8f8; /* Light grey hover */
+    }
+    
+    .toggle-icon {
+        transition: transform 0.3s ease;
+        flex-shrink: 0;
+    }
+    
+    .flavor-selector-toggle[aria-expanded="true"] .toggle-icon {
+        transform: rotate(180deg); /* Flip arrow */
+    }
+    
+    .flavor-selector-content {
+        max-height: 0; /* Collapsed by default */
+        overflow: hidden;
+        transition: max-height 0.3s ease-out, padding 0.3s ease-out; /* Smooth transition */
+        background: white;
+        padding: 0 16px; /* Horizontal padding maintained during transition */
+    }
+    
+    .flavor-selector-content.expanded {
+        max-height: 800px; /* Allow significant height */
+        padding: 12px 16px; /* Vertical padding when expanded */
+        border-top: 1px solid #e0e0e0; /* Separator line */
+    }
+    
+    .flavor-dropdown {
+        width: 100%;
+        padding: 10px;
+        border: 1px solid #e0e0e0;
+        border-radius: 6px;
+        font-size: 0.9rem;
+        color: #333;
+        background: white;
+        cursor: pointer;
+        margin-bottom: 12px; /* Space below dropdown */
+        box-sizing: border-box;
+    }
+    
+    .flavor-dropdown:focus {
+        outline: none;
+        border-color: #4a90e2; /* Highlight focus */
+    }
+    
+    .nutritional-info {
+        margin-top: 12px; /* Space above image */
+        text-align: center;
+    }
+    
+    .nutritional-info img {
+        max-width: 100%;
+        height: auto;
+        border-radius: 6px;
+        box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        display: block; /* Remove extra space */
+        margin: 0 auto; /* Center image if it's narrower than container */
+    }
+    
+    /* Quantity Error/Info Message */
+    .quantity-error {
+        text-align: right;
+        font-size: 0.85rem;
+        padding: 4px 8px;
+        border-radius: 4px;
+        margin: 0; /* Reset margin */
+        flex-grow: 1; /* Allow to take remaining space */
+        margin-left: 10px; /* Space from title */
+        display: none; /* Hidden by default, shown by JS */
+    }
+    
+    .quantity-error.error {
+        color: #d32f2f; /* Red text */
+        background: rgba(211, 47, 47, 0.1); /* Light red background */
+        display: inline-block; /* Or block depending on JS logic */
+    }
+    
+    .quantity-error.info {
+        color: #4a90e2; /* Blue text */
+        background: rgba(74, 144, 226, 0.1); /* Light blue background */
+        display: inline-block; /* Or block depending on JS logic */
+    }
+    
+    
+    /* --- Desktop Styles --- */
+    @media (min-width: 1025px) {
+        .product-container {
+            display: grid;
+            grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); /* 50/50 split */
+            /* Example: 45% / 55% split */
+            /* grid-template-columns: minmax(0, 45fr) minmax(0, 55fr); */
+            gap: 40px; /* Gap between columns */
+            padding: 2rem; /* Larger padding */
+            position: relative; /* Context for sticky */
+            align-items: start; /* Align items to the top of their grid areas */
+        }
+    
+        /* Left Column (Sticky Images) */
+        .product-hero {
+            grid-column: 1 / 2; /* First column */
+            grid-row: 1 / -1; /* Span all rows defined by right col content */
+            position: sticky;
+            top: 20px; /* Offset from top */
+            align-self: start;
+            height: calc(100vh - 40px); /* Max height relative to viewport */
+            max-height: 800px; /* Absolute max height */
+            overflow-y: auto; /* Scroll *within* this column if content overflows */
+            margin-bottom: 0;
+            padding: 0;
+            /* Optional: Hide scrollbar visually */
+            /* -ms-overflow-style: none;
+               scrollbar-width: none; */
+        }
+        /* .product-hero::-webkit-scrollbar { display: none; } */
+    
+        .product-hero .slider-container,
+        .product-hero .usp-container {
+            max-width: 100%; /* Use full column width */
+            margin: 0; /* Reset mobile margins */
+        }
+        .product-hero .usp-container {
+            margin-top: 8px; /* Keep space below slider */
+        }
+    
+        /* Right Column (Scrollable Content) */
+        .product-header,
+        .product-description,
+        .box-builder-container {
+            grid-column: 2 / 3; /* Second column */
+            max-width: none; /* Remove mobile max-width */
+            margin-left: 0;
+            margin-right: 0;
+            width: 100%; /* Take full column width */
+        }
+    
+        .product-header {
+            grid-row: 1 / 2; /* First item in right column */
+            margin-bottom: 20px;
+        }
+    
+        .product-description {
+            grid-row: 2 / 3; /* Second item */
+            padding-bottom: 20px; /* Space before builder */
+            margin: 0;
+        }
+    
+        .box-builder-container {
+            grid-row: 3 / 4; /* Third item */
+            margin-top: 0;
+        }
+    }
+    
+    
+    /* --- Tablet/Smaller Desktop Tweaks (Optional) --- */
+    @media (min-width: 769px) and (max-width: 1024px) {
+        .product-container {
+            /* Slightly different grid for tablets */
+            /* grid-template-columns: minmax(0, 40fr) minmax(0, 60fr); */
+            gap: 30px;
+            padding: 1.5rem;
+        }
+    
+        .product-hero {
+            /* Adjust sticky top or height if needed */
+             top: 15px;
+             height: calc(100vh - 30px);
+        }
+    
+        .product-title {
+            font-size: 1.8rem; /* Slightly larger title */
+        }
+        .variant-card {
+            gap: 10px;
+        }
+        .add-btn, .purchase-type-label, .purchase-type-price {
+            font-size: 0.9rem;
+        }
+    }
+    
+    
+    /* --- Mobile Styles Specific Overrides (Ensure Desktop Styles Reset) --- */
+    @media (max-width: 768px) {
+        .product-container {
+            display: block; /* Explicitly revert grid */
+            padding: 1rem; /* Mobile padding */
+        }
+    
+        /* Reset grid/sticky properties */
+        .product-hero,
+        .product-header,
+        .product-description,
+        .box-builder-container {
+            grid-column: auto;
+            grid-row: auto;
+            position: static; /* Remove sticky */
+            height: auto;
+            max-height: none;
+            overflow-y: visible; /* Reset overflow */
+            max-width: 800px; /* Re-apply mobile max-width */
+            margin-left: auto;
+            margin-right: auto;
+            width: 100%;
+        }
+    
+        .product-hero {
+            margin-bottom: 0;
+        }
+        .product-hero .usp-container {
+            margin-bottom: 20px; /* Restore space below USP icons */
+        }
+         .product-description {
+             padding-bottom: 16px;
+         }
+    
+        /* Specific mobile adjustments */
+        .variant-card {
+            grid-template-columns: 50px 1fr auto; /* Adjust grid for smaller images */
+            gap: 8px;
+            padding: 8px;
+        }
+    
+        .variant-image {
+            width: 50px;
+            height: 50px;
+        }
+    
+        .quantity-controls {
+            width: 65px; /* Narrower controls */
+        }
+    
+        .add-btn {
+            padding: 6px 12px;
+            font-size: 0.8rem;
+        }
+    
+        .quantity-btn {
+            width: 20px;
+            height: 20px;
+            font-size: 0.9rem;
+        }
+    
+        .variant-quantity {
+            width: 20px; /* Narrower input */
+            font-size: 0.8rem;
+        }
+    
+         .flavor-selector-container {
+             margin-top: 16px;
+         }
+    
+         .flavor-selector-toggle {
+             padding: 10px 12px;
+         }
+    
+         .flavor-selector-content.expanded {
+             padding: 8px 12px;
+         }
+    }
+
+    /* Risk-Free Trial Section Styles */
+    .risk-free-trial {
+        display: flex;
+        align-items: center;
+        gap: 16px;
+        padding: 20px 0;
+        margin-top: 20px;
+    }
+
+    .risk-free-icon {
+        flex-shrink: 0;
+    }
+
+    .risk-free-text {
+        font-size: 0.95rem;
+        line-height: 1.4;
+        color: #333;
+    }
+
+    .risk-free-text strong {
+        display: inline;
+        font-weight: 600;
+    }
+
+    /* Divider Line */
+    .section-divider {
+        height: 1px;
+        background-color: #e0e0e0;
+        margin: 0;
+        width: 100%;
+    }
+</style>
+
