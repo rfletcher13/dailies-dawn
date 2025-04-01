@@ -19,27 +19,6 @@
 </script>
 
 <div class="product-container">
-  <!-- Product Header Section -->
-  <div class="product-header">
-    <div class="breadcrumb">
-      <a href="{{ routes.root_url }}">Home</a> &gt;
-      <a href="{{ routes.collections_url }}">Products</a> &gt;
-      <span>{{ product.title | remove: ' Box' }}</span>
-    </div>
-    
-    <h1 class="product-title">{{ product.title | remove: ' Box' | upcase }}</h1>
-    
-    <div class="product-rating">
-      <div class="rating-left">
-        <div class="stars">★★★★★</div>
-        <span class="reviews">({{ product.metafields.reviews.rating_count | default: '26,122' }})</span>
-      </div>
-      <div class="product-tags">
-        {{ product_tags | remove:' and' | split: ', ' | join: " | "}}
-      </div>
-    </div>
-  </div>
-
   <!-- Product Hero Section -->
   <div class="product-hero">
     <!-- Image Carousel -->
@@ -73,6 +52,17 @@
         <button class="slider-button next" aria-label="Next slide">
           <svg viewBox="0 0 24 24" width="24" height="24" stroke="currentColor" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"></polyline></svg>
         </button>
+
+        <!-- Add carousel dots -->
+        <div class="slider-dots">
+          {% if box_product.images.size > 0 %}
+            {% for image in box_product.images %}
+              <button class="dot {% if forloop.first %}active{% endif %}" data-index="{{ forloop.index0 }}" aria-label="Go to slide {{ forloop.index }}">
+                <img src="{{ image | img_url: '100x100', crop: 'center' }}" alt="Thumbnail">
+              </button>
+            {% endfor %}
+          {% endif %}
+        </div>
       </div>
     </div>
 
@@ -114,121 +104,145 @@
     </div>
   </div>
 
-  <!-- Product Description -->
-  <div class="product-description">
-    {{ custom_description }}
-  </div>
+  <!-- Right Side Content -->
+  <div class="product-content">
+    <!-- Product Header -->
+    <div class="product-header">
+      <div class="breadcrumb">
+        <a href="{{ routes.root_url }}">Home</a> &gt;
+        <a href="{{ routes.collections_url }}">Products</a> &gt;
+        <span>{{ product.title | remove: ' Box' }}</span>
+      </div>
+      
+      <h1 class="product-title">{{ product.title | remove: ' Box' | upcase }}</h1>
+      
+      <div class="product-rating">
+        <div class="rating-left">
+          <div class="stars">★★★★★</div>
+          <span class="reviews">({{ product.metafields.reviews.rating_count | default: '26,122' }})</span>
+        </div>
+        <div class="product-tags">
+          {{ product_tags | remove:' and' | split: ', ' | join: " | "}}
+        </div>
+      </div>
+    </div>
 
+    <!-- Product Description -->
+    <div class="product-description">
+      {{ custom_description }}
+    </div>
 
-  <div class="box-builder-container">
-    <!-- Original box builder functionality continues below -->
-    <!-- Right Side: Scrollable GUI -->
-    <div class="gui-section">
-      <div class="bag-selection">
-        {% for bags in (1..4) reversed %}
-          <div class="bag-option {% if selected_bags == bags %}selected{% endif %} {% if bags == 4 %}best-deal{% endif %}" data-bags="{{ bags }}">
-            {% if bags == 4 %}<span class="deal-badge">Best Deal</span>{% endif %}
-            <span class="bag-count">{{ bags }} Bag{% if bags != 1 %}s{% endif %}</span>
+    <!-- Build a Box Container -->
+    <div class="box-builder-container">
+      <!-- Original box builder functionality continues below -->
+      <!-- Right Side: Scrollable GUI -->
+      <div class="gui-section">
+        <div class="bag-selection">
+          {% for bags in (1..4) reversed %}
+            <div class="bag-option {% if selected_bags == bags %}selected{% endif %} {% if bags == 4 %}best-deal{% endif %}" data-bags="{{ bags }}">
+              {% if bags == 4 %}<span class="deal-badge">Best Deal</span>{% endif %}
+              <span class="bag-count">{{ bags }} Bag{% if bags != 1 %}s{% endif %}</span>
+            </div>
+          {% endfor %}
+        </div>
+    
+        <div class="variant-selection-container">
+          <div class="purchase-options">
+              <div class="purchase-type-button subscribe-button" data-purchase-type="subscribe">
+                  <div class="purchase-header">
+                      <div class="purchase-type-label">Subscribe & Save</div>
+                      <div class="price-container">
+                          <div class="original-price" id="subscribeOriginalPrice">$0.00</div>
+                          <div class="purchase-type-price" id="subscribeTotalPrice">$0.00</div>
+                      </div>
+                  </div>
+                  <div class="discount-badge" id="subscribeDiscountBadge"></div>
+                  <div class="subscribe-benefits-grid">
+                      <div class="benefit-item">
+                          <span class="checkmark">✓</span>
+                          <span>{{ benefit_1 }}</span>
+                      </div>
+                      <div class="benefit-item">
+                          <span class="checkmark">✓</span>
+                          <span>{{ benefit_2 }}</span>
+                      </div>
+                      <div class="benefit-item">
+                          <span class="checkmark">✓</span>
+                          <span>{{ benefit_3 }}</span>
+                      </div>
+                      <div class="benefit-item">
+                          <span class="checkmark">✓</span>
+                          <span>{{ benefit_4 }}</span>
+                      </div>
+                  </div>
+              </div>
+              <div class="purchase-type-button" data-purchase-type="onetime">
+                  <div class="purchase-header">
+                      <div class="purchase-type-label">One Time Purchase</div>
+                      <div class="price-container">
+                          <div class="original-price" id="originalPrice">$0.00</div>
+                          <div class="purchase-type-price" id="totalPrice">$0.00</div>
+                      </div>
+                  </div>
+                  <!-- <div class="discount-badge" id="discountBadge"></div> -->
+              </div>
           </div>
-        {% endfor %}
-      </div>
-  
-      <div class="variant-selection-container">
-        <div class="purchase-options">
-            <div class="purchase-type-button subscribe-button" data-purchase-type="subscribe">
-                <div class="purchase-header">
-                    <div class="purchase-type-label">Subscribe & Save</div>
-                    <div class="price-container">
-                        <div class="original-price" id="subscribeOriginalPrice">$0.00</div>
-                        <div class="purchase-type-price" id="subscribeTotalPrice">$0.00</div>
-                    </div>
-                </div>
-                <div class="discount-badge" id="subscribeDiscountBadge"></div>
-                <div class="subscribe-benefits-grid">
-                    <div class="benefit-item">
-                        <span class="checkmark">✓</span>
-                        <span>{{ benefit_1 }}</span>
-                    </div>
-                    <div class="benefit-item">
-                        <span class="checkmark">✓</span>
-                        <span>{{ benefit_2 }}</span>
-                    </div>
-                    <div class="benefit-item">
-                        <span class="checkmark">✓</span>
-                        <span>{{ benefit_3 }}</span>
-                    </div>
-                    <div class="benefit-item">
-                        <span class="checkmark">✓</span>
-                        <span>{{ benefit_4 }}</span>
-                    </div>
-                </div>
-            </div>
-            <div class="purchase-type-button" data-purchase-type="onetime">
-                <div class="purchase-header">
-                    <div class="purchase-type-label">One Time Purchase</div>
-                    <div class="price-container">
-                        <div class="original-price" id="originalPrice">$0.00</div>
-                        <div class="purchase-type-price" id="totalPrice">$0.00</div>
-                    </div>
-                </div>
-                <!-- <div class="discount-badge" id="discountBadge"></div> -->
-            </div>
+          <div class="variant-section-header">
+              <h3 class="variant-section-title">Select Your Flavors</h3>
+          </div>
+          <div class="variants-grid" id="variantsGrid"></div>
         </div>
-        <div class="variant-section-header">
-            <h3 class="variant-section-title">Select Your Flavors</h3>
+    
+        <div class="price-summary">
+          <div class="subtotal">Subtotal: <span id="subtotalPrice">$0.00</span></div>
+          <div class="savings-badge" id="savingsBadge" style="display: none;">
+            You save <span id="savingsAmount">$0.00</span>
+          </div>
         </div>
-        <div class="variants-grid" id="variantsGrid"></div>
-      </div>
-  
-      <div class="price-summary">
-        <div class="subtotal">Subtotal: <span id="subtotalPrice">$0.00</span></div>
-        <div class="savings-badge" id="savingsBadge" style="display: none;">
-          You save <span id="savingsAmount">$0.00</span>
+        <button class="add-to-cart-button" id="addToCartButton">Add to Cart</button>
+        
+        <!-- Risk-Free Trial Section -->
+        <div class="risk-free-trial">
+          <div class="risk-free-icon">
+            {% if guarantee_icon != blank %}
+              <img src="{{ guarantee_icon | img_url: '80x80' }}" alt="Risk-Free Trial" width="40" height="40">
+            {% else %}
+              <svg width="40" height="40" viewBox="0 0 40 40" fill="none">
+                <circle cx="20" cy="20" r="19" stroke="#5046E4" stroke-width="2" stroke-dasharray="4 4"/>
+                <path d="M12 20L17 25L28 14" stroke="#5046E4" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+              </svg>
+            {% endif %}
+          </div>
+          <div class="risk-free-text">
+            {{ guarantee_text }}
+          </div>
         </div>
-      </div>
-      <button class="add-to-cart-button" id="addToCartButton">Add to Cart</button>
-      
-      <!-- Risk-Free Trial Section -->
-      <div class="risk-free-trial">
-        <div class="risk-free-icon">
-          {% if guarantee_icon != blank %}
-            <img src="{{ guarantee_icon | img_url: '80x80' }}" alt="Risk-Free Trial" width="40" height="40">
-          {% else %}
-            <svg width="40" height="40" viewBox="0 0 40 40" fill="none">
-              <circle cx="20" cy="20" r="19" stroke="#5046E4" stroke-width="2" stroke-dasharray="4 4"/>
-              <path d="M12 20L17 25L28 14" stroke="#5046E4" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-            </svg>
-          {% endif %}
-        </div>
-        <div class="risk-free-text">
-          {{ guarantee_text }}
-        </div>
-      </div>
 
-      <!-- Divider Line -->
-      <div class="section-divider"></div>
-      
-      <!-- Add Collapsible Flavor Selector -->
-      <div class="flavor-selector-container">
-        <button class="flavor-selector-toggle" aria-expanded="false">
-          <span>Nutritional Information</span>
-          <svg class="toggle-icon" viewBox="0 0 24 24" width="24" height="24" stroke="currentColor" stroke-width="2" fill="none">
-            <polyline points="6 9 12 15 18 9"></polyline>
-          </svg>
-        </button>
-        <div class="flavor-selector-content">
-          <select class="flavor-dropdown" id="flavorDropdown">
-            <option value="">Select A Flavor</option>
-            {% for product in collections['clear-protein'].products %}
-              {% for variant in product.variants %}
-                <option value="{{ variant.id }}" data-nutritional-info="{{ variant.metafields.custom.nutritional_information | file_url }}">
-                  {{ variant.title }}
-                </option>
+        <!-- Divider Line -->
+        <div class="section-divider"></div>
+        
+        <!-- Add Collapsible Flavor Selector -->
+        <div class="flavor-selector-container">
+          <button class="flavor-selector-toggle" aria-expanded="false">
+            <span>Nutritional Information</span>
+            <svg class="toggle-icon" viewBox="0 0 24 24" width="24" height="24" stroke="currentColor" stroke-width="2" fill="none">
+              <polyline points="6 9 12 15 18 9"></polyline>
+            </svg>
+          </button>
+          <div class="flavor-selector-content">
+            <select class="flavor-dropdown" id="flavorDropdown">
+              <option value="">Select A Flavor</option>
+              {% for product in collections['clear-protein'].products %}
+                {% for variant in product.variants %}
+                  <option value="{{ variant.id }}" data-nutritional-info="{{ variant.metafields.custom.nutritional_information | file_url }}">
+                    {{ variant.title }}
+                  </option>
+                {% endfor %}
               {% endfor %}
-            {% endfor %}
-          </select>
-          <div id="nutritionalInfo" class="nutritional-info">
-            <img id="nutritionalImage" src="" alt="Nutritional Information" style="display: none;" width="600" height="800">
+            </select>
+            <div id="nutritionalInfo" class="nutritional-info">
+              <img id="nutritionalImage" src="" alt="Nutritional Information" style="display: none;" width="600" height="800">
+            </div>
           </div>
         </div>
       </div>
@@ -317,6 +331,7 @@
     function initializeSlider() {
         const slider = document.querySelector('.slider');
         const slides = document.querySelectorAll('.slide');
+        const dots = document.querySelectorAll('.dot');
         const prevBtn = document.querySelector('.slider-button.prev');
         const nextBtn = document.querySelector('.slider-button.next');
         let currentSlide = 0;
@@ -324,18 +339,29 @@
         if (!slider || slides.length === 0) return;
         
         function updateSlider() {
-            const slideWidth = slides[0].clientWidth;
-            slider.style.transform = `translateX(${-currentSlide * slideWidth}px)`;
+            slider.style.transform = `translateX(-${currentSlide * 100}%)`;
+            dots.forEach((dot, index) => {
+                dot.classList.toggle('active', index === currentSlide);
+            });
         }
         
-        prevBtn.addEventListener('click', () => {
+        function goToSlide(index) {
+            currentSlide = index;
+            updateSlider();
+        }
+        
+        prevBtn?.addEventListener('click', () => {
             currentSlide = (currentSlide > 0) ? currentSlide - 1 : slides.length - 1;
             updateSlider();
         });
         
-        nextBtn.addEventListener('click', () => {
+        nextBtn?.addEventListener('click', () => {
             currentSlide = (currentSlide < slides.length - 1) ? currentSlide + 1 : 0;
             updateSlider();
+        });
+        
+        dots.forEach((dot, index) => {
+            dot.addEventListener('click', () => goToSlide(index));
         });
         
         // Initialize slider position
@@ -695,10 +721,8 @@
                     input.value = newValue;
                     
                     // If quantity becomes 0, switch back to Add button
-                    if (newValue === 0) {
-                        addBtn.style.display = 'block';
-                        quantityGroup.style.display = 'none';
-                    }
+                    addBtn.style.display = 'block';
+                    quantityGroup.style.display = 'none';
                 }
 
                 updateTotalPrice();
@@ -826,939 +850,815 @@
 </script>
 
 <style>
-    
-    /* ============================================= */
-    /* === Complete CSS for Product Box Builder === */
-    /* ============================================= */
-    
-    /* --- Base & Mobile Styles (Mobile First) --- */
-    
-    /* Product Container */
+/* Product Container */
+.product-container {
+    display: grid;
+    grid-template-columns: minmax(0, 450px) minmax(0, 1fr);
+    gap: 40px;
+    padding: 2rem;
+    max-width: 1200px;
+    margin: 0 auto;
+    width: 100%;
+    box-sizing: border-box;
+    align-items: start;
+}
+
+/* Product Hero (Left Side) */
+.product-hero {
+    position: sticky;
+    top: 20px;
+    grid-column: 1;
+    width: 100%;
+}
+
+/* Right Side Content */
+.product-content {
+    display: flex;
+    flex-direction: column;
+    gap: 24px;
+    grid-column: 2;
+}
+
+/* Mobile Adjustments */
+@media (max-width: 768px) {
     .product-container {
-        max-width: 1200px;
-        margin: 0 auto;
-        padding: 1.5rem; /* Default padding */
-        font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;
+        display: block;
+        padding: 1rem;
+    }
+    
+    .product-hero,
+    .product-content {
+        position: static;
         width: 100%;
-        box-sizing: border-box;
-        overflow-x: hidden; /* Prevent horizontal scroll */
-        /* Desktop layout handled via @media query */
+        max-width: 800px;
+        margin-left: auto;
+        margin-right: auto;
     }
-    
-    /* Product Header */
-    .product-header {
-        margin-bottom: 20px;
-    }
-    
-    .breadcrumb {
-        font-size: 1.05rem;
-        color: #666;
-        margin-bottom: 10px;
-    }
-    
-    .breadcrumb a {
-        color: #666;
-        text-decoration: none;
-    }
-    
-    .breadcrumb a:hover {
-        text-decoration: underline;
-    }
-    
-    .product-title {
-        font-size: 1.5rem; /* Base size */
-        font-weight: 700;
-        margin: 0 0 10px;
-    }
-    
-    .product-rating {
-        display: flex;
-        align-items: center;
-        justify-content: space-between;
-        flex-wrap: wrap;
-        gap: 10px;
-        margin-bottom: 20px;
-        font-size: 1.05rem;
-    }
-    
-    .rating-left {
-        display: flex;
-        align-items: center;
-        gap: 10px;
-    }
-    
-    .stars {
-        color: #FFD700;
-        letter-spacing: 2px;
-    }
-    
-    .reviews {
-        color: #333;
-        font-size: 1.05rem;
-    }
-    
-    .product-tags {
-        color: #666;
-        font-size: 1.05rem;
-    }
-    
-    /* Product Hero Section (Image Area) */
-    .product-hero {
-        overflow: hidden; /* Contained overflow */
-        margin-bottom: 0; /* Reset margin for consistent spacing */
-        padding: 0;
-        width: 100%;
-        /* Desktop positioning handled via @media query */
-    }
-    
-    /* Carousel */
-    .product-carousel {
-        margin-bottom: 0; /* No margin below carousel itself */
-        width: 100%;
-    }
-    
-    .slider-container {
-        position: relative;
-        overflow: hidden;
-        max-width: 800px; /* Max width for mobile centering */
-        width: 100%;
-        margin: 0 auto; /* Center on mobile */
-        border-radius: 8px;
-    }
-    
-    .slider {
-        display: flex;
-        transition: transform 0.3s ease-in-out;
-    }
-    
-    .slide {
-        min-width: 100%;
-        display: flex;
-        justify-content: center;
-        align-items: center;
-        aspect-ratio: 1/1; /* Maintain square aspect ratio */
-    }
-    
-    .slide img {
-        width: 100%;
-        height: 100%;
-        object-fit: cover; /* Cover the slide area */
-        display: block; /* Remove extra space below image */
-    }
-    
-    .slider-button {
-        position: absolute;
-        top: 50%;
-        transform: translateY(-50%);
-        width: 36px;
-        height: 36px;
-        background: white;
-        color: black;
-        border: none;
-        border-radius: 50%;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        cursor: pointer;
-        box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
-        z-index: 1; /* Above slides */
-    }
-    
-    .slider-button:hover {
-        background: #f0f0f0;
-    }
-    
-    .slider-button.prev {
-        left: 10px;
-    }
-    
-    .slider-button.next {
-        right: 10px;
-    }
-    
-    /* USP Icons */
-    .usp-container {
-        padding: 0;
-        margin-top: 8px;
-        margin-bottom: 30px; /* Space below icons on mobile */
-        border-radius: 0;
-        max-width: 800px; /* Max width for mobile centering */
-        width: 100%;
-        margin-left: auto; /* Center on mobile */
-        margin-right: auto; /* Center on mobile */
-    }
-    
+}
+
+/* Existing styles */
+.product-header {
+    margin-bottom: 20px;
+}
+
+.breadcrumb {
+    font-size: 1.05rem;
+    color: #666;
+    margin-bottom: 10px;
+}
+
+.breadcrumb a {
+    color: #666;
+    text-decoration: none;
+}
+
+.breadcrumb a:hover {
+    text-decoration: underline;
+}
+
+.product-title {
+    font-size: 1.5rem;
+    font-weight: 700;
+    margin: 0 0 10px;
+}
+
+.product-rating {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    flex-wrap: wrap;
+    gap: 10px;
+    margin-bottom: 20px;
+    font-size: 1.05rem;
+}
+
+.rating-left {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.stars {
+    color: #FFD700;
+    letter-spacing: 2px;
+}
+
+.reviews {
+    color: #333;
+    font-size: 1.05rem;
+}
+
+.product-tags {
+    color: #666;
+    font-size: 1.05rem;
+}
+
+/* Product Description */
+.product-description {
+    margin: 0 auto;
+    padding-bottom: 16px;
+    font-size: 1rem;
+    line-height: 1.6;
+    color: #333;
+    text-align: left;
+    max-width: 800px;
+    width: 100%;
+}
+
+.product-description p {
+    margin: 0 0 1em 0;
+    text-align: left;
+}
+
+.product-description p:last-child {
+    margin-bottom: 0;
+}
+
+/* Box Builder Container */
+.box-builder-container {
+    display: flex;
+    flex-direction: column;
+    max-width: 800px;
+    width: 100%;
+    margin: 0 auto;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+/* GUI Section */
+.gui-section {
+    flex: 1;
+    min-width: 0;
+    width: 100%;
+    padding: 0px;
+    box-sizing: border-box;
+}
+
+/* Bag Selection */
+.bag-selection {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 8px;
+    margin-bottom: 16px;
+    margin-top: 16px;
+}
+
+.bag-option {
+    position: relative;
+    border: 1px solid #e0e0e0;
+    border-radius: 6px;
+    padding: 12px 6px;
+    text-align: center;
+    cursor: pointer;
+    background: #fff;
+    transition: border 0.3s ease;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    min-height: 50px;
+}
+
+.bag-option.selected {
+    border: 2px solid #4a90e2;
+}
+
+.bag-option:hover {
+    border-color: #a0a0a0;
+}
+
+.deal-badge {
+    position: absolute;
+    top: -10px;
+    left: 50%;
+    transform: translateX(-50%);
+    background: #d32f2f;
+    color: white;
+    padding: 1px 4px;
+    border-radius: 2px;
+    font-size: 0.6rem;
+    font-weight: 600;
+    letter-spacing: 0.3px;
+    white-space: nowrap;
+    box-shadow: 0 1px 2px rgba(0,0,0,0.1);
+}
+
+.bag-count {
+    font-size: 0.85rem;
+    font-weight: 600;
+    color: #333;
+}
+
+/* Variant Selection Container */
+.variant-selection-container {
+    margin-bottom: 16px;
+}
+
+/* Purchase Options */
+.purchase-options {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    margin-bottom: 16px;
+}
+
+.purchase-type-button {
+    background: #f8f8f8;
+    border: 1px solid #e0e0e0;
+    border-radius: 8px;
+    padding: 12px 16px;
+    margin-bottom: 8px;
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    cursor: pointer;
+    transition: border-color 0.3s ease, background-color 0.3s ease;
+    position: relative;
+    opacity: 0.7;
+}
+
+.purchase-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    width: 100%;
+}
+
+.subscribe-benefits-grid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 6px;
+    margin-top: 4px;
+    padding: 0 2px;
+}
+
+.benefit-item {
+    display: flex;
+    align-items: flex-start;
+    gap: 6px;
+    font-size: 0.75rem;
+    color: #666;
+    line-height: 1.2;
+    letter-spacing: -0.2px;
+}
+
+.benefit-item span:not(.checkmark) {
+    display: block;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.checkmark {
+    color: #4a90e2;
+    font-weight: bold;
+    flex-shrink: 0;
+    font-size: 0.8rem;
+    margin-top: -1px;
+}
+
+.purchase-type-button.selected {
+    opacity: 1;
+    border-color: #4a90e2;
+    background: #f0f7ff;
+}
+
+.purchase-type-button:hover {
+    border-color: #4a90e2;
+}
+
+.purchase-type-label {
+    font-weight: 600;
+    font-size: 0.95rem;
+    color: #333;
+    flex-shrink: 0;
+    margin-right: 12px;
+}
+
+.price-container {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    position: relative;
+    flex-shrink: 0;
+}
+
+.original-price {
+    color: #666;
+    font-size: 0.85rem;
+    opacity: 0.8;
+}
+
+.original-price.strikethrough {
+    text-decoration: line-through;
+    color: #999;
+}
+
+.purchase-type-price {
+    font-size: 0.95rem;
+    color: #4a90e2;
+    font-weight: 600;
+}
+
+.discount-badge {
+    position: absolute;
+    top: -10px;
+    left: 50%;
+    transform: translateX(-50%);
+    background: #4CAF50;
+    color: white;
+    padding: 3px 6px;
+    border-radius: 12px;
+    font-size: 0.7rem;
+    font-weight: 600;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+    display: none;
+    white-space: nowrap;
+}
+
+/* Variant Grid Section */
+.variant-section-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin: 16px 0;
+}
+
+.variant-section-title {
+    text-align: left;
+    margin: 0;
+    color: #333;
+    font-size: 1rem;
+    font-weight: 600;
+}
+
+.variants-grid {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+
+.variant-card {
+    display: grid;
+    grid-template-columns: 60px 1fr auto;
+    align-items: center;
+    gap: 12px;
+    border: 1px solid #e0e0e0;
+    border-radius: 8px;
+    padding: 12px;
+    background: white;
+    transition: border-color 0.3s ease;
+    width: 100%;
+    box-sizing: border-box;
+}
+
+.variant-card:hover {
+    border-color: #4a90e2;
+}
+
+.variant-image {
+    width: 60px;
+    height: 60px;
+    flex-shrink: 0;
+}
+
+.variant-image img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    border-radius: 4px;
+    display: block;
+}
+
+.variant-info {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+    overflow: hidden;
+}
+
+.variant-title h4.flavor-name {
+    margin: 0;
+    font-size: 0.95rem;
+    font-weight: 700;
+    color: #333;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.variant-description {
+    margin: 0;
+}
+
+.description-text {
+    font-size: 0.8rem;
+    color: #666;
+    line-height: 1.3;
+    display: block;
+}
+
+.quantity-controls {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    width: 75px;
+    flex-shrink: 0;
+}
+
+.add-btn {
+    background: #4a90e2;
+    color: white;
+    border: none;
+    border-radius: 6px;
+    padding: 8px 16px;
+    font-size: 0.9rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+    width: 100%;
+    white-space: nowrap;
+}
+
+.add-btn:hover {
+    background: #357abd;
+}
+
+.quantity-input-group {
+    display: flex;
+    align-items: center;
+    gap: 2px;
+    border: 1px solid #e0e0e0;
+    border-radius: 6px;
+    padding: 1px;
+    width: 100%;
+    justify-content: space-between;
+}
+
+.quantity-btn {
+    background: #f5f5f5;
+    border: none;
+    border-radius: 4px;
+    width: 22px;
+    height: 22px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1rem;
+    cursor: pointer;
+    color: #333;
+    transition: background-color 0.2s ease;
+    flex-shrink: 0;
+}
+
+.quantity-btn:hover {
+    background: #e0e0e0;
+}
+
+.variant-quantity {
+    width: 25px;
+    text-align: center;
+    border: none;
+    font-size: 0.9rem;
+    font-weight: 600;
+    color: #333;
+    -moz-appearance: textfield;
+    padding: 0;
+    flex-shrink: 0;
+    background: transparent;
+    outline: none;
+}
+
+.variant-quantity::-webkit-outer-spin-button,
+.variant-quantity::-webkit-inner-spin-button {
+    -webkit-appearance: none;
+    margin: 0;
+}
+
+/* Price Summary & Savings */
+.price-summary {
+    display: none;
+    justify-content: space-between;
+    align-items: center;
+    margin: 0;
+    padding: 0;
+}
+
+.price-summary.visible {
+    display: flex;
+    margin-bottom: 16px;
+}
+
+.subtotal {
+    font-size: 1rem;
+    font-weight: 600;
+    color: #333;
+}
+
+.savings-badge {
+    background: rgba(74, 144, 226, 0.1);
+    color: #4a90e2;
+    padding: 6px 12px;
+    border-radius: 6px;
+    font-size: 0.9rem;
+    font-weight: 600;
+}
+
+/* Add to Cart Button */
+.add-to-cart-button {
+    background: #4a90e2;
+    color: white;
+    border: none;
+    border-radius: 8px;
+    padding: 12px 20px;
+    font-size: 0.95rem;
+    font-weight: 600;
+    cursor: pointer;
+    width: 100%;
+    transition: background-color 0.3s ease, opacity 0.3s ease;
+    margin-top: 0;
+    text-align: center;
+}
+
+.add-to-cart-button:hover {
+    background: #357abd;
+}
+
+.add-to-cart-button:disabled {
+    background: #cccccc;
+    cursor: not-allowed;
+    opacity: 0.7;
+}
+
+/* Flavor Selector */
+.flavor-selector-container {
+    margin-top: 12px;
+    border: 1px solid #e0e0e0;
+    border-radius: 8px;
+    overflow: hidden;
+}
+
+.flavor-selector-toggle {
+    width: 100%;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 12px 16px;
+    background: white;
+    border: none;
+    cursor: pointer;
+    font-size: 0.95rem;
+    font-weight: 600;
+    color: #333;
+    transition: background-color 0.3s ease;
+    text-align: left;
+}
+
+.flavor-selector-toggle:hover {
+    background: #f8f8f8;
+}
+
+.toggle-icon {
+    transition: transform 0.3s ease;
+    flex-shrink: 0;
+}
+
+.flavor-selector-toggle[aria-expanded="true"] .toggle-icon {
+    transform: rotate(180deg);
+}
+
+.flavor-selector-content {
+    max-height: 0;
+    overflow: hidden;
+    transition: max-height 0.3s ease-out, padding 0.3s ease-out;
+    background: white;
+    padding: 0 16px;
+}
+
+.flavor-selector-content.expanded {
+    max-height: 800px;
+    padding: 12px 16px;
+    border-top: 1px solid #e0e0e0;
+}
+
+.flavor-dropdown {
+    width: 100%;
+    padding: 10px;
+    border: 1px solid #e0e0e0;
+    border-radius: 6px;
+    font-size: 0.9rem;
+    color: #333;
+    background: white;
+    cursor: pointer;
+    margin-bottom: 12px;
+    box-sizing: border-box;
+}
+
+.flavor-dropdown:focus {
+    outline: none;
+    border-color: #4a90e2;
+}
+
+.nutritional-info {
+    margin-top: 12px;
+    text-align: center;
+}
+
+.nutritional-info img {
+    max-width: 100%;
+    height: auto;
+    border-radius: 6px;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+    display: block;
+    margin: 0 auto;
+}
+
+/* Quantity Error/Info Message */
+.quantity-error {
+    text-align: right;
+    font-size: 0.85rem;
+    padding: 4px 8px;
+    border-radius: 4px;
+    margin: 0;
+    flex-grow: 1;
+    margin-left: 10px;
+    display: none;
+}
+
+.quantity-error.error {
+    color: #d32f2f;
+    background: rgba(211, 47, 47, 0.1);
+    display: inline-block;
+}
+
+.quantity-error.info {
+    color: #4a90e2;
+    background: rgba(74, 144, 226, 0.1);
+    display: inline-block;
+}
+
+/* Risk-Free Trial Section */
+.risk-free-trial {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    padding: 20px 0;
+    margin-top: 20px;
+}
+
+.risk-free-icon {
+    flex-shrink: 0;
+}
+
+.risk-free-text {
+    font-size: 0.95rem;
+    line-height: 1.4;
+    color: #333;
+}
+
+.risk-free-text strong {
+    display: inline;
+    font-weight: 600;
+}
+
+/* Divider Line */
+.section-divider {
+    height: 1px;
+    background-color: #e0e0e0;
+    margin: 0;
+    width: 100%;
+}
+
+/* Update carousel styles */
+.product-carousel {
+    position: relative;
+    width: 100%;
+    margin-bottom: 20px;
+}
+
+.slider-container {
+    position: relative;
+    border-radius: 8px;
+    overflow: hidden;
+    aspect-ratio: 1/1;
+}
+
+.slider {
+    display: flex;
+    transition: transform 0.3s ease-in-out;
+    height: 100%;
+}
+
+.slide {
+    flex: 0 0 100%;
+    height: 100%;
+}
+
+.slide img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    display: block;
+}
+
+/* Carousel Navigation */
+.slider-dots {
+    display: flex;
+    justify-content: center;
+    gap: 8px;
+    margin-top: 16px;
+    padding: 0 16px;
+}
+
+.dot {
+    width: 60px;
+    height: 60px;
+    padding: 0;
+    border: 2px solid transparent;
+    border-radius: 4px;
+    cursor: pointer;
+    overflow: hidden;
+    transition: border-color 0.3s ease;
+}
+
+.dot img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+
+.dot.active {
+    border-color: #4a90e2;
+}
+
+.slider-button {
+    position: absolute;
+    top: 50%;
+    transform: translateY(-50%);
+    width: 40px;
+    height: 40px;
+    background: white;
+    border: none;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+    z-index: 2;
+    transition: background-color 0.3s ease;
+}
+
+.slider-button:hover {
+    background-color: #f0f0f0;
+}
+
+.slider-button.prev {
+    left: 16px;
+}
+
+.slider-button.next {
+    right: 16px;
+}
+
+/* USP Icons */
+.usp-container {
+    width: 100%;
+    padding: 16px 0;
+    margin: -30px 0;
+    box-sizing: border-box;
+}
+
+.feature-icons {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 16px;
+    width: 100%;
+}
+
+.feature-icon {
+    width: 100%;
+}
+
+.icon-wrapper {
+    width: 100%;
+    aspect-ratio: 1/1;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin: 0 auto;
+}
+
+.icon-wrapper img {
+    width: 100%;
+    height: 100%;
+    object-fit: contain;
+}
+
+@media (max-width: 768px) {
     .feature-icons {
-        display: grid;
-        grid-template-columns: repeat(4, 1fr); /* 4 columns */
-        gap: 8px;
-        margin: 0 auto;
-        width: 100%;
-    }
-    
-    .feature-icon {
-        display: flex;
-        flex-direction: column;
-        align-items: center;
-        text-align: center;
-    }
-    
-    .icon-wrapper {
-        background: none;
-        border-radius: 8px;
-        width: 100%;
-        aspect-ratio: 1/1; /* Square icons */
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        overflow: hidden;
-    }
-    
-    .icon-wrapper img {
-        width: 100%;
-        height: 100%;
-        object-fit: cover;
-        border-radius: 8px; /* Match wrapper radius */
-        display: block;
-    }
-    
-    /* Product Description */
-    .product-description {
-        margin: 0 auto; /* Center on mobile */
-        padding-bottom: 16px; /* Space below description on mobile */
-        font-size: 1rem;
-        line-height: 1.6;
-        color: #333;
-        text-align: left;
-        max-width: 800px; /* Max width for mobile centering */
-        width: 100%;
-        /* Desktop positioning handled via @media query */
-    }
-    
-    .product-description p {
-        margin: 0 0 1em 0; /* Standard paragraph spacing */
-        text-align: left;
-    }
-    
-    .product-description p:last-child {
-        margin-bottom: 0;
-    }
-    
-    /* Box Builder Container */
-    .box-builder-container {
-        display: flex; /* Use flex for internal layout */
-        flex-direction: column;
-        max-width: 800px; /* Max width for mobile centering */
-        width: 100%;
-        margin: 0 auto; /* Center on mobile */
-        padding: 0;
-        box-sizing: border-box;
-        /* Desktop positioning handled via @media query */
-    }
-    
-    /* GUI Section (Right Side Content) */
-    .gui-section {
-        flex: 1; /* Allow flex grow if needed */
-        min-width: 0; /* Prevent flex items from overflowing */
-        width: 100%;
-        padding: 0px;
-        box-sizing: border-box;
-    }
-    
-    /* Bag Selection */
-    .bag-selection {
-      display: grid;
-      grid-template-columns: repeat(2, 1fr); /* 2 columns */
-      gap: 8px;
-      margin-bottom: 16px;
-      margin-top: 16px; /* Space above */
-    }
-    
-    .bag-option {
-      position: relative;
-      border: 1px solid #e0e0e0;
-      border-radius: 6px;
-      padding: 12px 6px;
-      text-align: center;
-      cursor: pointer;
-      background: #fff;
-      transition: border 0.3s ease;
-      display: flex;
-      flex-direction: column;
-      justify-content: center;
-      align-items: center;
-      min-height: 50px;
-    }
-    
-    .bag-option.selected {
-        border: 2px solid #4a90e2;
-    }
-    .bag-option:hover {
-        border-color: #a0a0a0; /* Subtle hover */
-    }
-    
-    .deal-badge {
-      position: absolute;
-      top: -10px;
-      left: 50%;
-      transform: translateX(-50%);
-      background: #d32f2f; /* Red */
-      color: white;
-      padding: 1px 4px;
-      border-radius: 2px;
-      font-size: 0.6rem;
-      font-weight: 600;
-      letter-spacing: 0.3px;
-      white-space: nowrap;
-      box-shadow: 0 1px 2px rgba(0,0,0,0.1);
-    }
-    
-    .bag-count {
-      font-size: 0.85rem;
-      font-weight: 600;
-      color: #333;
-    }
-    
-    /* Variant Selection Container */
-    .variant-selection-container {
-      margin-bottom: 16px; /* Space below */
-    }
-    
-    /* Purchase Options (Subscribe/One-time) */
-    .purchase-options {
-        display: flex;
-        flex-direction: column;
-        gap: 8px;
-        margin-bottom: 16px; /* Space below */
-    }
-    
-    .purchase-type-button {
-        background: #f8f8f8;
-        border: 1px solid #e0e0e0;
-        border-radius: 8px;
-        padding: 12px 16px;
-        margin-bottom: 8px; /* Space between buttons */
-        display: flex;
-        flex-direction: column;
         gap: 12px;
-        cursor: pointer;
-        transition: border-color 0.3s ease, background-color 0.3s ease;
-        position: relative;
-        opacity: 0.7; /* Dim unselected */
     }
-    
-    .purchase-header {
-        display: flex;
-        justify-content: space-between;
-        align-items: center;
-        width: 100%;
-    }
-    
-    .subscribe-benefits-grid {
-        display: grid;
-        grid-template-columns: repeat(2, 1fr);
-        gap: 6px;
-        margin-top: 4px;
-        padding: 0 2px;
-    }
-    
-    .benefit-item {
-        display: flex;
-        align-items: flex-start;
-        gap: 6px;
-        font-size: 0.75rem;
-        color: #666;
-        line-height: 1.2;
-        letter-spacing: -0.2px;
-    }
-    
-    .benefit-item span:not(.checkmark) {
-        display: block;
-        white-space: nowrap;
-        overflow: hidden;
-        text-overflow: ellipsis;
-    }
-    
-    .checkmark {
-        color: #4a90e2; /* Blue checkmark */
-        font-weight: bold;
-        flex-shrink: 0;
-        font-size: 0.8rem;
-        margin-top: -1px;
-    }
-    
-    .purchase-type-button.selected {
-        opacity: 1; /* Full opacity when selected */
-        border-color: #4a90e2; /* Blue border */
-        background: #f0f7ff; /* Light blue background */
-    }
-    
-    .purchase-type-button:hover {
-        border-color: #4a90e2; /* Blue border on hover */
-    }
-    
-    .purchase-type-label {
-        font-weight: 600;
-        font-size: 0.95rem;
-        color: #333;
-        flex-shrink: 0;
-        margin-right: 12px;
-    }
-    
-    .price-container {
-        display: flex;
-        align-items: center;
-        gap: 8px;
-        position: relative;
-        flex-shrink: 0;
-    }
-    
-    .original-price {
-      color: #666;
-      font-size: 0.85rem;
-      opacity: 0.8;
-    }
-    
-    .original-price.strikethrough {
-      text-decoration: line-through;
-      color: #999;
-    }
-    
-    .purchase-type-price {
-      font-size: 0.95rem;
-      color: #4a90e2; /* Blue price */
-      font-weight: 600;
-    }
-    
-    .discount-badge {
-        position: absolute;
-        top: -10px;
-        left: 50%;
-        transform: translateX(-50%);
-        background: #4CAF50; /* Green */
-        color: white;
-        padding: 3px 6px;
-        border-radius: 12px;
-        font-size: 0.7rem;
-        font-weight: 600;
-        box-shadow: 0 1px 3px rgba(0,0,0,0.1);
-        display: none; /* Shown by JS */
-        white-space: nowrap;
-    }
-    
-    /* Variant Grid Section */
-    .variant-section-header {
-        display: flex;
-        justify-content: space-between;
-        align-items: center;
-        margin: 16px 0; /* Vertical spacing */
-    }
-    
-    .variant-section-title {
-        text-align: left;
-        margin: 0;
-        color: #333;
-        font-size: 1rem;
-        font-weight: 600;
-    }
-    
-    .variants-grid {
-      display: flex;
-      flex-direction: column;
-      gap: 8px; /* Space between variant cards */
-    }
-    
-    .variant-card {
-        display: grid;
-        grid-template-columns: 60px 1fr auto; /* Image | Info | Controls */
-        align-items: center;
-        gap: 12px;
-        border: 1px solid #e0e0e0;
-        border-radius: 8px;
-        padding: 12px;
-        background: white;
-        transition: border-color 0.3s ease;
-        width: 100%;
-        box-sizing: border-box;
-    }
-    
-    .variant-card:hover {
-        border-color: #4a90e2; /* Highlight on hover */
-    }
-    
-    .variant-image {
-        width: 60px;
-        height: 60px;
-        flex-shrink: 0;
-    }
-    
-    .variant-image img {
-        width: 100%;
-        height: 100%;
-        object-fit: cover;
-        border-radius: 4px;
-        display: block;
-    }
-    
-    .variant-info {
-        display: flex;
-        flex-direction: column;
-        gap: 4px;
-        overflow: hidden; /* Prevent text overflow issues */
-    }
-    
-    .variant-title h4.flavor-name {
-        margin: 0;
-        font-size: 0.95rem;
-        font-weight: 700;
-        color: #333;
-        white-space: nowrap;
-        overflow: hidden;
-        text-overflow: ellipsis;
-    }
-    
-    .variant-description {
-        margin: 0;
-    }
-    
-    .description-text {
-        font-size: 0.8rem;
-        color: #666;
-        line-height: 1.3;
-        display: block;
-        /* Optional: Limit lines */
-        /* display: -webkit-box;
-        -webkit-line-clamp: 2;
-        -webkit-box-orient: vertical;
-        overflow: hidden; */
-    }
-    
-    .quantity-controls {
-        display: flex;
-        align-items: center;
-        gap: 6px;
-        width: 75px; /* Fixed width for consistency */
-        flex-shrink: 0;
-    }
-    
-    .add-btn {
-        background: #4a90e2;
-        color: white;
-        border: none;
-        border-radius: 6px;
-        padding: 8px 16px;
-        font-size: 0.9rem;
-        font-weight: 600;
-        cursor: pointer;
-        transition: background-color 0.3s ease;
-        width: 100%;
-        white-space: nowrap;
-    }
-    
-    .add-btn:hover {
-        background: #357abd; /* Darker blue */
-    }
-    
-    .quantity-input-group {
-        display: flex; /* Hidden by default, shown by JS */
-        align-items: center;
-        gap: 2px;
-        border: 1px solid #e0e0e0;
-        border-radius: 6px;
-        padding: 1px;
-        width: 100%;
-        justify-content: space-between;
-    }
-    
-    .quantity-btn {
-        background: #f5f5f5;
-        border: none;
-        border-radius: 4px;
-        width: 22px;
-        height: 22px;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        font-size: 1rem;
-        cursor: pointer;
-        color: #333;
-        transition: background-color 0.2s ease;
-        flex-shrink: 0;
-    }
-    
-    .quantity-btn:hover {
-        background: #e0e0e0;
-    }
-    
-    .variant-quantity {
-        width: 25px; /* Space for 2 digits */
-        text-align: center;
-        border: none;
-        font-size: 0.9rem;
-        font-weight: 600;
-        color: #333;
-        -moz-appearance: textfield; /* Remove spinners Firefox */
-        padding: 0;
-        flex-shrink: 0;
-        background: transparent;
-        outline: none;
-    }
-    /* Remove spinners Chrome, Safari, Edge, Opera */
-    .variant-quantity::-webkit-outer-spin-button,
-    .variant-quantity::-webkit-inner-spin-button {
-        -webkit-appearance: none;
-        margin: 0;
-    }
-    
-    /* Price Summary & Savings */
-    .price-summary {
-        display: none; /* Hidden by default, shown by JS */
-        justify-content: space-between;
-        align-items: center;
-        margin: 0;
-        padding: 0;
-    }
-    
-    .price-summary.visible {
-        display: flex;
-        margin-bottom: 16px; /* Space below summary when visible */
-    }
-    
-    .subtotal {
-        font-size: 1rem;
-        font-weight: 600;
-        color: #333;
-    }
-    
-    .savings-badge {
-        background: rgba(74, 144, 226, 0.1); /* Light blue background */
-        color: #4a90e2; /* Blue text */
-        padding: 6px 12px;
-        border-radius: 6px;
-        font-size: 0.9rem;
-        font-weight: 600;
-    }
-    
-    /* Add to Cart Button */
-    .add-to-cart-button {
-      background: #4a90e2; /* Blue */
-      color: white;
-      border: none;
-      border-radius: 8px;
-      padding: 12px 20px;
-      font-size: 0.95rem;
-      font-weight: 600;
-      cursor: pointer;
-      width: 100%;
-      transition: background-color 0.3s ease, opacity 0.3s ease;
-      margin-top: 0; /* Adjusted if needed based on summary visibility */
-      text-align: center;
-    }
-    
-    .add-to-cart-button:hover {
-        background: #357abd; /* Darker blue */
-    }
-    
-    .add-to-cart-button:disabled {
-        background: #cccccc; /* Grey out when disabled */
-        cursor: not-allowed;
-        opacity: 0.7;
-    }
-    
-    /* Flavor Selector (Nutritional Info) */
-    .flavor-selector-container {
-        margin-top: 12px; /* Space above */
-        border: 1px solid #e0e0e0;
-        border-radius: 8px;
-        overflow: hidden; /* Contains the expanding content */
-    }
-    
-    .flavor-selector-toggle {
-        width: 100%;
-        display: flex;
-        justify-content: space-between;
-        align-items: center;
-        padding: 12px 16px;
-        background: white;
-        border: none;
-        cursor: pointer;
-        font-size: 0.95rem;
-        font-weight: 600;
-        color: #333;
-        transition: background-color 0.3s ease;
-        text-align: left;
-    }
-    
-    .flavor-selector-toggle:hover {
-        background: #f8f8f8; /* Light grey hover */
-    }
-    
-    .toggle-icon {
-        transition: transform 0.3s ease;
-        flex-shrink: 0;
-    }
-    
-    .flavor-selector-toggle[aria-expanded="true"] .toggle-icon {
-        transform: rotate(180deg); /* Flip arrow */
-    }
-    
-    .flavor-selector-content {
-        max-height: 0; /* Collapsed by default */
-        overflow: hidden;
-        transition: max-height 0.3s ease-out, padding 0.3s ease-out; /* Smooth transition */
-        background: white;
-        padding: 0 16px; /* Horizontal padding maintained during transition */
-    }
-    
-    .flavor-selector-content.expanded {
-        max-height: 800px; /* Allow significant height */
-        padding: 12px 16px; /* Vertical padding when expanded */
-        border-top: 1px solid #e0e0e0; /* Separator line */
-    }
-    
-    .flavor-dropdown {
-        width: 100%;
-        padding: 10px;
-        border: 1px solid #e0e0e0;
-        border-radius: 6px;
-        font-size: 0.9rem;
-        color: #333;
-        background: white;
-        cursor: pointer;
-        margin-bottom: 12px; /* Space below dropdown */
-        box-sizing: border-box;
-    }
-    
-    .flavor-dropdown:focus {
-        outline: none;
-        border-color: #4a90e2; /* Highlight focus */
-    }
-    
-    .nutritional-info {
-        margin-top: 12px; /* Space above image */
-        text-align: center;
-    }
-    
-    .nutritional-info img {
-        max-width: 100%;
-        height: auto;
-        border-radius: 6px;
-        box-shadow: 0 2px 4px rgba(0,0,0,0.1);
-        display: block; /* Remove extra space */
-        margin: 0 auto; /* Center image if it's narrower than container */
-    }
-    
-    /* Quantity Error/Info Message */
-    .quantity-error {
-        text-align: right;
-        font-size: 0.85rem;
-        padding: 4px 8px;
-        border-radius: 4px;
-        margin: 0; /* Reset margin */
-        flex-grow: 1; /* Allow to take remaining space */
-        margin-left: 10px; /* Space from title */
-        display: none; /* Hidden by default, shown by JS */
-    }
-    
-    .quantity-error.error {
-        color: #d32f2f; /* Red text */
-        background: rgba(211, 47, 47, 0.1); /* Light red background */
-        display: inline-block; /* Or block depending on JS logic */
-    }
-    
-    .quantity-error.info {
-        color: #4a90e2; /* Blue text */
-        background: rgba(74, 144, 226, 0.1); /* Light blue background */
-        display: inline-block; /* Or block depending on JS logic */
-    }
-    
-    
-    @media (min-width: 1025px) {
-        .product-container {
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            grid-template-rows: auto auto auto;
-            gap: 40px;
-            padding: 2rem;
-            position: relative;
-            align-items: start;
-        }
-
-        /* Product header and description span full width on top */
-        .product-header,
-        .product-description {
-            grid-column: 1 / -1;
-        }
-
-        .product-header {
-            grid-row: 1;
-            margin-bottom: 20px;
-        }
-
-        .product-description {
-            grid-row: 2;
-            padding-bottom: 20px;
-            margin: 0;
-        }
-
-        /* Place product image and build-a-box container side by side in third row */
-        .product-hero {
-            grid-column: 1 / 2;
-            grid-row: 3;
-            position: sticky;
-            top: 20px;
-            align-self: start;
-            height: calc(100vh - 40px);
-            max-height: 800px;
-            overflow-y: auto;
-            margin-bottom: 0;
-            padding: 0;
-        }
-
-        .box-builder-container {
-            grid-column: 2 / 3;
-            grid-row: 3;
-            margin-top: 0;
-        }
-    }
-    
-    
-    /* --- Tablet/Smaller Desktop Tweaks (Optional) --- */
-    @media (min-width: 769px) and (max-width: 1024px) {
-        .product-container {
-            /* Slightly different grid for tablets */
-            /* grid-template-columns: minmax(0, 40fr) minmax(0, 60fr); */
-            gap: 30px;
-            padding: 1.5rem;
-        }
-    
-        .product-hero {
-            /* Adjust sticky top or height if needed */
-             top: 15px;
-             height: calc(100vh - 30px);
-        }
-    
-        .product-title {
-            font-size: 1.8rem; /* Slightly larger title */
-        }
-        .variant-card {
-            gap: 10px;
-        }
-        .add-btn, .purchase-type-label, .purchase-type-price {
-            font-size: 0.9rem;
-        }
-    }
-    
-    
-    /* --- Mobile Styles Specific Overrides (Ensure Desktop Styles Reset) --- */
-    @media (max-width: 768px) {
-        .product-container {
-            display: block; /* Explicitly revert grid */
-            padding: 1rem; /* Mobile padding */
-        }
-    
-        /* Reset grid/sticky properties */
-        .product-hero,
-        .product-header,
-        .product-description,
-        .box-builder-container {
-            grid-column: auto;
-            grid-row: auto;
-            position: static; /* Remove sticky */
-            height: auto;
-            max-height: none;
-            overflow-y: visible; /* Reset overflow */
-            max-width: 800px; /* Re-apply mobile max-width */
-            margin-left: auto;
-            margin-right: auto;
-            width: 100%;
-        }
-    
-        .product-hero {
-            margin-bottom: 0;
-        }
-        .product-hero .usp-container {
-            margin-bottom: 20px; /* Restore space below USP icons */
-        }
-         .product-description {
-             padding-bottom: 16px;
-         }
-    
-        /* Specific mobile adjustments */
-        .variant-card {
-            grid-template-columns: 50px 1fr auto; /* Adjust grid for smaller images */
-            gap: 8px;
-            padding: 8px;
-        }
-    
-        .variant-image {
-            width: 50px;
-            height: 50px;
-        }
-    
-        .quantity-controls {
-            width: 65px; /* Narrower controls */
-        }
-    
-        .add-btn {
-            padding: 6px 12px;
-            font-size: 0.8rem;
-        }
-    
-        .quantity-btn {
-            width: 20px;
-            height: 20px;
-            font-size: 0.9rem;
-        }
-    
-        .variant-quantity {
-            width: 20px; /* Narrower input */
-            font-size: 0.8rem;
-        }
-    
-         .flavor-selector-container {
-             margin-top: 16px;
-         }
-    
-         .flavor-selector-toggle {
-             padding: 10px 12px;
-         }
-    
-         .flavor-selector-content.expanded {
-             padding: 8px 12px;
-         }
-    }
-
-    /* Risk-Free Trial Section Styles */
-    .risk-free-trial {
-        display: flex;
-        align-items: center;
-        gap: 16px;
-        padding: 20px 0;
-        margin-top: 20px;
-    }
-
-    .risk-free-icon {
-        flex-shrink: 0;
-    }
-
-    .risk-free-text {
-        font-size: 0.95rem;
-        line-height: 1.4;
-        color: #333;
-    }
-
-    .risk-free-text strong {
-        display: inline;
-        font-weight: 600;
-    }
-
-    /* Divider Line */
-    .section-divider {
-        height: 1px;
-        background-color: #e0e0e0;
-        margin: 0;
-        width: 100%;
-    }
+}
 </style>
 
