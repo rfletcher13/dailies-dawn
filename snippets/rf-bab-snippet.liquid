@@ -1573,70 +1573,51 @@
     }
     
     
-    /* --- Desktop Styles --- */
     @media (min-width: 1025px) {
         .product-container {
             display: grid;
-            grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); /* 50/50 split */
-            /* Example: 45% / 55% split */
-            /* grid-template-columns: minmax(0, 45fr) minmax(0, 55fr); */
-            gap: 40px; /* Gap between columns */
-            padding: 2rem; /* Larger padding */
-            position: relative; /* Context for sticky */
-            align-items: start; /* Align items to the top of their grid areas */
+            grid-template-columns: 1fr 1fr;
+            grid-template-rows: auto auto auto;
+            gap: 40px;
+            padding: 2rem;
+            position: relative;
+            align-items: start;
         }
-    
-        /* Left Column (Sticky Images) */
-        .product-hero {
-            grid-column: 1 / 2; /* First column */
-            grid-row: 1 / -1; /* Span all rows defined by right col content */
-            position: sticky;
-            top: 20px; /* Offset from top */
-            align-self: start;
-            height: calc(100vh - 40px); /* Max height relative to viewport */
-            max-height: 800px; /* Absolute max height */
-            overflow-y: auto; /* Scroll *within* this column if content overflows */
-            margin-bottom: 0;
-            padding: 0;
-            /* Optional: Hide scrollbar visually */
-            /* -ms-overflow-style: none;
-               scrollbar-width: none; */
-        }
-        /* .product-hero::-webkit-scrollbar { display: none; } */
-    
-        .product-hero .slider-container,
-        .product-hero .usp-container {
-            max-width: 100%; /* Use full column width */
-            margin: 0; /* Reset mobile margins */
-        }
-        .product-hero .usp-container {
-            margin-top: 8px; /* Keep space below slider */
-        }
-    
-        /* Right Column (Scrollable Content) */
+
+        /* Product header and description span full width on top */
         .product-header,
-        .product-description,
-        .box-builder-container {
-            grid-column: 2 / 3; /* Second column */
-            max-width: none; /* Remove mobile max-width */
-            margin-left: 0;
-            margin-right: 0;
-            width: 100%; /* Take full column width */
+        .product-description {
+            grid-column: 1 / -1;
         }
-    
+
         .product-header {
-            grid-row: 1 / 2; /* First item in right column */
+            grid-row: 1;
             margin-bottom: 20px;
         }
-    
+
         .product-description {
-            grid-row: 2 / 3; /* Second item */
-            padding-bottom: 20px; /* Space before builder */
+            grid-row: 2;
+            padding-bottom: 20px;
             margin: 0;
         }
-    
+
+        /* Place product image and build-a-box container side by side in third row */
+        .product-hero {
+            grid-column: 1 / 2;
+            grid-row: 3;
+            position: sticky;
+            top: 20px;
+            align-self: start;
+            height: calc(100vh - 40px);
+            max-height: 800px;
+            overflow-y: auto;
+            margin-bottom: 0;
+            padding: 0;
+        }
+
         .box-builder-container {
-            grid-row: 3 / 4; /* Third item */
+            grid-column: 2 / 3;
+            grid-row: 3;
             margin-top: 0;
         }
     }
