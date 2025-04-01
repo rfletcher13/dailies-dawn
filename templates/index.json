@@ -9,75 +9,52 @@
  */
 {
   "sections": {
-    "image_banner": {
-      "type": "image-banner",
-      "settings": {
-        "image": "shopify://shop_images/Screenshot_2025-03-06_at_4.11.17_PM.png",
-        "image_overlay_opacity": 40,
-        "image_height": "large",
-        "desktop_content_position": "bottom-center",
-        "show_text_box": false,
-        "desktop_content_alignment": "center",
-        "color_scheme": "scheme-3",
-        "image_behavior": "none",
-        "mobile_content_alignment": "center",
-        "stack_images_on_mobile": false,
-        "show_text_below": false
-      }
-    },
-    "featured_product_4jqkC4": {
+    "featured_product_rHeMzt": {
       "type": "featured-product",
       "blocks": {
-        "text_4LhpT3": {
+        "text_6wfWMX": {
           "type": "text",
           "settings": {
             "text": "{{ section.settings.product.vendor }}",
             "text_style": "uppercase"
           }
         },
-        "title_BHgcec": {
+        "title_Xqqzrr": {
           "type": "title",
           "settings": {
             "heading_size": "h1"
           }
         },
-        "price_ywyqp3": {
+        "price_hVLzrR": {
           "type": "price",
           "settings": {}
         },
-        "variant_picker_KYqGAx": {
+        "variant_picker_ywUeBA": {
           "type": "variant_picker",
           "settings": {
             "picker_type": "button",
             "swatch_shape": "circle"
           }
         },
-        "quantity_selector_hLrzWP": {
+        "quantity_selector_AhaX4V": {
           "type": "quantity_selector",
           "settings": {}
         },
-        "buy_buttons_BgRPWV": {
+        "buy_buttons_pYHxLD": {
           "type": "buy_buttons",
           "settings": {
             "show_dynamic_checkout": true,
             "show_gift_card_recipient": true
           }
-        },
-        "share_z6wfCL": {
-          "type": "share",
-          "settings": {
-            "share_label": "Share"
-          }
         }
       },
       "block_order": [
-        "text_4LhpT3",
-        "title_BHgcec",
-        "price_ywyqp3",
-        "variant_picker_KYqGAx",
-        "quantity_selector_hLrzWP",
-        "buy_buttons_BgRPWV",
-        "share_z6wfCL"
+        "text_6wfWMX",
+        "title_Xqqzrr",
+        "price_hVLzrR",
+        "variant_picker_ywUeBA",
+        "quantity_selector_AhaX4V",
+        "buy_buttons_pYHxLD"
       ],
       "settings": {
         "product": "clear-protein",
@@ -88,7 +65,7 @@
         "media_fit": "contain",
         "media_position": "left",
         "image_zoom": "lightbox",
-        "hide_variants": false,
+        "hide_variants": true,
         "enable_video_looping": false,
         "padding_top": 36,
         "padding_bottom": 36
@@ -96,7 +73,6 @@
     }
   },
   "order": [
-    "image_banner",
-    "featured_product_4jqkC4"
+    "featured_product_rHeMzt"
   ]
 }
